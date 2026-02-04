@@ -63,57 +63,70 @@ typedef enum{
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define SECOND_INT_PIN               SEC_INT_Pin             // ���жϹܽű��
-#define SECOND_INT_EXTI_IRQN         SEC_INT_EXTI_IRQn       // ���ж�IRQN
-#define KEY_EXTI_IRQN                MODE_KEY_EXTI_IRQn      // �����ж�IRQN
+// GPIO引脚定义
+#define SECOND_INT_PIN               SEC_INT_Pin             // 秒中断管脚编号（RTC每秒产生中断）
+#define SECOND_INT_EXTI_IRQN         SEC_INT_EXTI_IRQn       // 秒中断IRQN
+#define KEY_EXTI_IRQN                MODE_KEY_EXTI_IRQn      // 按键中断IRQN
 
-#define MODE_KEY_GPIO_PORT           MODE_KEY_GPIO_Port      // ģʽ��ť�ӿ�
-#define MODE_KEY_PIN                 MODE_KEY_Pin            // ģʽ��ť�ӿڱ��
+#define MODE_KEY_GPIO_PORT           MODE_KEY_GPIO_Port      // 模式按钮GPIO端口
+#define MODE_KEY_PIN                 MODE_KEY_Pin            // 模式按钮GPIO引脚
 
-#define SET_KEY_GPIO_PORT            SET_KEY_GPIO_Port       // ���ð�ť�ӿ�
-#define SET_KEY_PIN                  SET_KEY_Pin             // ���ð�ť�ӿڱ��
+#define SET_KEY_GPIO_PORT            SET_KEY_GPIO_Port       // 设置按钮GPIO端口
+#define SET_KEY_PIN                  SET_KEY_Pin             // 设置按钮GPIO引脚
 
-#define BUZZER_GPIO_PORT             BUZZER_GPIO_Port        // �������ӿ�
-#define BUZZER_PIN                   BUZZER_Pin              // �������ӿڱ��
+#define BUZZER_GPIO_PORT             BUZZER_GPIO_Port        // 蜂鸣器GPIO端口
+#define BUZZER_PIN                   BUZZER_Pin              // 蜂鸣器GPIO引脚
 
-#define KEY_LONG_PRESS_EFFECT_TIME   800       // ��ť������Чʱ��
-#define KEY_REPEAT_TIME_INTERVAL     250       // ��ť�����ظ�������
-#define KEY_CLICK_EFFECT_TIME        50        // ��ť������Чʱ��
-#define YEAR_MAX_SET                 38        // �������õ���
-#define YEAR_MIN_SET                 15        // ��С�����õ���
-#define TEMPERTURE_MAX_SHOW_TIME     15
-#define TEMPERTURE_MAX_HIDE_TIME     30
-#define RING_ON_TIME_LONG            1000      // ���㱨ʱ����ʱ��
-#define STRONG_BRIGHTNESS_ADC_VALUE  2800      //
-#define WEAK_BRIGHTNESS_ADC_VALUE    2300      //
-#define STRONG_BRIGHTNESS_VALUE      8         //
-#define WEAK_BRIGHTNESS_VALUE        1         //
+// 按键相关时间参数（单位：毫秒）
+#define KEY_LONG_PRESS_EFFECT_TIME   800       // 按键长按生效时间（超过此时间视为长按）
+#define KEY_REPEAT_TIME_INTERVAL     250       // 按键长按重复触发间隔
+#define KEY_CLICK_EFFECT_TIME        50        // 按键单击生效时间（消抖时间）
 
-#define ALARM_CONTROL_TIMER_HANDLE   htim17    // ������ƶ�ʱ��
-#define ALARM_CONTROL_TIMER          TIM17     // ������ƶ�ʱ��
-#define LIGHT_CONTROL_TIMER_HANDLE   htim16    // ���ȿ��ƶ�ʱ��
-#define LIGHT_CONTROL_TIMER          TIM16     // ���ȿ��ƶ�ʱ��
-#define TEMPERTURE_ADC_HANDLE        hadc      // ADC
+// 时间设置范围
+#define YEAR_MAX_SET                 38        // 最大年份设置（20xx年）
+#define YEAR_MIN_SET                 15        // 最小年份设置（20xx年）
 
-#define BAK_DATA_SIZE                13
-#define BAK_POWER_DOWN_IND_INDEX     0x00
-#define BAK_ALARM_ENABLED_INDEX      0x02
-#define BAK_ALARM_HOUR_INDEX         0x03
-#define BAK_ALARM_MINUTE_INDEX       0x04
-#define BAK_TEMP_SHOW_TIME_INDEX     0x05
-#define BAK_TEMP_HIDE_TIME_INDEX     0x06
-#define BAK_ROT_ENABLED_INDEX        0x07
-#define BAK_ROT_START_INDEX          0x08
-#define BAK_ROT_STOP_INDEX           0x09
-#define BAK_BRIGHTNESS_INDEX         0x0A
-#define BAK_BRIGHTNESS_STRONG_INDEX  0x0B
-#define BAK_BRIGHTNESS_WEAK_INDEX    0x0C
+// 温度显示时间范围（单位：秒）
+#define TEMPERTURE_MAX_SHOW_TIME     15        // 温度最大显示时长
+#define TEMPERTURE_MAX_HIDE_TIME     30        // 温度最大隐藏时长
 
-#define POWER_DOWN_IND_DATA          0xFA
+// 整点报时参数
+#define RING_ON_TIME_LONG            1000      // 整点报时蜂鸣器鸣叫时长（毫秒）
 
-// NTC�¶ȶ�ȡ���
-#define TEMP_BUFFER_SIZE   8     // �¶ȶ�ȡ���泤��
-#define TEMP_MAP_SIZE      126   // �¶ȱ�����
+// 自动亮度调节ADC阈值
+#define STRONG_BRIGHTNESS_ADC_VALUE  2800      // 强光ADC阈值（超过此值切换到强光模式）
+#define WEAK_BRIGHTNESS_ADC_VALUE    2300      // 弱光ADC阈值（低于此值切换到弱光模式）
+#define STRONG_BRIGHTNESS_VALUE      8         // 强光默认亮度值（1-8级）
+#define WEAK_BRIGHTNESS_VALUE        1         // 弱光默认亮度值（1-8级）
+
+// 定时器句柄定义
+#define ALARM_CONTROL_TIMER_HANDLE   htim17    // 闹钟控制定时器句柄
+#define ALARM_CONTROL_TIMER          TIM17     // 闹钟控制定时器
+#define LIGHT_CONTROL_TIMER_HANDLE   htim16    // 亮度控制定时器句柄
+#define LIGHT_CONTROL_TIMER          TIM16     // 亮度控制定时器
+#define TEMPERTURE_ADC_HANDLE        hadc      // 温度ADC句柄
+
+// 备份数据存储索引（保存在RTC备份寄存器中）
+#define BAK_DATA_SIZE                13        // 备份数据总大小
+#define BAK_POWER_DOWN_IND_INDEX     0x00      // 掉电标识索引（用于判断是否首次上电）
+#define BAK_ALARM_ENABLED_INDEX      0x02      // 闹钟使能标志索引
+#define BAK_ALARM_HOUR_INDEX         0x03      // 闹钟小时索引
+#define BAK_ALARM_MINUTE_INDEX       0x04      // 闹钟分钟索引
+#define BAK_TEMP_SHOW_TIME_INDEX     0x05      // 温度显示时长索引
+#define BAK_TEMP_HIDE_TIME_INDEX     0x06      // 温度隐藏时长索引
+#define BAK_ROT_ENABLED_INDEX        0x07      // 整点报时使能标志索引
+#define BAK_ROT_START_INDEX          0x08      // 整点报时开始时间索引
+#define BAK_ROT_STOP_INDEX           0x09      // 整点报时结束时间索引
+#define BAK_BRIGHTNESS_INDEX         0x0A      // 亮度设置索引（0为自动，1-8为手动）
+#define BAK_BRIGHTNESS_STRONG_INDEX  0x0B      // 强光亮度索引
+#define BAK_BRIGHTNESS_WEAK_INDEX    0x0C      // 弱光亮度索引
+
+#define POWER_DOWN_IND_DATA          0xFA      // 掉电标识数据（用于判断是否首次上电）
+
+// NTC温度传感器相关
+#define TEMP_BUFFER_SIZE   8     // 温度读取缓存长度（用于滤波平均）
+#define TEMP_MAP_SIZE      126   // 温度映射表长度（ADC值到温度的映射）
+// 温度映射表：将ADC值映射到温度值（0-125℃）
 const uint16_t tempertureMap[] = {1054, 1091, 1128, 1165, 1203, 1242, 1280, 1320, 1359, 1399, 1439, 1479, 1520, 1560, 1601, 1642, 1683, 1724, 1765, 1805, 1846, 1887, 1927, 1968, 2008, 2048, 2087, 2126, 2165, 2204, 2242, 2280, 2318, 2355, 2391, 2427, 2463, 2498, 2533, 2567, 2601, 2634, 2667, 2699, 2730, 2761, 2791, 2821, 2850, 2879, 2907, 2935, 2962, 2988, 3014, 3040, 3064, 3089, 3113, 3136, 3158, 3181, 3202, 3224, 3244, 3264, 3284, 3303, 3322, 3341, 3359, 3376, 3393, 3410, 3426, 3442, 3457, 3472, 3487, 3501, 3515, 3529, 3542, 3555, 3568, 3580, 3592, 3603, 3615, 3626, 3637, 3647, 3657, 3667, 3677, 3687, 3696, 3705, 3714, 3722, 3730, 3739, 3747, 3754, 3762, 3769, 3776, 3783, 3790, 3797, 3803, 3809, 3815, 3821, 3827, 3833, 3839, 3844, 3849, 3854, 3859, 3864, 3869, 3874, 3878, 3883, };
 
 /* USER CODE END PM */
@@ -121,39 +134,46 @@ const uint16_t tempertureMap[] = {1054, 1091, 1128, 1165, 1203, 1242, 1280, 1320
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+// 当前显示模式
 DisplayMode currentMode = MODE_SHOW_TIME;
-bool isInitCompleted = false;
-uint32_t lastDisplayChangeTime;
+bool isInitCompleted = false;           // 初始化完成标志
+uint32_t lastDisplayChangeTime;         // 上次显示切换时间（用于温度/时间自动切换）
 
-// ADC
+// ADC采样值（0:光敏电阻，1:温度传感器）
 uint32_t adcValue[2];
 
-uint8_t savedBrightness = 0;
-bool isWeakBrightness = true;
-uint8_t strongBrightness, weakBrightness;
+// 亮度控制相关
+uint8_t savedBrightness = 0;            // 保存的亮度值（0=自动，1-8=手动）
+bool isWeakBrightness = true;           // 当前是否为弱光模式
+uint8_t strongBrightness, weakBrightness; // 强光/弱光亮度值
 
-DateTime time, lastTime;
-uint8_t blinkControl;
+// 时间相关
+DateTime time, lastTime;                // 当前时间和上次设置的时间
+uint8_t blinkControl;                   // 闪烁控制标志（用于设置模式下的闪烁显示）
 
-bool isAlarmEnabled = false;
-bool isAlarmed = false, isAlarming = false;
+// 闹钟相关
+bool isAlarmEnabled = false;            // 闹钟使能标志
+bool isAlarmed = false, isAlarming = false; // 已触发标志和正在响铃标志
+uint8_t alarmHour = 0, alarmMin = 0;    // 闹钟时间
 
-uint8_t alarmHour = 0, alarmMin = 0;
+// 整点报时相关
+bool isRingOnTimeEnabled ;              // 整点报时使能标志
+uint8_t ringOnTimeStart, ringOnTimeStop; // 整点报时起止时间
+uint8_t lastRingOnTimeHour;             // 上次整点报时的小时（防止重复触发）
+uint32_t ringStartTime;                 // 整点报时开始时间戳
+uint8_t lastChimeSecond = 0xFF;         // 上次整点报时的秒数（防止同一秒重复触发）
+bool isChiming = false;                 // 正在整点报时标志
 
-bool isRingOnTimeEnabled ;
-uint8_t ringOnTimeStart, ringOnTimeStop;
-uint8_t lastRingOnTimeHour;
-uint32_t ringStartTime;
+// 按键相关
+uint32_t lastModeKeyPressTime, lastSetKeyPressTime, lastSetKeyPressReportTime; // 按键按下时间戳
+uint32_t alarmTimestamp, alarmBeepCount; // 闹钟定时器计数
+bool setKeyRepeatReported = false;      // 设置键重复触发标志
 
-uint32_t lastModeKeyPressTime, lastSetKeyPressTime, lastSetKeyPressReportTime;
-uint32_t alarmTimestamp, alarmBeepCount;
-bool setKeyRepeatReported = false;
-
-// �¶�
-uint8_t temperture = 25;
-uint8_t tempertureShowTime, tempertureHideTime;
-uint8_t tempBuffered = 0;
-uint16_t tempBuffer[TEMP_BUFFER_SIZE + 1];
+// 温度相关
+uint8_t temperture = 25;                // 当前温度值
+uint8_t tempertureShowTime, tempertureHideTime; // 温度显示/隐藏时长（秒）
+uint8_t tempBuffered = 0;               // 温度缓存计数
+uint16_t tempBuffer[TEMP_BUFFER_SIZE + 1]; // 温度采样缓存（用于滤波）
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -164,76 +184,133 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+/**
+ * @brief  从RTC备份寄存器读取闹钟设置
+ * @note   读取闹钟时间和使能状态，并进行合法性检查
+ * @param  None
+ * @retval None
+ */
 void readBackupSettings() {
 	uint8_t data[3];
-	ReadBackData(0, data, 3);
+	ReadBackData(0, data, 3);  // 从备份寄存器读取3字节数据
 
-	alarmHour = data[0];
-	alarmMin = data[1];
-	isAlarmEnabled = data[2];
+	alarmHour = data[0];       // 闹钟小时
+	alarmMin = data[1];        // 闹钟分钟
+	isAlarmEnabled = data[2];  // 闹钟使能标志
 
-	// ������������Ƿ�Ϲ�
+	// 检查读取的数据是否合法，不合法则重置为0
 	if(alarmHour > 23) alarmHour = 0;
 	if(alarmMin > 59) alarmMin = 0;
 }
 
+/**
+ * @brief  保存所有设置到RTC备份寄存器
+ * @note   将闹钟、温度显示、整点报时、亮度等设置保存到备份寄存器
+ *         掉电后数据不会丢失
+ * @param  None
+ * @retval None
+ */
 void saveSettings(){
 	uint8_t data[BAK_DATA_SIZE] = {
-			POWER_DOWN_IND_DATA,
-			POWER_DOWN_IND_DATA,
-			isAlarmEnabled,
-			alarmHour,
-			alarmMin,
-			tempertureShowTime,
-			tempertureHideTime,
-			isRingOnTimeEnabled,
-			ringOnTimeStart,
-			ringOnTimeStop,
-			savedBrightness,
-			strongBrightness,
-			weakBrightness,
+			POWER_DOWN_IND_DATA,        // [0] 掉电标识（用于判断是否首次上电）
+			POWER_DOWN_IND_DATA,        // [1] 掉电标识（冗余）
+			isAlarmEnabled,             // [2] 闹钟使能标志
+			alarmHour,                  // [3] 闹钟小时
+			alarmMin,                   // [4] 闹钟分钟
+			tempertureShowTime,         // [5] 温度显示时长
+			tempertureHideTime,         // [6] 温度隐藏时长
+			isRingOnTimeEnabled,        // [7] 整点报时使能标志
+			ringOnTimeStart,            // [8] 整点报时开始时间
+			ringOnTimeStop,             // [9] 整点报时结束时间
+			savedBrightness,            // [10] 亮度设置（0=自动，1-8=手动）
+			strongBrightness,           // [11] 强光亮度值
+			weakBrightness,             // [12] 弱光亮度值
 	};
-	WriteBackData(0, data, BAK_DATA_SIZE);
+	WriteBackData(0, data, BAK_DATA_SIZE);  // 写入备份寄存器
 }
 
+/**
+ * @brief  重置所有设置为默认值
+ * @note   首次上电或数据异常时调用，恢复出厂设置
+ * @param  None
+ * @retval None
+ */
 void resetSettings(){
-	  isAlarmEnabled = false;
-	  alarmHour = 0;
+	  isAlarmEnabled = false;        // 闹钟默认关闭
+	  alarmHour = 0;                 // 闹钟时间 00:00
 	  alarmMin = 0;
-	  tempertureShowTime = 2;
-	  tempertureHideTime = 10;
-	  isRingOnTimeEnabled = false;
-	  ringOnTimeStart = 8;
+	  tempertureShowTime = 2;        // 温度显示2秒
+	  tempertureHideTime = 10;       // 温度隐藏10秒
+	  isRingOnTimeEnabled = false;   // 整点报时默认关闭
+	  ringOnTimeStart = 8;           // 整点报时时间段 8:00-20:00
 	  ringOnTimeStop = 20;
-	  savedBrightness = 8;
-	  strongBrightness = 8;
-	  weakBrightness = 1;
+	  savedBrightness = 8;           // 默认手动最高亮度
+	  strongBrightness = 8;          // 强光亮度8级
+	  weakBrightness = 1;            // 弱光亮度1级
 }
 
+/**
+ * @brief  检查并触发整点报时
+ * @note   新逻辑：从每小时的59分55秒开始，每秒响一次短音（100ms）
+ *         一直到下个小时的00分00秒，共6次
+ *         最后一次（00:00）响长音（1000ms）
+ *         避免与闹钟冲突
+ * @param  None
+ * @retval None
+ */
 void checkRingOnTime(){
-	// �������㱨ʱ
-	if(isRingOnTimeEnabled
-			// ��ǰ������
-			&& time.minutes == 0
-			// ��ǰ������δ��ʱ
-			&& time.hours != lastRingOnTimeHour
-			// ����δ�������������õ�ʱ�䲻��������ǵ�ǰ����
-			&& (!isAlarmEnabled || alarmMin != 0 || alarmHour != time.hours)){
+	// 检查整点报时是否开启
+	if(!isRingOnTimeEnabled){
+		return;
+	}
 
-		if(ringOnTimeStart <= ringOnTimeStop){
-			if(time.hours >= ringOnTimeStart && time.hours <= ringOnTimeStop){
-				ringStartTime = HAL_GetTick();
-				HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
-			}
-		}
-		else{
-			if(time.hours >= ringOnTimeStart || time.hours <= ringOnTimeStop){
-				ringStartTime = HAL_GetTick();
-				HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
-			}
-		}
+	// 检查是否在整点报时时间段内
+	bool inTimeRange = false;
+	if(ringOnTimeStart <= ringOnTimeStop){
+		// 正常时间段（如8:00-20:00）
+		inTimeRange = (time.hours >= ringOnTimeStart && time.hours <= ringOnTimeStop);
+	}
+	else{
+		// 跨天时间段（如22:00-6:00）
+		inTimeRange = (time.hours >= ringOnTimeStart || time.hours <= ringOnTimeStop);
+	}
 
-		lastRingOnTimeHour = time.hours;
+	if(!inTimeRange){
+		return;
+	}
+
+	// 避免与闹钟冲突：如果闹钟开启且设置在整点，则不报时
+	if(isAlarmEnabled && alarmMin == 0 && alarmHour == time.hours){
+		return;
+	}
+
+	// 整点报时逻辑：59分55秒到00分00秒，共6次
+	if(time.minutes == 59 && time.seconds >= 55){
+		// 倒计时阶段：55秒、56秒、57秒、58秒、59秒（短音）
+		if(lastChimeSecond != time.seconds){
+			// 短音：100ms
+			ringStartTime = HAL_GetTick();
+			HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+			isChiming = true;
+			lastChimeSecond = time.seconds;
+		}
+	}
+	else if(time.minutes == 0 && time.seconds == 0){
+		// 整点：00分00秒（长音）
+		if(lastChimeSecond != 0){
+			// 长音：1000ms
+			ringStartTime = HAL_GetTick();
+			HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+			isChiming = true;
+			lastChimeSecond = 0;
+			lastRingOnTimeHour = time.hours;  // 记录已报时的小时
+		}
+	}
+	else{
+		// 其他时间，重置秒数标志
+		if(time.seconds > 0){
+			lastChimeSecond = 0xFF;
+		}
 	}
 }
 
@@ -939,13 +1016,42 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		if (HAL_GPIO_ReadPin(BUZZER_GPIO_PORT, BUZZER_PIN) == GPIO_PIN_RESET && !isAlarming) {
+		// 蜂鸣器控制逻辑（整点报时和闹钟）
+		if (HAL_GPIO_ReadPin(BUZZER_GPIO_PORT, BUZZER_PIN) == GPIO_PIN_RESET) {
 			now = HAL_GetTick();
-			if (now < ringStartTime || (now - ringStartTime >= RING_ON_TIME_LONG)) {
-				HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_SET);
+
+			// 如果是闹钟响铃，由定时器中断控制，这里不处理
+			if(isAlarming){
+				// 闹钟响铃由alarmTimerTick()控制
+			}
+			// 如果是整点报时
+			else if(isChiming){
+				uint32_t chimeDuration;
+				// 判断是短音还是长音
+				if(time.minutes == 0 && time.seconds == 0){
+					// 整点长音：1000ms
+					chimeDuration = 1000;
+				}
+				else{
+					// 倒计时短音：100ms
+					chimeDuration = 100;
+				}
+
+				// 检查是否到达鸣叫时长
+				if (now < ringStartTime || (now - ringStartTime >= chimeDuration)) {
+					HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_SET);
+					isChiming = false;
+				}
+			}
+			// 其他情况（兼容旧代码）
+			else{
+				if (now < ringStartTime || (now - ringStartTime >= RING_ON_TIME_LONG)) {
+					HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_SET);
+				}
 			}
 		}
 
+		// 温度显示自动切换逻辑
 		if (tempertureShowTime > 0) {
 			if (currentMode == MODE_SHOW_TIME) {
 				now = HAL_GetTick();
@@ -969,6 +1075,7 @@ int main(void)
 			lastDisplayChangeTime = now;
 		}
 
+		// 设置键长按重复触发逻辑
 		if (HAL_GPIO_ReadPin(SET_KEY_GPIO_PORT, SET_KEY_PIN) == GPIO_PIN_RESET
 				&& currentMode >= MODE_SET_HOUR && currentMode <= MODE_SET_ROT_STOP) {
 				uint32_t curVal = HAL_GetTick();
