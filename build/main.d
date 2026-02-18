@@ -24,8 +24,8 @@ build/main.o: Src/main.c Inc/main.h \
  Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr_ex.h \
  Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim.h \
  Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim_ex.h Inc/adc.h \
- Inc/main.h Inc/dma.h Inc/i2c.h Inc/tim.h Inc/gpio.h Lib/TM1637.h \
- Lib/SD3077.h
+ Inc/main.h Inc/dma.h Inc/gpio.h Inc/i2c.h Inc/tim.h Lib/SD3077.h \
+ Lib/TM1637.h
 Inc/main.h:
 Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal.h:
 Inc/stm32f0xx_hal_conf.h:
@@ -57,8 +57,8 @@ Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim_ex.h:
 Inc/adc.h:
 Inc/main.h:
 Inc/dma.h:
+Inc/gpio.h:
 Inc/i2c.h:
 Inc/tim.h:
-Inc/gpio.h:
-Lib/TM1637.h:
 Lib/SD3077.h:
+Lib/TM1637.h:

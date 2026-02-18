@@ -1,4 +1,4 @@
-ARM GAS  D:\Temp\ccqeondb.s 			page 1
+ARM GAS  D:\Temp\cc8obYI6.s 			page 1
 
 
    1              		.cpu cortex-m0
@@ -58,7 +58,7 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
   45 0006 87B0     		sub	sp, sp, #28
   46              	.LCFI1:
   47              		.cfi_def_cfa_offset 48
-ARM GAS  D:\Temp\ccqeondb.s 			page 2
+ARM GAS  D:\Temp\cc8obYI6.s 			page 2
 
 
   48              		.loc 1 9 2 view .LVU6
@@ -118,7 +118,7 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
   95 0054 2B00     		movs	r3, r5
   96 0056 2000     		movs	r0, r4
   97 0058 0195     		str	r5, [sp, #4]
-ARM GAS  D:\Temp\ccqeondb.s 			page 3
+ARM GAS  D:\Temp\cc8obYI6.s 			page 3
 
 
   98 005a 0096     		str	r6, [sp]
@@ -178,7 +178,7 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  147 0000 0123     		movs	r3, #1
   20:Lib/SD3077.c  **** 	uint8_t data[7];
  148              		.loc 1 20 33 is_stmt 0 view .LVU22
-ARM GAS  D:\Temp\ccqeondb.s 			page 4
+ARM GAS  D:\Temp\cc8obYI6.s 			page 4
 
 
  149 0002 30B5     		push	{r4, r5, lr}
@@ -214,21 +214,21 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  177              	.LVL6:
   23:Lib/SD3077.c  **** 	dateTime->seconds = bcd2bin(data[0]);
  178              		.loc 1 23 2 is_stmt 1 view .LVU29
- 179              	.LBB32:
- 180              	.LBB33:
+ 179              	.LBB34:
+ 180              	.LBB35:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  181              		.loc 1 3 51 is_stmt 0 view .LVU30
  182 0020 0622     		movs	r2, #6
- 183              	.LBE33:
- 184              	.LBE32:
+ 183              	.LBE35:
+ 184              	.LBE34:
  185              		.loc 1 23 22 view .LVU31
  186 0022 2B78     		ldrb	r3, [r5]
  187              	.LVL7:
- 188              	.LBB35:
- 189              	.LBI32:
+ 188              	.LBB37:
+ 189              	.LBI34:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  190              		.loc 1 3 16 is_stmt 1 view .LVU32
- 191              	.LBB34:
+ 191              	.LBB36:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  192              		.loc 1 3 40 view .LVU33
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
@@ -237,11 +237,11 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  195 0026 1909     		lsrs	r1, r3, #4
  196 0028 5143     		muls	r1, r2
  197 002a 5B18     		adds	r3, r3, r1
- 198              	.LBE34:
-ARM GAS  D:\Temp\ccqeondb.s 			page 5
+ 198              	.LBE36:
+ARM GAS  D:\Temp\cc8obYI6.s 			page 5
 
 
- 199              	.LBE35:
+ 199              	.LBE37:
  200              		.loc 1 23 20 discriminator 1 view .LVU35
  201 002c 2370     		strb	r3, [r4]
   24:Lib/SD3077.c  **** 	dateTime->minutes = bcd2bin(data[1]);
@@ -249,11 +249,11 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  203              		.loc 1 24 22 is_stmt 0 view .LVU37
  204 002e 6B78     		ldrb	r3, [r5, #1]
  205              	.LVL8:
- 206              	.LBB36:
- 207              	.LBI36:
+ 206              	.LBB38:
+ 207              	.LBI38:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  208              		.loc 1 3 16 is_stmt 1 view .LVU38
- 209              	.LBB37:
+ 209              	.LBB39:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  210              		.loc 1 3 40 view .LVU39
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
@@ -261,8 +261,8 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  212 0030 1909     		lsrs	r1, r3, #4
  213 0032 5143     		muls	r1, r2
  214 0034 5B18     		adds	r3, r3, r1
- 215              	.LBE37:
- 216              	.LBE36:
+ 215              	.LBE39:
+ 216              	.LBE38:
   25:Lib/SD3077.c  **** 
   26:Lib/SD3077.c  **** 	if(data[2] >> 7){
  217              		.loc 1 26 4 view .LVU41
@@ -286,25 +286,25 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  232 0042 7F21     		movs	r1, #127
  233 0044 0B40     		ands	r3, r1
  234              	.LVL9:
- 235              	.LBB38:
- 236              	.LBI38:
+ 235              	.LBB40:
+ 236              	.LBI40:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  237              		.loc 1 3 16 is_stmt 1 view .LVU50
- 238              	.LBB39:
+ 238              	.LBB41:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  239              		.loc 1 3 40 view .LVU51
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  240              		.loc 1 3 51 is_stmt 0 view .LVU52
  241 0046 1909     		lsrs	r1, r3, #4
  242 0048 4A43     		muls	r2, r1
- 243              	.LBE39:
-ARM GAS  D:\Temp\ccqeondb.s 			page 6
+ 243              	.LBE41:
+ARM GAS  D:\Temp\cc8obYI6.s 			page 6
 
 
- 244              	.LBE38:
+ 244              	.LBE40:
  245 004a 0221     		movs	r1, #2
- 246              	.LBB41:
- 247              	.LBB40:
+ 246              	.LBB43:
+ 247              	.LBB42:
  248 004c 9B18     		adds	r3, r3, r2
  249              	.LVL10:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
@@ -314,8 +314,8 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  253              	.L6:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  254              		.loc 1 3 51 view .LVU54
- 255              	.LBE40:
- 256              	.LBE41:
+ 255              	.LBE42:
+ 256              	.LBE43:
  257              		.loc 1 28 19 discriminator 1 view .LVU55
  258 0050 E370     		strb	r3, [r4, #3]
   29:Lib/SD3077.c  **** 	}
@@ -326,24 +326,24 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
   34:Lib/SD3077.c  **** 
   35:Lib/SD3077.c  **** 	dateTime->dayOfWeek = bcd2bin(data[3]);
  259              		.loc 1 35 2 is_stmt 1 view .LVU56
- 260              	.LBB42:
- 261              	.LBB43:
+ 260              	.LBB44:
+ 261              	.LBB45:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  262              		.loc 1 3 51 is_stmt 0 view .LVU57
  263 0052 0623     		movs	r3, #6
- 264              	.LBE43:
- 265              	.LBE42:
+ 264              	.LBE45:
+ 265              	.LBE44:
   27:Lib/SD3077.c  **** 		dateTime->hours = bcd2bin(data[2] & 0x7F);
  266              		.loc 1 27 18 view .LVU58
  267 0054 A170     		strb	r1, [r4, #2]
  268              		.loc 1 35 24 view .LVU59
  269 0056 EA78     		ldrb	r2, [r5, #3]
  270              	.LVL12:
- 271              	.LBB45:
- 272              	.LBI42:
+ 271              	.LBB47:
+ 272              	.LBI44:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  273              		.loc 1 3 16 is_stmt 1 view .LVU60
- 274              	.LBB44:
+ 274              	.LBB46:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  275              		.loc 1 3 40 view .LVU61
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
@@ -352,23 +352,23 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  278 005a 1109     		lsrs	r1, r2, #4
  279 005c 5943     		muls	r1, r3
  280 005e 5218     		adds	r2, r2, r1
- 281              	.LBE44:
- 282              	.LBE45:
+ 281              	.LBE46:
+ 282              	.LBE47:
  283              		.loc 1 35 22 discriminator 1 view .LVU63
  284 0060 2271     		strb	r2, [r4, #4]
   36:Lib/SD3077.c  **** 	dateTime->dayOfMonth = bcd2bin(data[4]);
  285              		.loc 1 36 2 is_stmt 1 view .LVU64
-ARM GAS  D:\Temp\ccqeondb.s 			page 7
+ARM GAS  D:\Temp\cc8obYI6.s 			page 7
 
 
  286              		.loc 1 36 25 is_stmt 0 view .LVU65
  287 0062 2A79     		ldrb	r2, [r5, #4]
  288              	.LVL13:
- 289              	.LBB46:
- 290              	.LBI46:
+ 289              	.LBB48:
+ 290              	.LBI48:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  291              		.loc 1 3 16 is_stmt 1 view .LVU66
- 292              	.LBB47:
+ 292              	.LBB49:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  293              		.loc 1 3 40 view .LVU67
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
@@ -376,8 +376,8 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  295 0064 1109     		lsrs	r1, r2, #4
  296 0066 5943     		muls	r1, r3
  297 0068 5218     		adds	r2, r2, r1
- 298              	.LBE47:
- 299              	.LBE46:
+ 298              	.LBE49:
+ 299              	.LBE48:
  300              		.loc 1 36 23 discriminator 1 view .LVU69
  301 006a 6271     		strb	r2, [r4, #5]
   37:Lib/SD3077.c  **** 	dateTime->month = bcd2bin(data[5]);
@@ -385,11 +385,11 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  303              		.loc 1 37 20 is_stmt 0 view .LVU71
  304 006c 6A79     		ldrb	r2, [r5, #5]
  305              	.LVL14:
- 306              	.LBB48:
- 307              	.LBI48:
+ 306              	.LBB50:
+ 307              	.LBI50:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  308              		.loc 1 3 16 is_stmt 1 view .LVU72
- 309              	.LBB49:
+ 309              	.LBB51:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  310              		.loc 1 3 40 view .LVU73
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
@@ -397,8 +397,8 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  312 006e 1109     		lsrs	r1, r2, #4
  313 0070 5943     		muls	r1, r3
  314 0072 5218     		adds	r2, r2, r1
- 315              	.LBE49:
- 316              	.LBE48:
+ 315              	.LBE51:
+ 316              	.LBE50:
  317              		.loc 1 37 18 discriminator 1 view .LVU75
  318 0074 A271     		strb	r2, [r4, #6]
   38:Lib/SD3077.c  **** 	dateTime->year = bcd2bin(data[6]);
@@ -406,11 +406,11 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  320              		.loc 1 38 19 is_stmt 0 view .LVU77
  321 0076 AA79     		ldrb	r2, [r5, #6]
  322              	.LVL15:
- 323              	.LBB50:
- 324              	.LBI50:
+ 323              	.LBB52:
+ 324              	.LBI52:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  325              		.loc 1 3 16 is_stmt 1 view .LVU78
- 326              	.LBB51:
+ 326              	.LBB53:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  327              		.loc 1 3 40 view .LVU79
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
@@ -418,11 +418,11 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  329 0078 1109     		lsrs	r1, r2, #4
  330 007a 4B43     		muls	r3, r1
  331 007c D218     		adds	r2, r2, r3
-ARM GAS  D:\Temp\ccqeondb.s 			page 8
+ARM GAS  D:\Temp\cc8obYI6.s 			page 8
 
 
- 332              	.LBE51:
- 333              	.LBE50:
+ 332              	.LBE53:
+ 333              	.LBE52:
  334              		.loc 1 38 17 discriminator 1 view .LVU81
  335 007e E271     		strb	r2, [r4, #7]
   39:Lib/SD3077.c  **** }
@@ -439,54 +439,54 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
   32:Lib/SD3077.c  **** 	}
  345              		.loc 1 32 21 is_stmt 0 view .LVU85
  346 0084 1F22     		movs	r2, #31
- 347              	.LBB52:
- 348              	.LBB53:
+ 347              	.LBB54:
+ 348              	.LBB55:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  349              		.loc 1 3 51 view .LVU86
  350 0086 0520     		movs	r0, #5
- 351              	.LBE53:
- 352              	.LBE52:
+ 351              	.LBE55:
+ 352              	.LBE54:
   31:Lib/SD3077.c  **** 		dateTime->hours = bcd2bin(data[2] & 0x1F);
  353              		.loc 1 31 38 view .LVU87
  354 0088 9906     		lsls	r1, r3, #26
   32:Lib/SD3077.c  **** 	}
  355              		.loc 1 32 21 view .LVU88
  356 008a 1340     		ands	r3, r2
- 357              	.LBB56:
- 358              	.LBB54:
+ 357              	.LBB58:
+ 358              	.LBB56:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  359              		.loc 1 3 51 view .LVU89
  360 008c 1A09     		lsrs	r2, r3, #4
  361 008e 5242     		rsbs	r2, r2, #0
  362 0090 8243     		bics	r2, r0
  363 0092 9B18     		adds	r3, r3, r2
- 364              	.LBE54:
- 365              	.LBE56:
+ 364              	.LBE56:
+ 365              	.LBE58:
   31:Lib/SD3077.c  **** 		dateTime->hours = bcd2bin(data[2] & 0x1F);
  366              		.loc 1 31 38 view .LVU90
  367 0094 C90F     		lsrs	r1, r1, #31
   32:Lib/SD3077.c  **** 	}
  368              		.loc 1 32 3 is_stmt 1 view .LVU91
- 369              	.LBB57:
- 370              	.LBI52:
+ 369              	.LBB59:
+ 370              	.LBI54:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  371              		.loc 1 3 16 view .LVU92
- 372              	.LBB55:
+ 372              	.LBB57:
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  373              		.loc 1 3 40 view .LVU93
    3:Lib/SD3077.c  **** static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
  374              		.loc 1 3 51 is_stmt 0 view .LVU94
  375 0096 DBB2     		uxtb	r3, r3
  376 0098 DAE7     		b	.L6
-ARM GAS  D:\Temp\ccqeondb.s 			page 9
+ARM GAS  D:\Temp\cc8obYI6.s 			page 9
 
 
  377              	.L8:
  378 009a C046     		.align	2
  379              	.L7:
  380 009c 00000000 		.word	hi2c1
- 381              	.LBE55:
- 382              	.LBE57:
+ 381              	.LBE57:
+ 382              	.LBE59:
  383              		.cfi_endproc
  384              	.LFE40:
  386              		.global	__aeabi_uidiv
@@ -533,12 +533,12 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  420              		.loc 1 46 12 is_stmt 0 view .LVU101
  421 000a 2C78     		ldrb	r4, [r5]
  422              	.LVL20:
- 423              	.LBB58:
- 424              	.LBI58:
+ 423              	.LBB60:
+ 424              	.LBI60:
    4:Lib/SD3077.c  **** 
  425              		.loc 1 4 16 is_stmt 1 view .LVU102
- 426              	.LBB59:
-ARM GAS  D:\Temp\ccqeondb.s 			page 10
+ 426              	.LBB61:
+ARM GAS  D:\Temp\cc8obYI6.s 			page 10
 
 
    4:Lib/SD3077.c  **** 
@@ -549,31 +549,31 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  430 000e 2000     		movs	r0, r4
  431 0010 FFF7FEFF 		bl	__aeabi_uidiv
  432              	.LVL21:
- 433 0014 0626     		movs	r6, #6
- 434 0016 7043     		muls	r0, r6
- 435              	.LBE59:
- 436              	.LBE58:
+ 433 0014 0627     		movs	r7, #6
+ 434 0016 7843     		muls	r0, r7
+ 435              	.LBE61:
+ 436              	.LBE60:
  437              		.loc 1 46 10 discriminator 1 view .LVU105
- 438 0018 06AF     		add	r7, sp, #24
- 439              	.LBB61:
- 440              	.LBB60:
+ 438 0018 06AE     		add	r6, sp, #24
+ 439              	.LBB63:
+ 440              	.LBB62:
    4:Lib/SD3077.c  **** 
  441              		.loc 1 4 51 view .LVU106
  442 001a 2418     		adds	r4, r4, r0
- 443              	.LBE60:
- 444              	.LBE61:
+ 443              	.LBE62:
+ 444              	.LBE63:
  445              		.loc 1 46 10 discriminator 1 view .LVU107
- 446 001c 3C70     		strb	r4, [r7]
+ 446 001c 3470     		strb	r4, [r6]
   47:Lib/SD3077.c  **** 	data[1] = bin2bcd(dateTime->minutes);
  447              		.loc 1 47 2 is_stmt 1 view .LVU108
  448              		.loc 1 47 12 is_stmt 0 view .LVU109
  449 001e 6C78     		ldrb	r4, [r5, #1]
  450              	.LVL22:
- 451              	.LBB62:
- 452              	.LBI62:
+ 451              	.LBB64:
+ 452              	.LBI64:
    4:Lib/SD3077.c  **** 
  453              		.loc 1 4 16 is_stmt 1 view .LVU110
- 454              	.LBB63:
+ 454              	.LBB65:
    4:Lib/SD3077.c  **** 
  455              		.loc 1 4 40 view .LVU111
    4:Lib/SD3077.c  **** 
@@ -582,737 +582,699 @@ ARM GAS  D:\Temp\ccqeondb.s 			page 1
  458 0022 2000     		movs	r0, r4
  459 0024 FFF7FEFF 		bl	__aeabi_uidiv
  460              	.LVL23:
- 461 0028 7043     		muls	r0, r6
+ 461 0028 7843     		muls	r0, r7
  462 002a 2418     		adds	r4, r4, r0
- 463              	.LBE63:
- 464              	.LBE62:
+ 463              	.LBE65:
+ 464              	.LBE64:
  465              		.loc 1 47 10 discriminator 1 view .LVU113
- 466 002c 7C70     		strb	r4, [r7, #1]
-  48:Lib/SD3077.c  **** 	data[2] = bin2bcd(dateTime->hours);
- 467              		.loc 1 48 2 is_stmt 1 view .LVU114
- 468              		.loc 1 48 12 is_stmt 0 view .LVU115
- 469 002e EC78     		ldrb	r4, [r5, #3]
- 470              	.LVL24:
- 471              	.LBB64:
- 472              	.LBI64:
+ 466 002c 7470     		strb	r4, [r6, #1]
+  48:Lib/SD3077.c  **** 
+  49:Lib/SD3077.c  **** 	// 小时需要特殊处理，先转BCD再设置格式位
+  50:Lib/SD3077.c  **** 	if((dateTime -> ampm) == HOUR24){
+ 467              		.loc 1 50 2 is_stmt 1 view .LVU114
+ 468              		.loc 1 50 15 is_stmt 0 view .LVU115
+ 469 002e AB78     		ldrb	r3, [r5, #2]
+ 470              	.LBB66:
+ 471              	.LBB67:
    4:Lib/SD3077.c  **** 
- 473              		.loc 1 4 16 is_stmt 1 view .LVU116
- 474              	.LBB65:
-ARM GAS  D:\Temp\ccqeondb.s 			page 11
+ 472              		.loc 1 4 51 view .LVU116
+ARM GAS  D:\Temp\cc8obYI6.s 			page 11
+
+
+ 473 0030 0A21     		movs	r1, #10
+ 474              	.LBE67:
+ 475              	.LBE66:
+ 476              		.loc 1 50 15 view .LVU117
+ 477 0032 0593     		str	r3, [sp, #20]
+ 478 0034 EC78     		ldrb	r4, [r5, #3]
+ 479              	.LBB70:
+ 480              	.LBB68:
+   4:Lib/SD3077.c  **** 
+ 481              		.loc 1 4 51 view .LVU118
+ 482 0036 2000     		movs	r0, r4
+ 483              	.LBE68:
+ 484              	.LBE70:
+ 485              		.loc 1 50 4 view .LVU119
+ 486 0038 022B     		cmp	r3, #2
+ 487 003a 37D1     		bne	.L10
+  51:Lib/SD3077.c  **** 		data[2] = bin2bcd(dateTime->hours) | 0x80;  // 24小时制：BCD + 最高位为1
+ 488              		.loc 1 51 3 is_stmt 1 view .LVU120
+ 489              	.LVL24:
+ 490              	.LBB71:
+ 491              	.LBI66:
+   4:Lib/SD3077.c  **** 
+ 492              		.loc 1 4 16 view .LVU121
+ 493              	.LBB69:
+   4:Lib/SD3077.c  **** 
+ 494              		.loc 1 4 40 view .LVU122
+   4:Lib/SD3077.c  **** 
+ 495              		.loc 1 4 51 is_stmt 0 view .LVU123
+ 496 003c FFF7FEFF 		bl	__aeabi_uidiv
+ 497              	.LVL25:
+ 498 0040 7843     		muls	r0, r7
+ 499 0042 2018     		adds	r0, r4, r0
+ 500              	.LBE69:
+ 501              	.LBE71:
+ 502              		.loc 1 51 11 discriminator 1 view .LVU124
+ 503 0044 8024     		movs	r4, #128
+ 504 0046 6442     		rsbs	r4, r4, #0
+ 505 0048 0443     		orrs	r4, r0
+ 506              	.L12:
+  52:Lib/SD3077.c  **** 	}
+  53:Lib/SD3077.c  **** 	else{
+  54:Lib/SD3077.c  **** 		data[2] = bin2bcd(dateTime->hours) | ((dateTime -> ampm) << 5);  // 12小时制：BCD + AM/PM位
+ 507              		.loc 1 54 38 discriminator 1 view .LVU125
+ 508 004a E4B2     		uxtb	r4, r4
+ 509 004c B470     		strb	r4, [r6, #2]
+  55:Lib/SD3077.c  **** 	}
+  56:Lib/SD3077.c  **** 
+  57:Lib/SD3077.c  **** 	data[3] = bin2bcd(dateTime->dayOfWeek);
+ 510              		.loc 1 57 2 is_stmt 1 view .LVU126
+ 511              		.loc 1 57 12 is_stmt 0 view .LVU127
+ 512 004e 2F79     		ldrb	r7, [r5, #4]
+ 513              	.LVL26:
+ 514              	.LBB72:
+ 515              	.LBI72:
+   4:Lib/SD3077.c  **** 
+ 516              		.loc 1 4 16 is_stmt 1 view .LVU128
+ 517              	.LBB73:
+ARM GAS  D:\Temp\cc8obYI6.s 			page 12
 
 
    4:Lib/SD3077.c  **** 
- 475              		.loc 1 4 40 view .LVU117
+ 518              		.loc 1 4 40 view .LVU129
    4:Lib/SD3077.c  **** 
- 476              		.loc 1 4 51 is_stmt 0 view .LVU118
- 477 0030 0A21     		movs	r1, #10
- 478 0032 2000     		movs	r0, r4
- 479 0034 FFF7FEFF 		bl	__aeabi_uidiv
- 480              	.LVL25:
- 481 0038 7043     		muls	r0, r6
- 482              	.LBE65:
- 483              	.LBE64:
-  49:Lib/SD3077.c  **** 	data[3] = bin2bcd(dateTime->dayOfWeek);
- 484              		.loc 1 49 12 view .LVU119
- 485 003a 2B79     		ldrb	r3, [r5, #4]
- 486              	.LBB68:
- 487              	.LBB69:
+ 519              		.loc 1 4 51 is_stmt 0 view .LVU130
+ 520 0050 0A21     		movs	r1, #10
+ 521 0052 3800     		movs	r0, r7
+ 522 0054 FFF7FEFF 		bl	__aeabi_uidiv
+ 523              	.LVL27:
+ 524 0058 0624     		movs	r4, #6
+ 525 005a 6043     		muls	r0, r4
+ 526 005c 3F18     		adds	r7, r7, r0
+ 527              	.LBE73:
+ 528              	.LBE72:
+ 529              		.loc 1 57 10 discriminator 1 view .LVU131
+ 530 005e F770     		strb	r7, [r6, #3]
+  58:Lib/SD3077.c  **** 	data[4] = bin2bcd(dateTime->dayOfMonth);
+ 531              		.loc 1 58 2 is_stmt 1 view .LVU132
+ 532              		.loc 1 58 12 is_stmt 0 view .LVU133
+ 533 0060 6F79     		ldrb	r7, [r5, #5]
+ 534              	.LVL28:
+ 535              	.LBB74:
+ 536              	.LBI74:
    4:Lib/SD3077.c  **** 
- 488              		.loc 1 4 51 view .LVU120
- 489 003c 0A21     		movs	r1, #10
- 490              	.LBE69:
- 491              	.LBE68:
- 492              	.LBB74:
- 493              	.LBB66:
- 494 003e 2418     		adds	r4, r4, r0
- 495              	.LVL26:
+ 537              		.loc 1 4 16 is_stmt 1 view .LVU134
+ 538              	.LBB75:
    4:Lib/SD3077.c  **** 
- 496              		.loc 1 4 51 view .LVU121
- 497              	.LBE66:
- 498              	.LBE74:
- 499              	.LBB75:
- 500              	.LBB70:
- 501 0040 1800     		movs	r0, r3
- 502              	.LBE70:
- 503              	.LBE75:
- 504              		.loc 1 49 12 view .LVU122
- 505 0042 0593     		str	r3, [sp, #20]
- 506              	.LBB76:
- 507              	.LBB71:
+ 539              		.loc 1 4 40 view .LVU135
    4:Lib/SD3077.c  **** 
- 508              		.loc 1 4 51 view .LVU123
- 509 0044 FFF7FEFF 		bl	__aeabi_uidiv
- 510              	.LVL27:
- 511 0048 7043     		muls	r0, r6
- 512 004a 059B     		ldr	r3, [sp, #20]
- 513              	.LBE71:
- 514              	.LBE76:
- 515              	.LBB77:
- 516              	.LBB78:
- 517 004c 0A21     		movs	r1, #10
- 518              	.LBE78:
- 519              	.LBE77:
- 520              	.LBB82:
- 521              	.LBB72:
- 522 004e 1818     		adds	r0, r3, r0
- 523              	.LBE72:
- 524              	.LBE82:
- 525              		.loc 1 49 10 discriminator 1 view .LVU124
-ARM GAS  D:\Temp\ccqeondb.s 			page 12
+ 540              		.loc 1 4 51 is_stmt 0 view .LVU136
+ 541 0062 0A21     		movs	r1, #10
+ 542 0064 3800     		movs	r0, r7
+ 543 0066 FFF7FEFF 		bl	__aeabi_uidiv
+ 544              	.LVL29:
+ 545 006a 6043     		muls	r0, r4
+ 546 006c 3F18     		adds	r7, r7, r0
+ 547              	.LBE75:
+ 548              	.LBE74:
+ 549              		.loc 1 58 10 discriminator 1 view .LVU137
+ 550 006e 3771     		strb	r7, [r6, #4]
+  59:Lib/SD3077.c  **** 	data[5] = bin2bcd(dateTime->month);
+ 551              		.loc 1 59 2 is_stmt 1 view .LVU138
+ 552              		.loc 1 59 12 is_stmt 0 view .LVU139
+ 553 0070 AF79     		ldrb	r7, [r5, #6]
+ 554              	.LVL30:
+ 555              	.LBB76:
+ 556              	.LBI76:
+   4:Lib/SD3077.c  **** 
+ 557              		.loc 1 4 16 is_stmt 1 view .LVU140
+ 558              	.LBB77:
+   4:Lib/SD3077.c  **** 
+ 559              		.loc 1 4 40 view .LVU141
+   4:Lib/SD3077.c  **** 
+ 560              		.loc 1 4 51 is_stmt 0 view .LVU142
+ 561 0072 0A21     		movs	r1, #10
+ 562 0074 3800     		movs	r0, r7
+ 563 0076 FFF7FEFF 		bl	__aeabi_uidiv
+ 564              	.LVL31:
+ARM GAS  D:\Temp\cc8obYI6.s 			page 13
 
 
- 526 0050 F870     		strb	r0, [r7, #3]
-  50:Lib/SD3077.c  **** 	data[4] = bin2bcd(dateTime->dayOfMonth);
- 527              		.loc 1 50 12 view .LVU125
- 528 0052 6B79     		ldrb	r3, [r5, #5]
- 529              	.LBB83:
- 530              	.LBB67:
+ 565 007a 6043     		muls	r0, r4
+ 566 007c 3F18     		adds	r7, r7, r0
+ 567              	.LBE77:
+ 568              	.LBE76:
+ 569              		.loc 1 59 10 discriminator 1 view .LVU143
+ 570 007e 7771     		strb	r7, [r6, #5]
+  60:Lib/SD3077.c  **** 	data[6] = bin2bcd(dateTime->year);
+ 571              		.loc 1 60 2 is_stmt 1 view .LVU144
+ 572              		.loc 1 60 12 is_stmt 0 view .LVU145
+ 573 0080 ED79     		ldrb	r5, [r5, #7]
+ 574              	.LVL32:
+ 575              	.LBB78:
+ 576              	.LBI78:
    4:Lib/SD3077.c  **** 
- 531              		.loc 1 4 51 view .LVU126
- 532 0054 E4B2     		uxtb	r4, r4
- 533              	.LVL28:
+ 577              		.loc 1 4 16 is_stmt 1 view .LVU146
+ 578              	.LBB79:
    4:Lib/SD3077.c  **** 
- 534              		.loc 1 4 51 view .LVU127
- 535              	.LBE67:
- 536              	.LBE83:
-  49:Lib/SD3077.c  **** 	data[3] = bin2bcd(dateTime->dayOfWeek);
- 537              		.loc 1 49 2 is_stmt 1 view .LVU128
- 538              	.LBB84:
- 539              	.LBI68:
+ 579              		.loc 1 4 40 view .LVU147
    4:Lib/SD3077.c  **** 
- 540              		.loc 1 4 16 view .LVU129
- 541              	.LBB73:
+ 580              		.loc 1 4 51 is_stmt 0 view .LVU148
+ 581 0082 0A21     		movs	r1, #10
+ 582 0084 2800     		movs	r0, r5
+ 583 0086 FFF7FEFF 		bl	__aeabi_uidiv
+ 584              	.LVL33:
+ 585              	.LBE79:
+ 586              	.LBE78:
+  61:Lib/SD3077.c  **** 
+  62:Lib/SD3077.c  **** 	HAL_I2C_Mem_Write(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_WRITE, 0x00, 1, data, 7, HAL_MAX_DELAY);
+ 587              		.loc 1 62 2 view .LVU149
+ 588 008a 0123     		movs	r3, #1
+ 589              	.LBB82:
+ 590              	.LBB80:
    4:Lib/SD3077.c  **** 
- 542              		.loc 1 4 40 view .LVU130
+ 591              		.loc 1 4 51 view .LVU150
+ 592 008c 4443     		muls	r4, r0
+ 593              	.LBE80:
+ 594              	.LBE82:
+ 595              		.loc 1 62 2 view .LVU151
+ 596 008e 5B42     		rsbs	r3, r3, #0
+ 597              	.LBB83:
+ 598              	.LBB81:
    4:Lib/SD3077.c  **** 
- 543              		.loc 1 4 40 is_stmt 0 view .LVU131
- 544              	.LBE73:
- 545              	.LBE84:
- 546              		.loc 1 50 2 is_stmt 1 view .LVU132
- 547              	.LBB85:
- 548              	.LBB79:
-   4:Lib/SD3077.c  **** 
- 549              		.loc 1 4 51 is_stmt 0 view .LVU133
- 550 0056 1800     		movs	r0, r3
- 551              	.LBE79:
- 552              	.LBE85:
- 553              		.loc 1 50 12 view .LVU134
- 554 0058 0593     		str	r3, [sp, #20]
- 555              	.LVL29:
- 556              	.LBB86:
- 557              	.LBI77:
-   4:Lib/SD3077.c  **** 
- 558              		.loc 1 4 16 is_stmt 1 view .LVU135
- 559              	.LBB80:
-   4:Lib/SD3077.c  **** 
- 560              		.loc 1 4 40 view .LVU136
-   4:Lib/SD3077.c  **** 
- 561              		.loc 1 4 51 is_stmt 0 view .LVU137
- 562 005a FFF7FEFF 		bl	__aeabi_uidiv
- 563              	.LVL30:
- 564 005e 7043     		muls	r0, r6
- 565 0060 059B     		ldr	r3, [sp, #20]
- 566              	.LBE80:
- 567              	.LBE86:
- 568              	.LBB87:
- 569              	.LBB88:
- 570 0062 0A21     		movs	r1, #10
- 571              	.LBE88:
-ARM GAS  D:\Temp\ccqeondb.s 			page 13
-
-
- 572              	.LBE87:
- 573              	.LBB92:
- 574              	.LBB81:
- 575 0064 1818     		adds	r0, r3, r0
- 576              	.LBE81:
- 577              	.LBE92:
- 578              		.loc 1 50 10 discriminator 1 view .LVU138
- 579 0066 3871     		strb	r0, [r7, #4]
-  51:Lib/SD3077.c  **** 	data[5] = bin2bcd(dateTime->month);
- 580              		.loc 1 51 2 is_stmt 1 view .LVU139
- 581              		.loc 1 51 12 is_stmt 0 view .LVU140
- 582 0068 AB79     		ldrb	r3, [r5, #6]
- 583              	.LBB93:
- 584              	.LBB89:
-   4:Lib/SD3077.c  **** 
- 585              		.loc 1 4 51 view .LVU141
- 586 006a 1800     		movs	r0, r3
- 587              	.LBE89:
- 588              	.LBE93:
- 589              		.loc 1 51 12 view .LVU142
- 590 006c 0593     		str	r3, [sp, #20]
- 591              	.LVL31:
- 592              	.LBB94:
- 593              	.LBI87:
-   4:Lib/SD3077.c  **** 
- 594              		.loc 1 4 16 is_stmt 1 view .LVU143
- 595              	.LBB90:
-   4:Lib/SD3077.c  **** 
- 596              		.loc 1 4 40 view .LVU144
-   4:Lib/SD3077.c  **** 
- 597              		.loc 1 4 51 is_stmt 0 view .LVU145
- 598 006e FFF7FEFF 		bl	__aeabi_uidiv
- 599              	.LVL32:
- 600 0072 7043     		muls	r0, r6
- 601 0074 059B     		ldr	r3, [sp, #20]
- 602              	.LBE90:
- 603              	.LBE94:
- 604              	.LBB95:
- 605              	.LBB96:
- 606 0076 0A21     		movs	r1, #10
- 607              	.LBE96:
- 608              	.LBE95:
- 609              	.LBB99:
- 610              	.LBB91:
- 611 0078 1818     		adds	r0, r3, r0
- 612              	.LBE91:
- 613              	.LBE99:
- 614              		.loc 1 51 10 discriminator 1 view .LVU146
- 615 007a 7871     		strb	r0, [r7, #5]
-  52:Lib/SD3077.c  **** 	data[6] = bin2bcd(dateTime->year);
- 616              		.loc 1 52 2 is_stmt 1 view .LVU147
- 617              		.loc 1 52 12 is_stmt 0 view .LVU148
- 618 007c EB79     		ldrb	r3, [r5, #7]
- 619              	.LBB100:
- 620              	.LBB97:
-   4:Lib/SD3077.c  **** 
- 621              		.loc 1 4 51 view .LVU149
-ARM GAS  D:\Temp\ccqeondb.s 			page 14
-
-
- 622 007e 1800     		movs	r0, r3
- 623              	.LBE97:
- 624              	.LBE100:
- 625              		.loc 1 52 12 view .LVU150
- 626 0080 0593     		str	r3, [sp, #20]
- 627              	.LVL33:
- 628              	.LBB101:
- 629              	.LBI95:
-   4:Lib/SD3077.c  **** 
- 630              		.loc 1 4 16 is_stmt 1 view .LVU151
- 631              	.LBB98:
-   4:Lib/SD3077.c  **** 
- 632              		.loc 1 4 40 view .LVU152
-   4:Lib/SD3077.c  **** 
- 633              		.loc 1 4 51 is_stmt 0 view .LVU153
- 634 0082 FFF7FEFF 		bl	__aeabi_uidiv
- 635              	.LVL34:
- 636 0086 4643     		muls	r6, r0
- 637 0088 059B     		ldr	r3, [sp, #20]
- 638 008a 9E19     		adds	r6, r3, r6
- 639              	.LBE98:
- 640              	.LBE101:
- 641              		.loc 1 52 10 discriminator 1 view .LVU154
- 642 008c BE71     		strb	r6, [r7, #6]
-  53:Lib/SD3077.c  **** 
-  54:Lib/SD3077.c  **** 	if((dateTime -> ampm) == HOUR24){
- 643              		.loc 1 54 2 is_stmt 1 view .LVU155
- 644              		.loc 1 54 15 is_stmt 0 view .LVU156
- 645 008e AB78     		ldrb	r3, [r5, #2]
- 646              		.loc 1 54 4 view .LVU157
- 647 0090 022B     		cmp	r3, #2
- 648 0092 10D1     		bne	.L10
-  55:Lib/SD3077.c  **** 		data[2] |= 0x80;
- 649              		.loc 1 55 3 is_stmt 1 view .LVU158
- 650              		.loc 1 55 11 is_stmt 0 view .LVU159
- 651 0094 7E33     		adds	r3, r3, #126
- 652 0096 1C43     		orrs	r4, r3
- 653              	.L11:
-  56:Lib/SD3077.c  **** 	}
-  57:Lib/SD3077.c  **** 	else{
-  58:Lib/SD3077.c  **** 		data[2] |= (dateTime -> ampm) << 5;
-  59:Lib/SD3077.c  **** 	}
+ 599              		.loc 1 4 51 view .LVU152
+ 600 0090 2D19     		adds	r5, r5, r4
+ 601              	.LBE81:
+ 602              	.LBE83:
   60:Lib/SD3077.c  **** 
-  61:Lib/SD3077.c  **** 	HAL_I2C_Mem_Write(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_WRITE, 0x00, 1, data, 7, HAL_MAX_DELAY);
- 654              		.loc 1 61 2 view .LVU160
- 655 0098 0123     		movs	r3, #1
- 656 009a 5B42     		rsbs	r3, r3, #0
- 657 009c BC70     		strb	r4, [r7, #2]
- 658              		.loc 1 61 2 is_stmt 1 view .LVU161
- 659 009e 0293     		str	r3, [sp, #8]
- 660 00a0 0833     		adds	r3, r3, #8
- 661 00a2 0193     		str	r3, [sp, #4]
- 662 00a4 0022     		movs	r2, #0
- 663 00a6 6421     		movs	r1, #100
- 664 00a8 0097     		str	r7, [sp]
- 665 00aa 063B     		subs	r3, r3, #6
- 666 00ac 0448     		ldr	r0, .L12
-ARM GAS  D:\Temp\ccqeondb.s 			page 15
+ 603              		.loc 1 60 10 discriminator 1 view .LVU153
+ 604 0092 B571     		strb	r5, [r6, #6]
+ 605              		.loc 1 62 2 is_stmt 1 view .LVU154
+ 606 0094 0293     		str	r3, [sp, #8]
+ 607 0096 0833     		adds	r3, r3, #8
+ 608 0098 0193     		str	r3, [sp, #4]
+ 609 009a 0022     		movs	r2, #0
+ 610 009c 6421     		movs	r1, #100
+ 611 009e 0096     		str	r6, [sp]
+ 612 00a0 063B     		subs	r3, r3, #6
+ARM GAS  D:\Temp\cc8obYI6.s 			page 14
 
 
- 667 00ae FFF7FEFF 		bl	HAL_I2C_Mem_Write
- 668              	.LVL35:
-  62:Lib/SD3077.c  **** }
- 669              		.loc 1 62 1 is_stmt 0 view .LVU162
- 670 00b2 09B0     		add	sp, sp, #36
- 671              		@ sp needed
- 672              	.LVL36:
- 673              		.loc 1 62 1 view .LVU163
- 674 00b4 F0BD     		pop	{r4, r5, r6, r7, pc}
- 675              	.LVL37:
- 676              	.L10:
-  58:Lib/SD3077.c  **** 	}
- 677              		.loc 1 58 3 is_stmt 1 view .LVU164
-  58:Lib/SD3077.c  **** 	}
- 678              		.loc 1 58 11 is_stmt 0 view .LVU165
- 679 00b6 5B01     		lsls	r3, r3, #5
- 680 00b8 1C43     		orrs	r4, r3
- 681 00ba E4B2     		uxtb	r4, r4
- 682 00bc ECE7     		b	.L11
- 683              	.L13:
- 684 00be C046     		.align	2
- 685              	.L12:
- 686 00c0 00000000 		.word	hi2c1
- 687              		.cfi_endproc
- 688              	.LFE41:
- 690              		.section	.text.EnableSencodInterruptOuput,"ax",%progbits
- 691              		.align	1
- 692              		.global	EnableSencodInterruptOuput
- 693              		.syntax unified
- 694              		.code	16
- 695              		.thumb_func
- 697              	EnableSencodInterruptOuput:
- 698              	.LFB42:
-  63:Lib/SD3077.c  **** 
-  64:Lib/SD3077.c  **** void EnableSencodInterruptOuput(){
- 699              		.loc 1 64 34 is_stmt 1 view -0
- 700              		.cfi_startproc
- 701              		@ args = 0, pretend = 0, frame = 8
- 702              		@ frame_needed = 0, uses_anonymous_args = 0
+ 613 00a2 0648     		ldr	r0, .L13
+ 614 00a4 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 615              	.LVL34:
+  63:Lib/SD3077.c  **** }
+ 616              		.loc 1 63 1 is_stmt 0 view .LVU155
+ 617 00a8 09B0     		add	sp, sp, #36
+ 618              		@ sp needed
+ 619 00aa F0BD     		pop	{r4, r5, r6, r7, pc}
+ 620              	.LVL35:
+ 621              	.L10:
+  54:Lib/SD3077.c  **** 	}
+ 622              		.loc 1 54 3 is_stmt 1 view .LVU156
+ 623              	.LBB84:
+ 624              	.LBI84:
+   4:Lib/SD3077.c  **** 
+ 625              		.loc 1 4 16 view .LVU157
+ 626              	.LBB85:
+   4:Lib/SD3077.c  **** 
+ 627              		.loc 1 4 40 view .LVU158
+   4:Lib/SD3077.c  **** 
+ 628              		.loc 1 4 51 is_stmt 0 view .LVU159
+ 629 00ac FFF7FEFF 		bl	__aeabi_uidiv
+ 630              	.LVL36:
+ 631 00b0 4743     		muls	r7, r0
+ 632              	.LBE85:
+ 633              	.LBE84:
+  54:Lib/SD3077.c  **** 	}
+ 634              		.loc 1 54 38 discriminator 1 view .LVU160
+ 635 00b2 059B     		ldr	r3, [sp, #20]
+ 636              	.LBB87:
+ 637              	.LBB86:
+   4:Lib/SD3077.c  **** 
+ 638              		.loc 1 4 51 view .LVU161
+ 639 00b4 E419     		adds	r4, r4, r7
+ 640              	.LBE86:
+ 641              	.LBE87:
+  54:Lib/SD3077.c  **** 	}
+ 642              		.loc 1 54 38 discriminator 1 view .LVU162
+ 643 00b6 5B01     		lsls	r3, r3, #5
+ 644 00b8 1C43     		orrs	r4, r3
+ 645 00ba C6E7     		b	.L12
+ 646              	.L14:
+ 647              		.align	2
+ 648              	.L13:
+ 649 00bc 00000000 		.word	hi2c1
+ 650              		.cfi_endproc
+ 651              	.LFE41:
+ 653              		.section	.text.EnableSencodInterruptOuput,"ax",%progbits
+ 654              		.align	1
+ 655              		.global	EnableSencodInterruptOuput
+ 656              		.syntax unified
+ 657              		.code	16
+ 658              		.thumb_func
+ 660              	EnableSencodInterruptOuput:
+ 661              	.LFB42:
+  64:Lib/SD3077.c  **** 
+  65:Lib/SD3077.c  **** void EnableSencodInterruptOuput(){
+ARM GAS  D:\Temp\cc8obYI6.s 			page 15
+
+
+ 662              		.loc 1 65 34 is_stmt 1 view -0
+ 663              		.cfi_startproc
+ 664              		@ args = 0, pretend = 0, frame = 8
+ 665              		@ frame_needed = 0, uses_anonymous_args = 0
+  66:Lib/SD3077.c  **** 	// 解除写保护
+  67:Lib/SD3077.c  **** 	UnlockWriteProtect();
+ 666              		.loc 1 67 2 view .LVU164
   65:Lib/SD3077.c  **** 	// 解除写保护
-  66:Lib/SD3077.c  **** 	UnlockWriteProtect();
- 703              		.loc 1 66 2 view .LVU167
-  64:Lib/SD3077.c  **** 	// 解除写保护
- 704              		.loc 1 64 34 is_stmt 0 view .LVU168
- 705 0000 F0B5     		push	{r4, r5, r6, r7, lr}
- 706              	.LCFI6:
- 707              		.cfi_def_cfa_offset 20
- 708              		.cfi_offset 4, -20
- 709              		.cfi_offset 5, -16
- 710              		.cfi_offset 6, -12
- 711              		.cfi_offset 7, -8
- 712              		.cfi_offset 14, -4
+ 667              		.loc 1 65 34 is_stmt 0 view .LVU165
+ 668 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 669              	.LCFI6:
+ 670              		.cfi_def_cfa_offset 20
+ 671              		.cfi_offset 4, -20
+ 672              		.cfi_offset 5, -16
+ 673              		.cfi_offset 6, -12
+ 674              		.cfi_offset 7, -8
+ 675              		.cfi_offset 14, -4
+  68:Lib/SD3077.c  **** 
+  69:Lib/SD3077.c  **** 	// 读出控制寄存器2和3
+  70:Lib/SD3077.c  **** 	uint8_t data[2];
+  71:Lib/SD3077.c  **** 	HAL_I2C_Mem_Read(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_READ, 0x10, 1, data, 2, HAL_MAX_DELAY);
+ 676              		.loc 1 71 2 view .LVU166
+ 677 0002 0127     		movs	r7, #1
+ 678 0004 0226     		movs	r6, #2
+  65:Lib/SD3077.c  **** 	// 解除写保护
+ 679              		.loc 1 65 34 view .LVU167
+ 680 0006 87B0     		sub	sp, sp, #28
+ 681              	.LCFI7:
+ 682              		.cfi_def_cfa_offset 48
   67:Lib/SD3077.c  **** 
-  68:Lib/SD3077.c  **** 	// 读出控制寄存器2和3
-  69:Lib/SD3077.c  **** 	uint8_t data[2];
+ 683              		.loc 1 67 2 view .LVU168
+ 684 0008 FFF7FEFF 		bl	UnlockWriteProtect
+ 685              	.LVL37:
   70:Lib/SD3077.c  **** 	HAL_I2C_Mem_Read(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_READ, 0x10, 1, data, 2, HAL_MAX_DELAY);
- 713              		.loc 1 70 2 view .LVU169
-ARM GAS  D:\Temp\ccqeondb.s 			page 16
+ 686              		.loc 1 70 2 is_stmt 1 view .LVU169
+ 687              		.loc 1 71 2 view .LVU170
+ 688 000c 0F4D     		ldr	r5, .L16
+ 689 000e 05AC     		add	r4, sp, #20
+ 690 0010 7F42     		rsbs	r7, r7, #0
+ 691 0012 0123     		movs	r3, #1
+ 692 0014 1022     		movs	r2, #16
+ 693 0016 6521     		movs	r1, #101
+ 694 0018 2800     		movs	r0, r5
+ 695 001a 0297     		str	r7, [sp, #8]
+ 696 001c 0196     		str	r6, [sp, #4]
+ 697 001e 0094     		str	r4, [sp]
+ 698 0020 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 699              	.LVL38:
+  72:Lib/SD3077.c  **** 
+  73:Lib/SD3077.c  **** 	// 允许频率中断
+  74:Lib/SD3077.c  **** 	data[0] |= 0x01;
+ 700              		.loc 1 74 2 view .LVU171
+  75:Lib/SD3077.c  **** 	// 选择频率中断输出
+  76:Lib/SD3077.c  **** 	data[0] |= 0x20;
+ 701              		.loc 1 76 2 view .LVU172
+  77:Lib/SD3077.c  **** 	data[0] &= 0xEF;
+ 702              		.loc 1 77 2 view .LVU173
+ARM GAS  D:\Temp\cc8obYI6.s 			page 16
 
 
- 714 0002 0127     		movs	r7, #1
- 715 0004 0226     		movs	r6, #2
-  64:Lib/SD3077.c  **** 	// 解除写保护
- 716              		.loc 1 64 34 view .LVU170
- 717 0006 87B0     		sub	sp, sp, #28
- 718              	.LCFI7:
- 719              		.cfi_def_cfa_offset 48
-  66:Lib/SD3077.c  **** 
- 720              		.loc 1 66 2 view .LVU171
- 721 0008 FFF7FEFF 		bl	UnlockWriteProtect
- 722              	.LVL38:
-  69:Lib/SD3077.c  **** 	HAL_I2C_Mem_Read(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_READ, 0x10, 1, data, 2, HAL_MAX_DELAY);
- 723              		.loc 1 69 2 is_stmt 1 view .LVU172
- 724              		.loc 1 70 2 view .LVU173
- 725 000c 0F4D     		ldr	r5, .L15
- 726 000e 05AC     		add	r4, sp, #20
- 727 0010 7F42     		rsbs	r7, r7, #0
- 728 0012 0123     		movs	r3, #1
- 729 0014 1022     		movs	r2, #16
- 730 0016 6521     		movs	r1, #101
- 731 0018 2800     		movs	r0, r5
- 732 001a 0297     		str	r7, [sp, #8]
- 733 001c 0196     		str	r6, [sp, #4]
- 734 001e 0094     		str	r4, [sp]
- 735 0020 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 736              	.LVL39:
-  71:Lib/SD3077.c  **** 
-  72:Lib/SD3077.c  **** 	// 允许频率中断
-  73:Lib/SD3077.c  **** 	data[0] |= 0x01;
- 737              		.loc 1 73 2 view .LVU174
-  74:Lib/SD3077.c  **** 	// 选择频率中断输出
-  75:Lib/SD3077.c  **** 	data[0] |= 0x20;
- 738              		.loc 1 75 2 view .LVU175
-  76:Lib/SD3077.c  **** 	data[0] &= 0xEF;
- 739              		.loc 1 76 2 view .LVU176
- 740              		.loc 1 76 10 is_stmt 0 view .LVU177
- 741 0024 1022     		movs	r2, #16
- 742 0026 2123     		movs	r3, #33
- 743 0028 2178     		ldrb	r1, [r4]
-  77:Lib/SD3077.c  **** 
-  78:Lib/SD3077.c  **** 	// 设置频率为1Hz
-  79:Lib/SD3077.c  **** //	data[1] &= 0xF0;
-  80:Lib/SD3077.c  **** //	data[1] |= 0x0A;
-  81:Lib/SD3077.c  **** 
-  82:Lib/SD3077.c  **** 	// 设置频率为1秒
-  83:Lib/SD3077.c  **** 	data[1] |= 0x0F;
+ 703              		.loc 1 77 10 is_stmt 0 view .LVU174
+ 704 0024 1022     		movs	r2, #16
+ 705 0026 2123     		movs	r3, #33
+ 706 0028 2178     		ldrb	r1, [r4]
+  78:Lib/SD3077.c  **** 
+  79:Lib/SD3077.c  **** 	// 设置频率为1Hz
+  80:Lib/SD3077.c  **** //	data[1] &= 0xF0;
+  81:Lib/SD3077.c  **** //	data[1] |= 0x0A;
+  82:Lib/SD3077.c  **** 
+  83:Lib/SD3077.c  **** 	// 设置频率为1秒
+  84:Lib/SD3077.c  **** 	data[1] |= 0x0F;
+  85:Lib/SD3077.c  **** 
+  86:Lib/SD3077.c  **** 	// 控制寄存器回写
+  87:Lib/SD3077.c  **** 	HAL_I2C_Mem_Write(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_WRITE, 0x10, 1, data, 2, HAL_MAX_DELAY);
+ 707              		.loc 1 87 2 view .LVU175
+ 708 002a 2800     		movs	r0, r5
+  77:Lib/SD3077.c  **** 	data[0] &= 0xEF;
+ 709              		.loc 1 77 10 view .LVU176
+ 710 002c 9143     		bics	r1, r2
+ 711 002e 0B43     		orrs	r3, r1
+ 712 0030 2370     		strb	r3, [r4]
   84:Lib/SD3077.c  **** 
-  85:Lib/SD3077.c  **** 	// 控制寄存器回写
-  86:Lib/SD3077.c  **** 	HAL_I2C_Mem_Write(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_WRITE, 0x10, 1, data, 2, HAL_MAX_DELAY);
- 744              		.loc 1 86 2 view .LVU178
- 745 002a 2800     		movs	r0, r5
-  76:Lib/SD3077.c  **** 	data[0] &= 0xEF;
- 746              		.loc 1 76 10 view .LVU179
- 747 002c 9143     		bics	r1, r2
- 748 002e 0B43     		orrs	r3, r1
- 749 0030 2370     		strb	r3, [r4]
-  83:Lib/SD3077.c  **** 
-ARM GAS  D:\Temp\ccqeondb.s 			page 17
+ 713              		.loc 1 84 2 is_stmt 1 view .LVU177
+  84:Lib/SD3077.c  **** 
+ 714              		.loc 1 84 10 is_stmt 0 view .LVU178
+ 715 0032 0F23     		movs	r3, #15
+ 716 0034 6178     		ldrb	r1, [r4, #1]
+ 717 0036 0B43     		orrs	r3, r1
+ 718 0038 6370     		strb	r3, [r4, #1]
+ 719              		.loc 1 87 2 is_stmt 1 view .LVU179
+ 720 003a 6421     		movs	r1, #100
+ 721 003c 0123     		movs	r3, #1
+ 722 003e 0297     		str	r7, [sp, #8]
+ 723 0040 0196     		str	r6, [sp, #4]
+ 724 0042 0094     		str	r4, [sp]
+ 725 0044 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 726              	.LVL39:
+  88:Lib/SD3077.c  **** }
+ 727              		.loc 1 88 1 is_stmt 0 view .LVU180
+ 728 0048 07B0     		add	sp, sp, #28
+ 729              		@ sp needed
+ 730 004a F0BD     		pop	{r4, r5, r6, r7, pc}
+ 731              	.L17:
+ 732              		.align	2
+ 733              	.L16:
+ 734 004c 00000000 		.word	hi2c1
+ 735              		.cfi_endproc
+ 736              	.LFE42:
+ 738              		.section	.text.SetInterruptOuput,"ax",%progbits
+ 739              		.align	1
+ 740              		.global	SetInterruptOuput
+ 741              		.syntax unified
+ 742              		.code	16
+ 743              		.thumb_func
+ 745              	SetInterruptOuput:
+ 746              	.LVL40:
+ 747              	.LFB43:
+ARM GAS  D:\Temp\cc8obYI6.s 			page 17
 
 
- 750              		.loc 1 83 2 is_stmt 1 view .LVU180
-  83:Lib/SD3077.c  **** 
- 751              		.loc 1 83 10 is_stmt 0 view .LVU181
- 752 0032 0F23     		movs	r3, #15
- 753 0034 6178     		ldrb	r1, [r4, #1]
- 754 0036 0B43     		orrs	r3, r1
- 755 0038 6370     		strb	r3, [r4, #1]
- 756              		.loc 1 86 2 is_stmt 1 view .LVU182
- 757 003a 6421     		movs	r1, #100
- 758 003c 0123     		movs	r3, #1
- 759 003e 0297     		str	r7, [sp, #8]
- 760 0040 0196     		str	r6, [sp, #4]
- 761 0042 0094     		str	r4, [sp]
- 762 0044 FFF7FEFF 		bl	HAL_I2C_Mem_Write
- 763              	.LVL40:
-  87:Lib/SD3077.c  **** }
- 764              		.loc 1 87 1 is_stmt 0 view .LVU183
- 765 0048 07B0     		add	sp, sp, #28
- 766              		@ sp needed
- 767 004a F0BD     		pop	{r4, r5, r6, r7, pc}
- 768              	.L16:
- 769              		.align	2
- 770              	.L15:
- 771 004c 00000000 		.word	hi2c1
- 772              		.cfi_endproc
- 773              	.LFE42:
- 775              		.section	.text.SetInterruptOuput,"ax",%progbits
- 776              		.align	1
- 777              		.global	SetInterruptOuput
- 778              		.syntax unified
- 779              		.code	16
- 780              		.thumb_func
- 782              	SetInterruptOuput:
- 783              	.LVL41:
- 784              	.LFB43:
-  88:Lib/SD3077.c  **** 
-  89:Lib/SD3077.c  **** void SetInterruptOuput(SD3077IntFreq freq){
- 785              		.loc 1 89 43 is_stmt 1 view -0
- 786              		.cfi_startproc
- 787              		@ args = 0, pretend = 0, frame = 16
- 788              		@ frame_needed = 0, uses_anonymous_args = 0
+  89:Lib/SD3077.c  **** 
+  90:Lib/SD3077.c  **** void SetInterruptOuput(SD3077IntFreq freq){
+ 748              		.loc 1 90 43 is_stmt 1 view -0
+ 749              		.cfi_startproc
+ 750              		@ args = 0, pretend = 0, frame = 16
+ 751              		@ frame_needed = 0, uses_anonymous_args = 0
+  91:Lib/SD3077.c  **** 	// 解除写保护
+  92:Lib/SD3077.c  **** 	UnlockWriteProtect();
+ 752              		.loc 1 92 2 view .LVU182
   90:Lib/SD3077.c  **** 	// 解除写保护
-  91:Lib/SD3077.c  **** 	UnlockWriteProtect();
- 789              		.loc 1 91 2 view .LVU185
-  89:Lib/SD3077.c  **** 	// 解除写保护
- 790              		.loc 1 89 43 is_stmt 0 view .LVU186
- 791 0000 F0B5     		push	{r4, r5, r6, r7, lr}
- 792              	.LCFI8:
- 793              		.cfi_def_cfa_offset 20
- 794              		.cfi_offset 4, -20
- 795              		.cfi_offset 5, -16
- 796              		.cfi_offset 6, -12
- 797              		.cfi_offset 7, -8
- 798              		.cfi_offset 14, -4
+ 753              		.loc 1 90 43 is_stmt 0 view .LVU183
+ 754 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 755              	.LCFI8:
+ 756              		.cfi_def_cfa_offset 20
+ 757              		.cfi_offset 4, -20
+ 758              		.cfi_offset 5, -16
+ 759              		.cfi_offset 6, -12
+ 760              		.cfi_offset 7, -8
+ 761              		.cfi_offset 14, -4
+  93:Lib/SD3077.c  **** 
+  94:Lib/SD3077.c  **** 	// 读出控制寄存器2和3
+  95:Lib/SD3077.c  **** 	uint8_t data[2];
+  96:Lib/SD3077.c  **** 	HAL_I2C_Mem_Read(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_READ, 0x10, 1, data, 2, HAL_MAX_DELAY);
+ 762              		.loc 1 96 2 view .LVU184
+ 763 0002 0127     		movs	r7, #1
+ 764 0004 0226     		movs	r6, #2
+  90:Lib/SD3077.c  **** 	// 解除写保护
+ 765              		.loc 1 90 43 view .LVU185
+ 766 0006 89B0     		sub	sp, sp, #36
+ 767              	.LCFI9:
+ 768              		.cfi_def_cfa_offset 56
+  90:Lib/SD3077.c  **** 	// 解除写保护
+ 769              		.loc 1 90 43 view .LVU186
+ 770 0008 0590     		str	r0, [sp, #20]
   92:Lib/SD3077.c  **** 
-  93:Lib/SD3077.c  **** 	// 读出控制寄存器2和3
-  94:Lib/SD3077.c  **** 	uint8_t data[2];
-ARM GAS  D:\Temp\ccqeondb.s 			page 18
-
-
+ 771              		.loc 1 92 2 view .LVU187
+ 772 000a FFF7FEFF 		bl	UnlockWriteProtect
+ 773              	.LVL41:
   95:Lib/SD3077.c  **** 	HAL_I2C_Mem_Read(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_READ, 0x10, 1, data, 2, HAL_MAX_DELAY);
- 799              		.loc 1 95 2 view .LVU187
- 800 0002 0127     		movs	r7, #1
- 801 0004 0226     		movs	r6, #2
-  89:Lib/SD3077.c  **** 	// 解除写保护
- 802              		.loc 1 89 43 view .LVU188
- 803 0006 89B0     		sub	sp, sp, #36
- 804              	.LCFI9:
- 805              		.cfi_def_cfa_offset 56
-  89:Lib/SD3077.c  **** 	// 解除写保护
- 806              		.loc 1 89 43 view .LVU189
- 807 0008 0590     		str	r0, [sp, #20]
-  91:Lib/SD3077.c  **** 
- 808              		.loc 1 91 2 view .LVU190
- 809 000a FFF7FEFF 		bl	UnlockWriteProtect
- 810              	.LVL42:
-  94:Lib/SD3077.c  **** 	HAL_I2C_Mem_Read(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_READ, 0x10, 1, data, 2, HAL_MAX_DELAY);
- 811              		.loc 1 94 2 is_stmt 1 view .LVU191
- 812              		.loc 1 95 2 view .LVU192
- 813 000e 114D     		ldr	r5, .L18
- 814 0010 07AC     		add	r4, sp, #28
- 815 0012 7F42     		rsbs	r7, r7, #0
- 816 0014 0123     		movs	r3, #1
- 817 0016 1022     		movs	r2, #16
- 818 0018 6521     		movs	r1, #101
- 819 001a 2800     		movs	r0, r5
- 820 001c 0297     		str	r7, [sp, #8]
- 821 001e 0196     		str	r6, [sp, #4]
- 822 0020 0094     		str	r4, [sp]
- 823 0022 FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 824              	.LVL43:
-  96:Lib/SD3077.c  **** 
-  97:Lib/SD3077.c  **** 	// 允许频率中断
-  98:Lib/SD3077.c  **** 	data[0] |= 0x01;
- 825              		.loc 1 98 2 view .LVU193
-  99:Lib/SD3077.c  **** 	// 选择频率中断输出
- 100:Lib/SD3077.c  **** 	data[0] |= 0x20;
- 826              		.loc 1 100 2 view .LVU194
- 101:Lib/SD3077.c  **** 	data[0] &= 0xEF;
- 827              		.loc 1 101 2 view .LVU195
- 828              		.loc 1 101 10 is_stmt 0 view .LVU196
- 829 0026 1022     		movs	r2, #16
- 830 0028 2123     		movs	r3, #33
- 831 002a 2178     		ldrb	r1, [r4]
- 102:Lib/SD3077.c  **** 
- 103:Lib/SD3077.c  **** 	// 设置频率为1Hz
- 104:Lib/SD3077.c  **** 	data[1] &= 0xF0;
+ 774              		.loc 1 95 2 is_stmt 1 view .LVU188
+ 775              		.loc 1 96 2 view .LVU189
+ 776 000e 114D     		ldr	r5, .L19
+ 777 0010 07AC     		add	r4, sp, #28
+ 778 0012 7F42     		rsbs	r7, r7, #0
+ 779 0014 0123     		movs	r3, #1
+ 780 0016 1022     		movs	r2, #16
+ 781 0018 6521     		movs	r1, #101
+ 782 001a 2800     		movs	r0, r5
+ 783 001c 0297     		str	r7, [sp, #8]
+ 784 001e 0196     		str	r6, [sp, #4]
+ 785 0020 0094     		str	r4, [sp]
+ 786 0022 FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 787              	.LVL42:
+  97:Lib/SD3077.c  **** 
+  98:Lib/SD3077.c  **** 	// 允许频率中断
+  99:Lib/SD3077.c  **** 	data[0] |= 0x01;
+ 788              		.loc 1 99 2 view .LVU190
+ARM GAS  D:\Temp\cc8obYI6.s 			page 18
+
+
+ 100:Lib/SD3077.c  **** 	// 选择频率中断输出
+ 101:Lib/SD3077.c  **** 	data[0] |= 0x20;
+ 789              		.loc 1 101 2 view .LVU191
+ 102:Lib/SD3077.c  **** 	data[0] &= 0xEF;
+ 790              		.loc 1 102 2 view .LVU192
+ 791              		.loc 1 102 10 is_stmt 0 view .LVU193
+ 792 0026 1022     		movs	r2, #16
+ 793 0028 2123     		movs	r3, #33
+ 794 002a 2178     		ldrb	r1, [r4]
+ 103:Lib/SD3077.c  **** 
+ 104:Lib/SD3077.c  **** 	// 设置频率为1Hz
+ 105:Lib/SD3077.c  **** 	data[1] &= 0xF0;
+ 106:Lib/SD3077.c  **** 	data[1] |= freq;
+ 107:Lib/SD3077.c  **** 
+ 108:Lib/SD3077.c  **** 	// 设置频率为1秒
+ 109:Lib/SD3077.c  **** //	data[1] |= 0x0F;
+ 110:Lib/SD3077.c  **** 
+ 111:Lib/SD3077.c  **** 	// 控制寄存器回写
+ 112:Lib/SD3077.c  **** 	HAL_I2C_Mem_Write(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_WRITE, 0x10, 1, data, 2, HAL_MAX_DELAY);
+ 795              		.loc 1 112 2 view .LVU194
+ 796 002c 2800     		movs	r0, r5
+ 102:Lib/SD3077.c  **** 	data[0] &= 0xEF;
+ 797              		.loc 1 102 10 view .LVU195
+ 798 002e 9143     		bics	r1, r2
+ 799 0030 0B43     		orrs	r3, r1
  105:Lib/SD3077.c  **** 	data[1] |= freq;
+ 800              		.loc 1 105 10 view .LVU196
+ 801 0032 0F21     		movs	r1, #15
+ 102:Lib/SD3077.c  **** 	data[0] &= 0xEF;
+ 802              		.loc 1 102 10 view .LVU197
+ 803 0034 2370     		strb	r3, [r4]
+ 105:Lib/SD3077.c  **** 	data[1] |= freq;
+ 804              		.loc 1 105 2 is_stmt 1 view .LVU198
  106:Lib/SD3077.c  **** 
- 107:Lib/SD3077.c  **** 	// 设置频率为1秒
- 108:Lib/SD3077.c  **** //	data[1] |= 0x0F;
- 109:Lib/SD3077.c  **** 
- 110:Lib/SD3077.c  **** 	// 控制寄存器回写
- 111:Lib/SD3077.c  **** 	HAL_I2C_Mem_Write(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_WRITE, 0x10, 1, data, 2, HAL_MAX_DELAY);
- 832              		.loc 1 111 2 view .LVU197
- 833 002c 2800     		movs	r0, r5
- 101:Lib/SD3077.c  **** 	data[0] &= 0xEF;
-ARM GAS  D:\Temp\ccqeondb.s 			page 19
+ 805              		.loc 1 106 2 view .LVU199
+ 105:Lib/SD3077.c  **** 	data[1] |= freq;
+ 806              		.loc 1 105 10 is_stmt 0 view .LVU200
+ 807 0036 6378     		ldrb	r3, [r4, #1]
+ 808 0038 8B43     		bics	r3, r1
+ 106:Lib/SD3077.c  **** 
+ 809              		.loc 1 106 10 view .LVU201
+ 810 003a 0599     		ldr	r1, [sp, #20]
+ 811 003c 1943     		orrs	r1, r3
+ 812 003e 6170     		strb	r1, [r4, #1]
+ 813              		.loc 1 112 2 is_stmt 1 view .LVU202
+ 814 0040 0123     		movs	r3, #1
+ 815 0042 6421     		movs	r1, #100
+ 816 0044 0297     		str	r7, [sp, #8]
+ 817 0046 0196     		str	r6, [sp, #4]
+ 818 0048 0094     		str	r4, [sp]
+ 819 004a FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 820              	.LVL43:
+ 113:Lib/SD3077.c  **** }
+ 821              		.loc 1 113 1 is_stmt 0 view .LVU203
+ 822 004e 09B0     		add	sp, sp, #36
+ 823              		@ sp needed
+ 824 0050 F0BD     		pop	{r4, r5, r6, r7, pc}
+ARM GAS  D:\Temp\cc8obYI6.s 			page 19
 
 
- 834              		.loc 1 101 10 view .LVU198
- 835 002e 9143     		bics	r1, r2
- 836 0030 0B43     		orrs	r3, r1
- 104:Lib/SD3077.c  **** 	data[1] |= freq;
- 837              		.loc 1 104 10 view .LVU199
- 838 0032 0F21     		movs	r1, #15
- 101:Lib/SD3077.c  **** 	data[0] &= 0xEF;
- 839              		.loc 1 101 10 view .LVU200
- 840 0034 2370     		strb	r3, [r4]
- 104:Lib/SD3077.c  **** 	data[1] |= freq;
- 841              		.loc 1 104 2 is_stmt 1 view .LVU201
- 105:Lib/SD3077.c  **** 
- 842              		.loc 1 105 2 view .LVU202
- 104:Lib/SD3077.c  **** 	data[1] |= freq;
- 843              		.loc 1 104 10 is_stmt 0 view .LVU203
- 844 0036 6378     		ldrb	r3, [r4, #1]
- 845 0038 8B43     		bics	r3, r1
- 105:Lib/SD3077.c  **** 
- 846              		.loc 1 105 10 view .LVU204
- 847 003a 0599     		ldr	r1, [sp, #20]
- 848 003c 1943     		orrs	r1, r3
- 849 003e 6170     		strb	r1, [r4, #1]
- 850              		.loc 1 111 2 is_stmt 1 view .LVU205
- 851 0040 0123     		movs	r3, #1
- 852 0042 6421     		movs	r1, #100
- 853 0044 0297     		str	r7, [sp, #8]
- 854 0046 0196     		str	r6, [sp, #4]
- 855 0048 0094     		str	r4, [sp]
- 856 004a FFF7FEFF 		bl	HAL_I2C_Mem_Write
- 857              	.LVL44:
- 112:Lib/SD3077.c  **** }
- 858              		.loc 1 112 1 is_stmt 0 view .LVU206
- 859 004e 09B0     		add	sp, sp, #36
- 860              		@ sp needed
- 861 0050 F0BD     		pop	{r4, r5, r6, r7, pc}
- 862              	.L19:
- 863 0052 C046     		.align	2
- 864              	.L18:
- 865 0054 00000000 		.word	hi2c1
- 866              		.cfi_endproc
- 867              	.LFE43:
- 869              		.section	.text.WriteBackData,"ax",%progbits
- 870              		.align	1
- 871              		.global	WriteBackData
- 872              		.syntax unified
- 873              		.code	16
- 874              		.thumb_func
- 876              	WriteBackData:
- 877              	.LVL45:
- 878              	.LFB44:
- 113:Lib/SD3077.c  **** 
- 114:Lib/SD3077.c  **** void WriteBackData(uint8_t index, uint8_t *data, uint8_t size){
- 879              		.loc 1 114 63 is_stmt 1 view -0
- 880              		.cfi_startproc
- 881              		@ args = 0, pretend = 0, frame = 0
- 882              		@ frame_needed = 0, uses_anonymous_args = 0
+ 825              	.L20:
+ 826 0052 C046     		.align	2
+ 827              	.L19:
+ 828 0054 00000000 		.word	hi2c1
+ 829              		.cfi_endproc
+ 830              	.LFE43:
+ 832              		.section	.text.WriteBackData,"ax",%progbits
+ 833              		.align	1
+ 834              		.global	WriteBackData
+ 835              		.syntax unified
+ 836              		.code	16
+ 837              		.thumb_func
+ 839              	WriteBackData:
+ 840              	.LVL44:
+ 841              	.LFB44:
+ 114:Lib/SD3077.c  **** 
+ 115:Lib/SD3077.c  **** void WriteBackData(uint8_t index, uint8_t *data, uint8_t size){
+ 842              		.loc 1 115 63 is_stmt 1 view -0
+ 843              		.cfi_startproc
+ 844              		@ args = 0, pretend = 0, frame = 0
+ 845              		@ frame_needed = 0, uses_anonymous_args = 0
+ 116:Lib/SD3077.c  **** 	if(index > 69) return;
+ 846              		.loc 1 116 2 view .LVU205
  115:Lib/SD3077.c  **** 	if(index > 69) return;
-ARM GAS  D:\Temp\ccqeondb.s 			page 20
+ 847              		.loc 1 115 63 is_stmt 0 view .LVU206
+ 848 0000 7FB5     		push	{r0, r1, r2, r3, r4, r5, r6, lr}
+ 849              	.LCFI10:
+ 850              		.cfi_def_cfa_offset 32
+ 851              		.cfi_offset 0, -32
+ 852              		.cfi_offset 1, -28
+ 853              		.cfi_offset 2, -24
+ 854              		.cfi_offset 3, -20
+ 855              		.cfi_offset 4, -16
+ 856              		.cfi_offset 5, -12
+ 857              		.cfi_offset 6, -8
+ 858              		.cfi_offset 14, -4
+ 115:Lib/SD3077.c  **** 	if(index > 69) return;
+ 859              		.loc 1 115 63 view .LVU207
+ 860 0002 0400     		movs	r4, r0
+ 861 0004 0D00     		movs	r5, r1
+ 862 0006 1600     		movs	r6, r2
+ 863              		.loc 1 116 4 view .LVU208
+ 864 0008 4528     		cmp	r0, #69
+ 865 000a 0DD8     		bhi	.L21
+ 117:Lib/SD3077.c  **** 
+ 118:Lib/SD3077.c  **** 	// 解除写保护
+ 119:Lib/SD3077.c  **** 	UnlockWriteProtect();
+ 866              		.loc 1 119 2 is_stmt 1 view .LVU209
+ 867 000c FFF7FEFF 		bl	UnlockWriteProtect
+ 868              	.LVL45:
+ 120:Lib/SD3077.c  **** 
+ 121:Lib/SD3077.c  **** 	// 写入备份寄存器
+ 122:Lib/SD3077.c  **** 	HAL_I2C_Mem_Write(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_WRITE, 0x2C + index, 1, data, size, HAL_MAX_
+ 869              		.loc 1 122 2 view .LVU210
+ 870 0010 0123     		movs	r3, #1
+ 871 0012 2200     		movs	r2, r4
+ 872 0014 5B42     		rsbs	r3, r3, #0
+ARM GAS  D:\Temp\cc8obYI6.s 			page 20
 
 
- 883              		.loc 1 115 2 view .LVU208
- 114:Lib/SD3077.c  **** 	if(index > 69) return;
- 884              		.loc 1 114 63 is_stmt 0 view .LVU209
- 885 0000 7FB5     		push	{r0, r1, r2, r3, r4, r5, r6, lr}
- 886              	.LCFI10:
- 887              		.cfi_def_cfa_offset 32
- 888              		.cfi_offset 0, -32
- 889              		.cfi_offset 1, -28
- 890              		.cfi_offset 2, -24
- 891              		.cfi_offset 3, -20
- 892              		.cfi_offset 4, -16
- 893              		.cfi_offset 5, -12
- 894              		.cfi_offset 6, -8
- 895              		.cfi_offset 14, -4
- 114:Lib/SD3077.c  **** 	if(index > 69) return;
- 896              		.loc 1 114 63 view .LVU210
- 897 0002 0400     		movs	r4, r0
- 898 0004 0D00     		movs	r5, r1
- 899 0006 1600     		movs	r6, r2
- 900              		.loc 1 115 4 view .LVU211
- 901 0008 4528     		cmp	r0, #69
- 902 000a 0DD8     		bhi	.L20
- 116:Lib/SD3077.c  **** 
- 117:Lib/SD3077.c  **** 	// 解除写保护
- 118:Lib/SD3077.c  **** 	UnlockWriteProtect();
- 903              		.loc 1 118 2 is_stmt 1 view .LVU212
- 904 000c FFF7FEFF 		bl	UnlockWriteProtect
- 905              	.LVL46:
- 119:Lib/SD3077.c  **** 
- 120:Lib/SD3077.c  **** 	// 写入备份寄存器
- 121:Lib/SD3077.c  **** 	HAL_I2C_Mem_Write(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_WRITE, 0x2C + index, 1, data, size, HAL_MAX_
- 906              		.loc 1 121 2 view .LVU213
- 907 0010 0123     		movs	r3, #1
- 908 0012 2200     		movs	r2, r4
- 909 0014 5B42     		rsbs	r3, r3, #0
- 910 0016 0293     		str	r3, [sp, #8]
- 911 0018 6421     		movs	r1, #100
- 912 001a 0448     		ldr	r0, .L22
- 913 001c 2C32     		adds	r2, r2, #44
- 914 001e 0196     		str	r6, [sp, #4]
- 915 0020 0095     		str	r5, [sp]
- 916 0022 0233     		adds	r3, r3, #2
- 917 0024 FFF7FEFF 		bl	HAL_I2C_Mem_Write
- 918              	.LVL47:
- 919              	.L20:
- 122:Lib/SD3077.c  **** }
- 920              		.loc 1 122 1 is_stmt 0 view .LVU214
- 921              		@ sp needed
- 922              	.LVL48:
- 923              	.LVL49:
- 924              	.LVL50:
- 925              		.loc 1 122 1 view .LVU215
- 926 0028 7FBD     		pop	{r0, r1, r2, r3, r4, r5, r6, pc}
- 927              	.L23:
- 928 002a C046     		.align	2
- 929              	.L22:
- 930 002c 00000000 		.word	hi2c1
-ARM GAS  D:\Temp\ccqeondb.s 			page 21
-
-
- 931              		.cfi_endproc
- 932              	.LFE44:
- 934              		.section	.text.ReadBackData,"ax",%progbits
- 935              		.align	1
- 936              		.global	ReadBackData
- 937              		.syntax unified
- 938              		.code	16
- 939              		.thumb_func
- 941              	ReadBackData:
- 942              	.LVL51:
- 943              	.LFB45:
- 123:Lib/SD3077.c  **** 
- 124:Lib/SD3077.c  **** void ReadBackData(uint8_t index, uint8_t *data, uint8_t size){
- 944              		.loc 1 124 62 is_stmt 1 view -0
- 945              		.cfi_startproc
- 946              		@ args = 0, pretend = 0, frame = 0
- 947              		@ frame_needed = 0, uses_anonymous_args = 0
+ 873 0016 0293     		str	r3, [sp, #8]
+ 874 0018 6421     		movs	r1, #100
+ 875 001a 0448     		ldr	r0, .L23
+ 876 001c 2C32     		adds	r2, r2, #44
+ 877 001e 0196     		str	r6, [sp, #4]
+ 878 0020 0095     		str	r5, [sp]
+ 879 0022 0233     		adds	r3, r3, #2
+ 880 0024 FFF7FEFF 		bl	HAL_I2C_Mem_Write
+ 881              	.LVL46:
+ 882              	.L21:
+ 123:Lib/SD3077.c  **** }
+ 883              		.loc 1 123 1 is_stmt 0 view .LVU211
+ 884              		@ sp needed
+ 885              	.LVL47:
+ 886              	.LVL48:
+ 887              	.LVL49:
+ 888              		.loc 1 123 1 view .LVU212
+ 889 0028 7FBD     		pop	{r0, r1, r2, r3, r4, r5, r6, pc}
+ 890              	.L24:
+ 891 002a C046     		.align	2
+ 892              	.L23:
+ 893 002c 00000000 		.word	hi2c1
+ 894              		.cfi_endproc
+ 895              	.LFE44:
+ 897              		.section	.text.ReadBackData,"ax",%progbits
+ 898              		.align	1
+ 899              		.global	ReadBackData
+ 900              		.syntax unified
+ 901              		.code	16
+ 902              		.thumb_func
+ 904              	ReadBackData:
+ 905              	.LVL50:
+ 906              	.LFB45:
+ 124:Lib/SD3077.c  **** 
+ 125:Lib/SD3077.c  **** void ReadBackData(uint8_t index, uint8_t *data, uint8_t size){
+ 907              		.loc 1 125 62 is_stmt 1 view -0
+ 908              		.cfi_startproc
+ 909              		@ args = 0, pretend = 0, frame = 0
+ 910              		@ frame_needed = 0, uses_anonymous_args = 0
+ 126:Lib/SD3077.c  **** 	if(index > 69) return;
+ 911              		.loc 1 126 2 view .LVU214
  125:Lib/SD3077.c  **** 	if(index > 69) return;
- 948              		.loc 1 125 2 view .LVU217
- 124:Lib/SD3077.c  **** 	if(index > 69) return;
- 949              		.loc 1 124 62 is_stmt 0 view .LVU218
- 950 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
- 951              	.LCFI11:
- 952              		.cfi_def_cfa_offset 24
- 953              		.cfi_offset 0, -24
- 954              		.cfi_offset 1, -20
- 955              		.cfi_offset 2, -16
- 956              		.cfi_offset 3, -12
- 957              		.cfi_offset 4, -8
- 958              		.cfi_offset 14, -4
- 124:Lib/SD3077.c  **** 	if(index > 69) return;
- 959              		.loc 1 124 62 view .LVU219
- 960 0002 1300     		movs	r3, r2
- 961              		.loc 1 125 4 view .LVU220
- 962 0004 4528     		cmp	r0, #69
- 963 0006 0BD8     		bhi	.L24
- 126:Lib/SD3077.c  **** 
- 127:Lib/SD3077.c  **** 	// 从备份寄存器读出
- 128:Lib/SD3077.c  **** 	HAL_I2C_Mem_Read(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_READ, 0x2C + index, 1, data, size, HAL_MAX_DE
- 964              		.loc 1 128 2 is_stmt 1 view .LVU221
- 965 0008 0124     		movs	r4, #1
- 966 000a 0200     		movs	r2, r0
- 967              	.LVL52:
- 968              		.loc 1 128 2 is_stmt 0 view .LVU222
- 969 000c 6442     		rsbs	r4, r4, #0
- 970 000e 0193     		str	r3, [sp, #4]
- 971 0010 0091     		str	r1, [sp]
- 972 0012 0123     		movs	r3, #1
- 973              	.LVL53:
- 974              		.loc 1 128 2 view .LVU223
- 975 0014 6521     		movs	r1, #101
- 976              	.LVL54:
- 977              		.loc 1 128 2 view .LVU224
- 978 0016 0348     		ldr	r0, .L26
- 979              	.LVL55:
- 980              		.loc 1 128 2 view .LVU225
- 981 0018 2C32     		adds	r2, r2, #44
-ARM GAS  D:\Temp\ccqeondb.s 			page 22
+ 912              		.loc 1 125 62 is_stmt 0 view .LVU215
+ 913 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
+ 914              	.LCFI11:
+ 915              		.cfi_def_cfa_offset 24
+ 916              		.cfi_offset 0, -24
+ 917              		.cfi_offset 1, -20
+ 918              		.cfi_offset 2, -16
+ 919              		.cfi_offset 3, -12
+ 920              		.cfi_offset 4, -8
+ 921              		.cfi_offset 14, -4
+ 125:Lib/SD3077.c  **** 	if(index > 69) return;
+ 922              		.loc 1 125 62 view .LVU216
+ 923 0002 1300     		movs	r3, r2
+ 924              		.loc 1 126 4 view .LVU217
+ 925 0004 4528     		cmp	r0, #69
+ARM GAS  D:\Temp\cc8obYI6.s 			page 21
 
 
- 982              	.LVL56:
- 983              		.loc 1 128 2 view .LVU226
- 984 001a 0294     		str	r4, [sp, #8]
- 985 001c FFF7FEFF 		bl	HAL_I2C_Mem_Read
- 986              	.LVL57:
- 987              	.L24:
- 129:Lib/SD3077.c  **** }
- 988              		.loc 1 129 1 view .LVU227
- 989              		@ sp needed
- 990 0020 1FBD     		pop	{r0, r1, r2, r3, r4, pc}
- 991              	.L27:
- 992 0022 C046     		.align	2
- 993              	.L26:
- 994 0024 00000000 		.word	hi2c1
- 995              		.cfi_endproc
- 996              	.LFE45:
- 998              		.text
- 999              	.Letext0:
- 1000              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin\\../lib/gcc/arm-none-eabi
- 1001              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin\\../lib/gcc/arm-none-eabi
- 1002              		.file 4 "Drivers/CMSIS/Device/ST/STM32F0xx/Include/stm32f030x6.h"
- 1003              		.file 5 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_def.h"
- 1004              		.file 6 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_dma.h"
- 1005              		.file 7 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c.h"
- 1006              		.file 8 "Lib/SD3077.h"
- 1007              		.file 9 "Inc/i2c.h"
-ARM GAS  D:\Temp\ccqeondb.s 			page 23
+ 926 0006 0BD8     		bhi	.L25
+ 127:Lib/SD3077.c  **** 
+ 128:Lib/SD3077.c  **** 	// 从备份寄存器读出
+ 129:Lib/SD3077.c  **** 	HAL_I2C_Mem_Read(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_READ, 0x2C + index, 1, data, size, HAL_MAX_DE
+ 927              		.loc 1 129 2 is_stmt 1 view .LVU218
+ 928 0008 0124     		movs	r4, #1
+ 929 000a 0200     		movs	r2, r0
+ 930              	.LVL51:
+ 931              		.loc 1 129 2 is_stmt 0 view .LVU219
+ 932 000c 6442     		rsbs	r4, r4, #0
+ 933 000e 0193     		str	r3, [sp, #4]
+ 934 0010 0091     		str	r1, [sp]
+ 935 0012 0123     		movs	r3, #1
+ 936              	.LVL52:
+ 937              		.loc 1 129 2 view .LVU220
+ 938 0014 6521     		movs	r1, #101
+ 939              	.LVL53:
+ 940              		.loc 1 129 2 view .LVU221
+ 941 0016 0348     		ldr	r0, .L27
+ 942              	.LVL54:
+ 943              		.loc 1 129 2 view .LVU222
+ 944 0018 2C32     		adds	r2, r2, #44
+ 945              	.LVL55:
+ 946              		.loc 1 129 2 view .LVU223
+ 947 001a 0294     		str	r4, [sp, #8]
+ 948 001c FFF7FEFF 		bl	HAL_I2C_Mem_Read
+ 949              	.LVL56:
+ 950              	.L25:
+ 130:Lib/SD3077.c  **** }
+ 951              		.loc 1 130 1 view .LVU224
+ 952              		@ sp needed
+ 953 0020 1FBD     		pop	{r0, r1, r2, r3, r4, pc}
+ 954              	.L28:
+ 955 0022 C046     		.align	2
+ 956              	.L27:
+ 957 0024 00000000 		.word	hi2c1
+ 958              		.cfi_endproc
+ 959              	.LFE45:
+ 961              		.text
+ 962              	.Letext0:
+ 963              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 964              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 965              		.file 4 "Drivers/CMSIS/Device/ST/STM32F0xx/Include/stm32f030x6.h"
+ 966              		.file 5 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_def.h"
+ 967              		.file 6 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_dma.h"
+ 968              		.file 7 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c.h"
+ 969              		.file 8 "Lib/SD3077.h"
+ 970              		.file 9 "Inc/i2c.h"
+ARM GAS  D:\Temp\cc8obYI6.s 			page 22
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 SD3077.c
-  D:\Temp\ccqeondb.s:19     .text.UnlockWriteProtect:00000000 $t
-  D:\Temp\ccqeondb.s:24     .text.UnlockWriteProtect:00000000 UnlockWriteProtect
-  D:\Temp\ccqeondb.s:127    .text.UnlockWriteProtect:00000084 $d
-  D:\Temp\ccqeondb.s:132    .text.TimeNow:00000000 $t
-  D:\Temp\ccqeondb.s:138    .text.TimeNow:00000000 TimeNow
-  D:\Temp\ccqeondb.s:380    .text.TimeNow:0000009c $d
-  D:\Temp\ccqeondb.s:388    .text.SetTime:00000000 $t
-  D:\Temp\ccqeondb.s:394    .text.SetTime:00000000 SetTime
-  D:\Temp\ccqeondb.s:686    .text.SetTime:000000c0 $d
-  D:\Temp\ccqeondb.s:691    .text.EnableSencodInterruptOuput:00000000 $t
-  D:\Temp\ccqeondb.s:697    .text.EnableSencodInterruptOuput:00000000 EnableSencodInterruptOuput
-  D:\Temp\ccqeondb.s:771    .text.EnableSencodInterruptOuput:0000004c $d
-  D:\Temp\ccqeondb.s:776    .text.SetInterruptOuput:00000000 $t
-  D:\Temp\ccqeondb.s:782    .text.SetInterruptOuput:00000000 SetInterruptOuput
-  D:\Temp\ccqeondb.s:865    .text.SetInterruptOuput:00000054 $d
-  D:\Temp\ccqeondb.s:870    .text.WriteBackData:00000000 $t
-  D:\Temp\ccqeondb.s:876    .text.WriteBackData:00000000 WriteBackData
-  D:\Temp\ccqeondb.s:930    .text.WriteBackData:0000002c $d
-  D:\Temp\ccqeondb.s:935    .text.ReadBackData:00000000 $t
-  D:\Temp\ccqeondb.s:941    .text.ReadBackData:00000000 ReadBackData
-  D:\Temp\ccqeondb.s:994    .text.ReadBackData:00000024 $d
+  D:\Temp\cc8obYI6.s:19     .text.UnlockWriteProtect:00000000 $t
+  D:\Temp\cc8obYI6.s:24     .text.UnlockWriteProtect:00000000 UnlockWriteProtect
+  D:\Temp\cc8obYI6.s:127    .text.UnlockWriteProtect:00000084 $d
+  D:\Temp\cc8obYI6.s:132    .text.TimeNow:00000000 $t
+  D:\Temp\cc8obYI6.s:138    .text.TimeNow:00000000 TimeNow
+  D:\Temp\cc8obYI6.s:380    .text.TimeNow:0000009c $d
+  D:\Temp\cc8obYI6.s:388    .text.SetTime:00000000 $t
+  D:\Temp\cc8obYI6.s:394    .text.SetTime:00000000 SetTime
+  D:\Temp\cc8obYI6.s:649    .text.SetTime:000000bc $d
+  D:\Temp\cc8obYI6.s:654    .text.EnableSencodInterruptOuput:00000000 $t
+  D:\Temp\cc8obYI6.s:660    .text.EnableSencodInterruptOuput:00000000 EnableSencodInterruptOuput
+  D:\Temp\cc8obYI6.s:734    .text.EnableSencodInterruptOuput:0000004c $d
+  D:\Temp\cc8obYI6.s:739    .text.SetInterruptOuput:00000000 $t
+  D:\Temp\cc8obYI6.s:745    .text.SetInterruptOuput:00000000 SetInterruptOuput
+  D:\Temp\cc8obYI6.s:828    .text.SetInterruptOuput:00000054 $d
+  D:\Temp\cc8obYI6.s:833    .text.WriteBackData:00000000 $t
+  D:\Temp\cc8obYI6.s:839    .text.WriteBackData:00000000 WriteBackData
+  D:\Temp\cc8obYI6.s:893    .text.WriteBackData:0000002c $d
+  D:\Temp\cc8obYI6.s:898    .text.ReadBackData:00000000 $t
+  D:\Temp\cc8obYI6.s:904    .text.ReadBackData:00000000 ReadBackData
+  D:\Temp\cc8obYI6.s:957    .text.ReadBackData:00000024 $d
 
 UNDEFINED SYMBOLS
 HAL_I2C_Mem_Read

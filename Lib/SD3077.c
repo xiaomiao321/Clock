@@ -45,18 +45,19 @@ void SetTime(DateTime *dateTime){
 	uint8_t data[7];
 	data[0] = bin2bcd(dateTime->seconds);
 	data[1] = bin2bcd(dateTime->minutes);
-	data[2] = bin2bcd(dateTime->hours);
+
+	// 小时需要特殊处理，先转BCD再设置格式位
+	if((dateTime -> ampm) == HOUR24){
+		data[2] = bin2bcd(dateTime->hours) | 0x80;  // 24小时制：BCD + 最高位为1
+	}
+	else{
+		data[2] = bin2bcd(dateTime->hours) | ((dateTime -> ampm) << 5);  // 12小时制：BCD + AM/PM位
+	}
+
 	data[3] = bin2bcd(dateTime->dayOfWeek);
 	data[4] = bin2bcd(dateTime->dayOfMonth);
 	data[5] = bin2bcd(dateTime->month);
 	data[6] = bin2bcd(dateTime->year);
-
-	if((dateTime -> ampm) == HOUR24){
-		data[2] |= 0x80;
-	}
-	else{
-		data[2] |= (dateTime -> ampm) << 5;
-	}
 
 	HAL_I2C_Mem_Write(&SD3077_IIC_HANDLE, SD3077_IIC_ADDR_WRITE, 0x00, 1, data, 7, HAL_MAX_DELAY);
 }
