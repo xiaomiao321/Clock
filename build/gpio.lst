@@ -1,4 +1,4 @@
-ARM GAS  D:\Temp\cc8yXY0c.s 			page 1
+ARM GAS  D:\Temp\ccOU3Yl4.s 			page 1
 
 
    1              		.cpu cortex-m0
@@ -58,7 +58,7 @@ ARM GAS  D:\Temp\cc8yXY0c.s 			page 1
   30:Src/gpio.c    **** 
   31:Src/gpio.c    **** /* USER CODE END 1 */
   32:Src/gpio.c    **** 
-ARM GAS  D:\Temp\cc8yXY0c.s 			page 2
+ARM GAS  D:\Temp\ccOU3Yl4.s 			page 2
 
 
   33:Src/gpio.c    **** /** Configure pins as 
@@ -118,7 +118,7 @@ ARM GAS  D:\Temp\cc8yXY0c.s 			page 1
   54:Src/gpio.c    ****   HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, GPIO_PIN_SET);
   59              		.loc 1 54 3 is_stmt 0 view .LVU7
   60 0016 9026     		movs	r6, #144
-ARM GAS  D:\Temp\cc8yXY0c.s 			page 3
+ARM GAS  D:\Temp\ccOU3Yl4.s 			page 3
 
 
   61              	.LBB3:
@@ -178,7 +178,7 @@ ARM GAS  D:\Temp\cc8yXY0c.s 			page 1
  102              	.LBB9:
   48:Src/gpio.c    **** 
  103              		.loc 1 48 3 view .LVU22
-ARM GAS  D:\Temp\cc8yXY0c.s 			page 4
+ARM GAS  D:\Temp\ccOU3Yl4.s 			page 4
 
 
  104 0036 8021     		movs	r1, #128
@@ -238,7 +238,7 @@ ARM GAS  D:\Temp\cc8yXY0c.s 			page 1
  144 0056 0122     		movs	r2, #1
  145 0058 3000     		movs	r0, r6
  146 005a 4021     		movs	r1, #64
-ARM GAS  D:\Temp\cc8yXY0c.s 			page 5
+ARM GAS  D:\Temp\ccOU3Yl4.s 			page 5
 
 
  147 005c FFF7FEFF 		bl	HAL_GPIO_WritePin
@@ -298,7 +298,7 @@ ARM GAS  D:\Temp\cc8yXY0c.s 			page 1
   67:Src/gpio.c    ****   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
  182              		.loc 1 67 3 view .LVU56
  183 007e 3000     		movs	r0, r6
-ARM GAS  D:\Temp\cc8yXY0c.s 			page 6
+ARM GAS  D:\Temp\ccOU3Yl4.s 			page 6
 
 
  184 0080 03A9     		add	r1, sp, #12
@@ -358,7 +358,7 @@ ARM GAS  D:\Temp\cc8yXY0c.s 			page 1
  217              		.loc 1 78 3 is_stmt 1 view .LVU74
  218              		.loc 1 78 24 is_stmt 0 view .LVU75
  219 00a0 0F4B     		ldr	r3, .L2+12
-ARM GAS  D:\Temp\cc8yXY0c.s 			page 7
+ARM GAS  D:\Temp\ccOU3Yl4.s 			page 7
 
 
   79:Src/gpio.c    ****   GPIO_InitStruct.Pull = GPIO_PULLUP;
@@ -418,7 +418,7 @@ ARM GAS  D:\Temp\cc8yXY0c.s 			page 1
  260 00dc 00003110 		.word	271646720
  261 00e0 00002110 		.word	270598144
  262 00e4 00040048 		.word	1207960576
-ARM GAS  D:\Temp\cc8yXY0c.s 			page 8
+ARM GAS  D:\Temp\ccOU3Yl4.s 			page 8
 
 
  263              		.cfi_endproc
@@ -426,19 +426,19 @@ ARM GAS  D:\Temp\cc8yXY0c.s 			page 1
  266              		.text
  267              	.Letext0:
  268              		.file 2 "Drivers/CMSIS/Device/ST/STM32F0xx/Include/stm32f030x6.h"
- 269              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin\\../lib/gcc/arm-none-eabi
- 270              		.file 4 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin\\../lib/gcc/arm-none-eabi
+ 269              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 270              		.file 4 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
  271              		.file 5 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_gpio.h"
  272              		.file 6 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_cortex.h"
  273              		.file 7 "<built-in>"
-ARM GAS  D:\Temp\cc8yXY0c.s 			page 9
+ARM GAS  D:\Temp\ccOU3Yl4.s 			page 9
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 gpio.c
-  D:\Temp\cc8yXY0c.s:19     .text.MX_GPIO_Init:00000000 $t
-  D:\Temp\cc8yXY0c.s:25     .text.MX_GPIO_Init:00000000 MX_GPIO_Init
-  D:\Temp\cc8yXY0c.s:258    .text.MX_GPIO_Init:000000d4 $d
+  D:\Temp\ccOU3Yl4.s:19     .text.MX_GPIO_Init:00000000 $t
+  D:\Temp\ccOU3Yl4.s:25     .text.MX_GPIO_Init:00000000 MX_GPIO_Init
+  D:\Temp\ccOU3Yl4.s:258    .text.MX_GPIO_Init:000000d4 $d
 
 UNDEFINED SYMBOLS
 memset

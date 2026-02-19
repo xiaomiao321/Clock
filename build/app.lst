@@ -1,0 +1,3455 @@
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.arch armv6s-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"app.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Src/app.c"
+  18              		.section	.text.SetKey_Clicked,"ax",%progbits
+  19              		.align	1
+  20              		.syntax unified
+  21              		.code	16
+  22              		.thumb_func
+  24              	SetKey_Clicked:
+  25              	.LFB40:
+   1:Src/app.c     **** /*
+   2:Src/app.c     ****  * @file           : app.c
+   3:Src/app.c     ****  * @brief          : 应用层主模块源文件
+   4:Src/app.c     ****  */
+   5:Src/app.c     **** #include "app.h"
+   6:Src/app.c     **** #include "adc.h"
+   7:Src/app.c     **** #include "tim.h"
+   8:Src/app.c     **** #include "gpio.h"
+   9:Src/app.c     **** 
+  10:Src/app.c     **** /* 外部变量声明 */
+  11:Src/app.c     **** extern ADC_HandleTypeDef hadc;
+  12:Src/app.c     **** extern TIM_HandleTypeDef htim3;
+  13:Src/app.c     **** extern TIM_HandleTypeDef htim16;
+  14:Src/app.c     **** 
+  15:Src/app.c     **** /* 全局应用状态 */
+  16:Src/app.c     **** AppState g_App = {0};
+  17:Src/app.c     **** 
+  18:Src/app.c     **** /* 函数声明 */
+  19:Src/app.c     **** static void ModeKey_Clicked(void);
+  20:Src/app.c     **** static void ModeKey_LongPressed(void);
+  21:Src/app.c     **** static void SetKey_Clicked(void);
+  22:Src/app.c     **** static void SetKey_Repeat(void);
+  23:Src/app.c     **** 
+  24:Src/app.c     **** /**
+  25:Src/app.c     ****  * @brief  应用初始化
+  26:Src/app.c     ****  */
+  27:Src/app.c     **** void App_Init(void) {
+  28:Src/app.c     ****     /* 初始化各模块 */
+  29:Src/app.c     ****     Settings_Init();
+  30:Src/app.c     ****     Display_Init();
+  31:Src/app.c     ****     Temperature_Init();
+  32:Src/app.c     ****     Alarm_Init();
+  33:Src/app.c     ****     Ring_Init();
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 2
+
+
+  34:Src/app.c     **** 
+  35:Src/app.c     ****     /* 初始化应用状态 */
+  36:Src/app.c     ****     g_App.isInitCompleted = false;
+  37:Src/app.c     ****     g_App.isWeakBrightness = true;
+  38:Src/app.c     ****     g_App.lastDisplayChangeTime = 0;
+  39:Src/app.c     ****     g_App.lastModeKeyPressTime = 0;
+  40:Src/app.c     ****     g_App.lastSetKeyPressTime = 0;
+  41:Src/app.c     ****     g_App.lastSetKeyPressReportTime = 0;
+  42:Src/app.c     ****     g_App.setKeyRepeatReported = false;
+  43:Src/app.c     **** 
+  44:Src/app.c     ****     /* ADC 和定时器初始化 */
+  45:Src/app.c     ****     HAL_ADCEx_Calibration_Start(&hadc);
+  46:Src/app.c     ****     HAL_ADC_Start_DMA(&hadc, g_App.adcValue, 2);
+  47:Src/app.c     ****     HAL_TIM_Base_Start(&htim3);
+  48:Src/app.c     ****     HAL_TIM_Base_Start_IT(&LIGHT_CONTROL_TIMER_HANDLE);
+  49:Src/app.c     **** 
+  50:Src/app.c     ****     /* 初始化 RTC 和时间 */
+  51:Src/app.c     ****     DateTime time = {0};
+  52:Src/app.c     ****     TimeNow(&time);
+  53:Src/app.c     ****     g_App.lastTime = time;
+  54:Src/app.c     ****     Ring_SetStartTime(time.hours);
+  55:Src/app.c     **** 
+  56:Src/app.c     ****     /* 启用秒中断 */
+  57:Src/app.c     ****     EnableSencodInterruptOuput();
+  58:Src/app.c     **** 
+  59:Src/app.c     ****     g_App.lastDisplayChangeTime = HAL_GetTick();
+  60:Src/app.c     ****     g_App.isInitCompleted = true;
+  61:Src/app.c     **** }
+  62:Src/app.c     **** 
+  63:Src/app.c     **** /**
+  64:Src/app.c     ****  * @brief  模式键单击处理
+  65:Src/app.c     ****  */
+  66:Src/app.c     **** static void ModeKey_Clicked(void) {
+  67:Src/app.c     ****     if (Alarm_IsAlarming()) {
+  68:Src/app.c     ****         Alarm_Stop();
+  69:Src/app.c     ****         return;
+  70:Src/app.c     ****     }
+  71:Src/app.c     **** 
+  72:Src/app.c     ****     DisplayMode mode = Display_GetMode();
+  73:Src/app.c     ****     DateTime time;
+  74:Src/app.c     ****     TimeNow(&time);
+  75:Src/app.c     **** 
+  76:Src/app.c     ****     switch (mode) {
+  77:Src/app.c     ****     case MODE_SHOW_TIME:
+  78:Src/app.c     ****     case MODE_SHOW_TEMPERTURE:
+  79:Src/app.c     ****         Display_SetMode(MODE_SET_HOUR);
+  80:Src/app.c     ****         Display_SetBlink(true);
+  81:Src/app.c     ****         /* 保存当前 RTC 时间到 g_App.lastTime 用于设置 */
+  82:Src/app.c     ****         g_App.lastTime = time;
+  83:Src/app.c     ****         Display_SetTime(&g_App.lastTime);
+  84:Src/app.c     ****         Display_ShowSettings(MODE_SET_HOUR, &g_App.lastTime, true);
+  85:Src/app.c     ****         SetInterruptOuput(F_2_HZ);
+  86:Src/app.c     ****         break;
+  87:Src/app.c     **** 
+  88:Src/app.c     ****     case MODE_SHOW_SECOND:
+  89:Src/app.c     ****         time.seconds = 0;
+  90:Src/app.c     ****         SetTime(&time);
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 3
+
+
+  91:Src/app.c     ****         Display_ShowTime(&time, false);
+  92:Src/app.c     ****         break;
+  93:Src/app.c     **** 
+  94:Src/app.c     ****     case MODE_SET_HOUR:
+  95:Src/app.c     ****         Display_SetMode(MODE_SET_MINUTE);
+  96:Src/app.c     ****         Display_SetBlink(true);
+  97:Src/app.c     ****         Display_ShowSettings(MODE_SET_MINUTE, &g_App.lastTime, true);
+  98:Src/app.c     ****         break;
+  99:Src/app.c     **** 
+ 100:Src/app.c     ****     case MODE_SET_MINUTE:
+ 101:Src/app.c     ****         /* 保存设置的时间到 RTC */
+ 102:Src/app.c     ****         g_App.lastTime.seconds = 0;
+ 103:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 104:Src/app.c     ****         SetTime(&g_App.lastTime);
+ 105:Src/app.c     ****         Display_SetMode(MODE_SET_ALARM_ENABLE);
+ 106:Src/app.c     ****         Display_SetBlink(false);
+ 107:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_ENABLE, &g_App.lastTime, false);
+ 108:Src/app.c     ****         break;
+ 109:Src/app.c     **** 
+ 110:Src/app.c     ****     case MODE_SET_ALARM_ENABLE:
+ 111:Src/app.c     ****         Display_SetMode(Alarm_IsEnabled() ? MODE_SET_ALARM_HOUR : MODE_SET_TEMP_SHOW);
+ 112:Src/app.c     ****         Display_SetBlink(true);
+ 113:Src/app.c     ****         Display_ShowSettings(Display_GetMode(), &g_App.lastTime, true);
+ 114:Src/app.c     ****         break;
+ 115:Src/app.c     **** 
+ 116:Src/app.c     ****     case MODE_SET_ALARM_HOUR:
+ 117:Src/app.c     ****         Display_SetMode(MODE_SET_ALARM_MINUTE);
+ 118:Src/app.c     ****         Display_SetBlink(true);
+ 119:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_MINUTE, &g_App.lastTime, true);
+ 120:Src/app.c     ****         break;
+ 121:Src/app.c     **** 
+ 122:Src/app.c     ****     case MODE_SET_ALARM_MINUTE:
+ 123:Src/app.c     ****         Display_SetMode(MODE_SET_TEMP_SHOW);
+ 124:Src/app.c     ****         Display_SetBlink(false);
+ 125:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_SHOW, &g_App.lastTime, false);
+ 126:Src/app.c     ****         break;
+ 127:Src/app.c     **** 
+ 128:Src/app.c     ****     case MODE_SET_TEMP_SHOW:
+ 129:Src/app.c     ****         Display_SetMode(Settings_Get()->tempertureShowTime != 0 ? 
+ 130:Src/app.c     ****                         MODE_SET_TEMP_HIDE : MODE_SET_BRIGHTNESS);
+ 131:Src/app.c     ****         Display_SetBlink(false);
+ 132:Src/app.c     ****         Display_ShowSettings(Display_GetMode(), &g_App.lastTime, false);
+ 133:Src/app.c     ****         break;
+ 134:Src/app.c     **** 
+ 135:Src/app.c     ****     case MODE_SET_TEMP_HIDE:
+ 136:Src/app.c     ****         Display_SetMode(MODE_SET_BRIGHTNESS);
+ 137:Src/app.c     ****         Display_SetBlink(false);
+ 138:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS, &g_App.lastTime, false);
+ 139:Src/app.c     ****         break;
+ 140:Src/app.c     **** 
+ 141:Src/app.c     ****     case MODE_SET_BRIGHTNESS:
+ 142:Src/app.c     ****         Display_SetMode(Settings_Get()->savedBrightness == 0 ? 
+ 143:Src/app.c     ****                         MODE_SET_BRIGHTNESS_STRONG : MODE_SET_ROT_ENABLE);
+ 144:Src/app.c     ****         Display_SetBlink(false);
+ 145:Src/app.c     ****         Display_ShowSettings(Display_GetMode(), &g_App.lastTime, false);
+ 146:Src/app.c     ****         break;
+ 147:Src/app.c     **** 
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 4
+
+
+ 148:Src/app.c     ****     case MODE_SET_BRIGHTNESS_STRONG:
+ 149:Src/app.c     ****         Display_SetMode(MODE_SET_BRIGHTNESS_WEAK);
+ 150:Src/app.c     ****         Display_SetBlink(false);
+ 151:Src/app.c     ****         Display_SetBrightness(Settings_Get()->weakBrightness);
+ 152:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS_WEAK, &g_App.lastTime, false);
+ 153:Src/app.c     ****         break;
+ 154:Src/app.c     **** 
+ 155:Src/app.c     ****     case MODE_SET_BRIGHTNESS_WEAK:
+ 156:Src/app.c     ****         Display_SetMode(MODE_SET_ROT_ENABLE);
+ 157:Src/app.c     ****         Display_SetBlink(false);
+ 158:Src/app.c     ****         Display_SetBrightness(Settings_Get()->strongBrightness);
+ 159:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_ENABLE, &g_App.lastTime, false);
+ 160:Src/app.c     ****         break;
+ 161:Src/app.c     **** 
+ 162:Src/app.c     ****     case MODE_SET_ROT_ENABLE:
+ 163:Src/app.c     ****         Display_SetBlink(false);
+ 164:Src/app.c     ****         if (!Ring_IsEnabled()) {
+ 165:Src/app.c     ****             /* 保存设置的时间到 RTC */
+ 166:Src/app.c     ****             g_App.lastTime.seconds = 0;
+ 167:Src/app.c     ****             g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 168:Src/app.c     ****             SetTime(&g_App.lastTime);
+ 169:Src/app.c     ****             Ring_SetStartTime(g_App.lastTime.hours);
+ 170:Src/app.c     ****             Settings_Save();
+ 171:Src/app.c     ****             Display_SetMode(MODE_SHOW_TIME);
+ 172:Src/app.c     ****             Display_ShowTime(&g_App.lastTime, false);
+ 173:Src/app.c     ****             EnableSencodInterruptOuput();
+ 174:Src/app.c     ****             g_App.lastDisplayChangeTime = HAL_GetTick();
+ 175:Src/app.c     ****         } else {
+ 176:Src/app.c     ****             Display_SetMode(MODE_SET_ROT_START);
+ 177:Src/app.c     ****             Display_ShowSettings(MODE_SET_ROT_START, &g_App.lastTime, false);
+ 178:Src/app.c     ****         }
+ 179:Src/app.c     ****         break;
+ 180:Src/app.c     **** 
+ 181:Src/app.c     ****     case MODE_SET_ROT_START:
+ 182:Src/app.c     ****         Display_SetMode(MODE_SET_ROT_STOP);
+ 183:Src/app.c     ****         Display_SetBlink(false);
+ 184:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_STOP, &g_App.lastTime, false);
+ 185:Src/app.c     ****         break;
+ 186:Src/app.c     **** 
+ 187:Src/app.c     ****     case MODE_SET_ROT_STOP:
+ 188:Src/app.c     ****         /* 保存设置的时间到 RTC */
+ 189:Src/app.c     ****         g_App.lastTime.seconds = 0;
+ 190:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 191:Src/app.c     ****         SetTime(&g_App.lastTime);
+ 192:Src/app.c     ****         Ring_SetStartTime(g_App.lastTime.hours);
+ 193:Src/app.c     ****         Settings_Save();
+ 194:Src/app.c     ****         Display_SetMode(MODE_SHOW_TIME);
+ 195:Src/app.c     ****         Display_ShowTime(&g_App.lastTime, false);
+ 196:Src/app.c     ****         EnableSencodInterruptOuput();
+ 197:Src/app.c     ****         g_App.lastDisplayChangeTime = HAL_GetTick();
+ 198:Src/app.c     ****         break;
+ 199:Src/app.c     **** 
+ 200:Src/app.c     ****     default:
+ 201:Src/app.c     ****         break;
+ 202:Src/app.c     ****     }
+ 203:Src/app.c     **** }
+ 204:Src/app.c     **** 
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 5
+
+
+ 205:Src/app.c     **** /**
+ 206:Src/app.c     ****  * @brief  模式键长按处理
+ 207:Src/app.c     ****  */
+ 208:Src/app.c     **** static void ModeKey_LongPressed(void) {
+ 209:Src/app.c     ****     if (Alarm_IsAlarming()) {
+ 210:Src/app.c     ****         Alarm_Stop();
+ 211:Src/app.c     ****         return;
+ 212:Src/app.c     ****     }
+ 213:Src/app.c     **** 
+ 214:Src/app.c     ****     DisplayMode mode = Display_GetMode();
+ 215:Src/app.c     ****     DateTime time;
+ 216:Src/app.c     **** 
+ 217:Src/app.c     ****     if (mode >= MODE_SET_HOUR && mode <= MODE_SET_ROT_STOP) {
+ 218:Src/app.c     ****         if (mode == MODE_SET_HOUR || mode == MODE_SET_MINUTE) {
+ 219:Src/app.c     ****             /* 保存设置的时间到 RTC */
+ 220:Src/app.c     ****             g_App.lastTime.seconds = 0;
+ 221:Src/app.c     ****             g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 222:Src/app.c     ****             SetTime(&g_App.lastTime);
+ 223:Src/app.c     ****         }
+ 224:Src/app.c     ****         Display_SetMode(MODE_SHOW_TIME);
+ 225:Src/app.c     ****         /* 从 RTC 读取最新时间并显示 */
+ 226:Src/app.c     ****         TimeNow(&time);
+ 227:Src/app.c     ****         Display_ShowTime(&time, false);
+ 228:Src/app.c     ****         g_App.lastDisplayChangeTime = HAL_GetTick();
+ 229:Src/app.c     ****     }
+ 230:Src/app.c     **** }
+ 231:Src/app.c     **** 
+ 232:Src/app.c     **** /**
+ 233:Src/app.c     ****  * @brief  设置键单击处理
+ 234:Src/app.c     ****  */
+ 235:Src/app.c     **** static void SetKey_Clicked(void) {
+  26              		.loc 1 235 34 view -0
+  27              		.cfi_startproc
+  28              		@ args = 0, pretend = 0, frame = 8
+  29              		@ frame_needed = 0, uses_anonymous_args = 0
+ 236:Src/app.c     ****     if (Alarm_IsAlarming()) {
+  30              		.loc 1 236 5 view .LVU1
+ 235:Src/app.c     ****     if (Alarm_IsAlarming()) {
+  31              		.loc 1 235 34 is_stmt 0 view .LVU2
+  32 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 24
+  35              		.cfi_offset 0, -24
+  36              		.cfi_offset 1, -20
+  37              		.cfi_offset 2, -16
+  38              		.cfi_offset 4, -12
+  39              		.cfi_offset 5, -8
+  40              		.cfi_offset 14, -4
+  41              		.loc 1 236 9 view .LVU3
+  42 0002 FFF7FEFF 		bl	Alarm_IsAlarming
+  43              	.LVL0:
+  44              		.loc 1 236 8 discriminator 1 view .LVU4
+  45 0006 0028     		cmp	r0, #0
+  46 0008 02D0     		beq	.L2
+ 237:Src/app.c     ****         Alarm_Stop();
+  47              		.loc 1 237 9 is_stmt 1 view .LVU5
+  48 000a FFF7FEFF 		bl	Alarm_Stop
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 6
+
+
+  49              	.LVL1:
+ 238:Src/app.c     ****         return;
+  50              		.loc 1 238 9 view .LVU6
+  51              	.L1:
+ 239:Src/app.c     ****     }
+ 240:Src/app.c     **** 
+ 241:Src/app.c     ****     DisplayMode mode = Display_GetMode();
+ 242:Src/app.c     ****     DateTime time;
+ 243:Src/app.c     ****     SystemSettings *settings = Settings_Get();
+ 244:Src/app.c     **** 
+ 245:Src/app.c     ****     if (mode == MODE_SHOW_TIME || mode == MODE_SHOW_TEMPERTURE) {
+ 246:Src/app.c     ****         Display_SetMode(MODE_SHOW_SECOND);
+ 247:Src/app.c     ****         TimeNow(&time);
+ 248:Src/app.c     ****         Display_ShowSecond(&time);
+ 249:Src/app.c     ****     } else if (mode == MODE_SHOW_SECOND) {
+ 250:Src/app.c     ****         Display_SetMode(MODE_SHOW_TIME);
+ 251:Src/app.c     ****         TimeNow(&time);
+ 252:Src/app.c     ****         Display_ShowTime(&time, false);
+ 253:Src/app.c     ****         g_App.lastDisplayChangeTime = HAL_GetTick();
+ 254:Src/app.c     ****     } else if (mode == MODE_SET_HOUR) {
+ 255:Src/app.c     ****         g_App.lastTime.hours++;
+ 256:Src/app.c     ****         if (g_App.lastTime.hours > 23) g_App.lastTime.hours = 0;
+ 257:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 258:Src/app.c     ****         Display_SetBlink(false);
+ 259:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 260:Src/app.c     ****         Display_ShowSettings(MODE_SET_HOUR, &g_App.lastTime, false);
+ 261:Src/app.c     ****     } else if (mode == MODE_SET_MINUTE) {
+ 262:Src/app.c     ****         g_App.lastTime.minutes++;
+ 263:Src/app.c     ****         if (g_App.lastTime.minutes > 59) g_App.lastTime.minutes = 0;
+ 264:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 265:Src/app.c     ****         Display_SetBlink(false);
+ 266:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 267:Src/app.c     ****         Display_ShowSettings(MODE_SET_MINUTE, &g_App.lastTime, false);
+ 268:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_ENABLE) {
+ 269:Src/app.c     ****         settings->isAlarmEnabled = !settings->isAlarmEnabled;
+ 270:Src/app.c     ****         Display_SetBlink(false);
+ 271:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_ENABLE, &g_App.lastTime, false);
+ 272:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_HOUR) {
+ 273:Src/app.c     ****         settings->alarmHour++;
+ 274:Src/app.c     ****         if (settings->alarmHour > 23) settings->alarmHour = 0;
+ 275:Src/app.c     ****         Display_SetBlink(false);
+ 276:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_HOUR, &g_App.lastTime, false);
+ 277:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_MINUTE) {
+ 278:Src/app.c     ****         settings->alarmMin++;
+ 279:Src/app.c     ****         if (settings->alarmMin > 59) settings->alarmMin = 0;
+ 280:Src/app.c     ****         Display_SetBlink(false);
+ 281:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_MINUTE, &g_App.lastTime, false);
+ 282:Src/app.c     ****     } else if (mode == MODE_SET_TEMP_SHOW) {
+ 283:Src/app.c     ****         settings->tempertureShowTime++;
+ 284:Src/app.c     ****         if (settings->tempertureShowTime > TEMPERTURE_MAX_SHOW_TIME) {
+ 285:Src/app.c     ****             settings->tempertureShowTime = settings->tempertureHideTime == 0 ? 1 : 0;
+ 286:Src/app.c     ****         }
+ 287:Src/app.c     ****         Display_SetBlink(false);
+ 288:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_SHOW, &g_App.lastTime, false);
+ 289:Src/app.c     ****     } else if (mode == MODE_SET_TEMP_HIDE) {
+ 290:Src/app.c     ****         settings->tempertureHideTime++;
+ 291:Src/app.c     ****         if (settings->tempertureHideTime > TEMPERTURE_MAX_HIDE_TIME) {
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 7
+
+
+ 292:Src/app.c     ****             settings->tempertureHideTime = settings->tempertureShowTime == 0 ? 1 : 0;
+ 293:Src/app.c     ****         }
+ 294:Src/app.c     ****         Display_SetBlink(false);
+ 295:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_HIDE, &g_App.lastTime, false);
+ 296:Src/app.c     ****     } else if (mode == MODE_SET_BRIGHTNESS) {
+ 297:Src/app.c     ****         settings->savedBrightness++;
+ 298:Src/app.c     ****         if (settings->savedBrightness > 8) settings->savedBrightness = 0;
+ 299:Src/app.c     ****         Display_SetBrightness(settings->savedBrightness == 0 ? 1 : settings->savedBrightness);
+ 300:Src/app.c     ****         Display_SetBlink(false);
+ 301:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS, &g_App.lastTime, false);
+ 302:Src/app.c     ****     } else if (mode == MODE_SET_BRIGHTNESS_STRONG) {
+ 303:Src/app.c     ****         settings->strongBrightness++;
+ 304:Src/app.c     ****         if (settings->strongBrightness > 8) settings->strongBrightness = 1;
+ 305:Src/app.c     ****         Display_SetBlink(false);
+ 306:Src/app.c     ****         Display_SetBrightness(settings->strongBrightness);
+ 307:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS_STRONG, &g_App.lastTime, false);
+ 308:Src/app.c     ****     } else if (mode == MODE_SET_BRIGHTNESS_WEAK) {
+ 309:Src/app.c     ****         settings->weakBrightness++;
+ 310:Src/app.c     ****         if (settings->weakBrightness > 8) settings->weakBrightness = 1;
+ 311:Src/app.c     ****         Display_SetBlink(false);
+ 312:Src/app.c     ****         Display_SetBrightness(settings->weakBrightness);
+ 313:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS_WEAK, &g_App.lastTime, false);
+ 314:Src/app.c     ****     } else if (mode == MODE_SET_ROT_ENABLE) {
+ 315:Src/app.c     ****         settings->isRingOnTimeEnabled = !settings->isRingOnTimeEnabled;
+ 316:Src/app.c     ****         Display_SetBlink(false);
+ 317:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_ENABLE, &g_App.lastTime, false);
+ 318:Src/app.c     ****     } else if (mode == MODE_SET_ROT_START) {
+ 319:Src/app.c     ****         settings->ringOnTimeStart++;
+ 320:Src/app.c     ****         if (settings->ringOnTimeStart > 23) settings->ringOnTimeStart = 0;
+ 321:Src/app.c     ****         Display_SetBlink(false);
+ 322:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_START, &g_App.lastTime, false);
+ 323:Src/app.c     ****     } else if (mode == MODE_SET_ROT_STOP) {
+ 324:Src/app.c     ****         settings->ringOnTimeStop++;
+ 325:Src/app.c     ****         if (settings->ringOnTimeStop > 23) settings->ringOnTimeStop = 0;
+ 326:Src/app.c     ****         Display_SetBlink(false);
+ 327:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_STOP, &g_App.lastTime, false);
+ 328:Src/app.c     ****     }
+ 329:Src/app.c     **** }
+  52              		.loc 1 329 1 is_stmt 0 view .LVU7
+  53              		@ sp needed
+  54 000e 37BD     		pop	{r0, r1, r2, r4, r5, pc}
+  55              	.L2:
+  56              	.LBB4:
+  57              	.LBI4:
+ 235:Src/app.c     ****     if (Alarm_IsAlarming()) {
+  58              		.loc 1 235 13 is_stmt 1 view .LVU8
+  59              	.LBB5:
+ 241:Src/app.c     ****     DateTime time;
+  60              		.loc 1 241 5 view .LVU9
+ 241:Src/app.c     ****     DateTime time;
+  61              		.loc 1 241 24 is_stmt 0 view .LVU10
+  62 0010 FFF7FEFF 		bl	Display_GetMode
+  63              	.LVL2:
+  64 0014 0500     		movs	r5, r0
+  65              	.LVL3:
+ 242:Src/app.c     ****     SystemSettings *settings = Settings_Get();
+  66              		.loc 1 242 5 is_stmt 1 view .LVU11
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 8
+
+
+ 243:Src/app.c     **** 
+  67              		.loc 1 243 5 view .LVU12
+ 243:Src/app.c     **** 
+  68              		.loc 1 243 32 is_stmt 0 view .LVU13
+  69 0016 FFF7FEFF 		bl	Settings_Get
+  70              	.LVL4:
+  71 001a 0400     		movs	r4, r0
+  72              	.LVL5:
+ 245:Src/app.c     ****         Display_SetMode(MODE_SHOW_SECOND);
+  73              		.loc 1 245 5 is_stmt 1 view .LVU14
+  74 001c 0F2D     		cmp	r5, #15
+  75 001e F6D8     		bhi	.L1
+  76 0020 2800     		movs	r0, r5
+  77              	.LVL6:
+ 245:Src/app.c     ****         Display_SetMode(MODE_SHOW_SECOND);
+  78              		.loc 1 245 5 is_stmt 0 view .LVU15
+  79 0022 FFF7FEFF 		bl	__gnu_thumb1_case_uqi
+  80              	.L6:
+  81 0026 08       		.byte	(.L19-.L6)/2
+  82 0027 12       		.byte	(.L20-.L6)/2
+  83 0028 08       		.byte	(.L19-.L6)/2
+  84 0029 21       		.byte	(.L18-.L6)/2
+  85 002a 34       		.byte	(.L17-.L6)/2
+  86 002b 45       		.byte	(.L16-.L6)/2
+  87 002c 50       		.byte	(.L15-.L6)/2
+  88 002d 5E       		.byte	(.L14-.L6)/2
+  89 002e 6C       		.byte	(.L13-.L6)/2
+  90 002f 7D       		.byte	(.L12-.L6)/2
+  91 0030 8E       		.byte	(.L11-.L6)/2
+  92 0031 A3       		.byte	(.L10-.L6)/2
+  93 0032 B4       		.byte	(.L9-.L6)/2
+  94 0033 C5       		.byte	(.L8-.L6)/2
+  95 0034 D0       		.byte	(.L7-.L6)/2
+  96 0035 DE       		.byte	(.L5-.L6)/2
+  97              		.p2align 1
+  98              	.L19:
+ 246:Src/app.c     ****         TimeNow(&time);
+  99              		.loc 1 246 9 is_stmt 1 view .LVU16
+ 100 0036 0120     		movs	r0, #1
+ 101 0038 FFF7FEFF 		bl	Display_SetMode
+ 102              	.LVL7:
+ 247:Src/app.c     ****         Display_ShowSecond(&time);
+ 103              		.loc 1 247 9 view .LVU17
+ 104 003c 6846     		mov	r0, sp
+ 105 003e FFF7FEFF 		bl	TimeNow
+ 106              	.LVL8:
+ 248:Src/app.c     ****     } else if (mode == MODE_SHOW_SECOND) {
+ 107              		.loc 1 248 9 view .LVU18
+ 108 0042 6846     		mov	r0, sp
+ 109 0044 FFF7FEFF 		bl	Display_ShowSecond
+ 110              	.LVL9:
+ 111 0048 E1E7     		b	.L1
+ 112              	.L20:
+ 250:Src/app.c     ****         TimeNow(&time);
+ 113              		.loc 1 250 9 view .LVU19
+ 114 004a 0020     		movs	r0, #0
+ 115 004c FFF7FEFF 		bl	Display_SetMode
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 9
+
+
+ 116              	.LVL10:
+ 251:Src/app.c     ****         Display_ShowTime(&time, false);
+ 117              		.loc 1 251 9 view .LVU20
+ 118 0050 6846     		mov	r0, sp
+ 119 0052 FFF7FEFF 		bl	TimeNow
+ 120              	.LVL11:
+ 252:Src/app.c     ****         g_App.lastDisplayChangeTime = HAL_GetTick();
+ 121              		.loc 1 252 9 view .LVU21
+ 122 0056 0021     		movs	r1, #0
+ 123 0058 6846     		mov	r0, sp
+ 124 005a FFF7FEFF 		bl	Display_ShowTime
+ 125              	.LVL12:
+ 253:Src/app.c     ****     } else if (mode == MODE_SET_HOUR) {
+ 126              		.loc 1 253 9 view .LVU22
+ 253:Src/app.c     ****     } else if (mode == MODE_SET_HOUR) {
+ 127              		.loc 1 253 39 is_stmt 0 view .LVU23
+ 128 005e FFF7FEFF 		bl	HAL_GetTick
+ 129              	.LVL13:
+ 253:Src/app.c     ****     } else if (mode == MODE_SET_HOUR) {
+ 130              		.loc 1 253 37 discriminator 1 view .LVU24
+ 131 0062 674B     		ldr	r3, .L34
+ 132 0064 5860     		str	r0, [r3, #4]
+ 133 0066 D2E7     		b	.L1
+ 134              	.L18:
+ 255:Src/app.c     ****         if (g_App.lastTime.hours > 23) g_App.lastTime.hours = 0;
+ 135              		.loc 1 255 9 is_stmt 1 view .LVU25
+ 255:Src/app.c     ****         if (g_App.lastTime.hours > 23) g_App.lastTime.hours = 0;
+ 136              		.loc 1 255 23 is_stmt 0 view .LVU26
+ 137 0068 654A     		ldr	r2, .L34
+ 255:Src/app.c     ****         if (g_App.lastTime.hours > 23) g_App.lastTime.hours = 0;
+ 138              		.loc 1 255 29 view .LVU27
+ 139 006a D37E     		ldrb	r3, [r2, #27]
+ 140 006c 0133     		adds	r3, r3, #1
+ 141 006e DBB2     		uxtb	r3, r3
+ 256:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 142              		.loc 1 256 9 is_stmt 1 view .LVU28
+ 256:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 143              		.loc 1 256 12 is_stmt 0 view .LVU29
+ 144 0070 172B     		cmp	r3, #23
+ 145 0072 00D9     		bls	.L21
+ 256:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 146              		.loc 1 256 61 discriminator 1 view .LVU30
+ 147 0074 0023     		movs	r3, #0
+ 148              	.L21:
+ 149 0076 D376     		strb	r3, [r2, #27]
+ 257:Src/app.c     ****         Display_SetBlink(false);
+ 150              		.loc 1 257 9 is_stmt 1 view .LVU31
+ 257:Src/app.c     ****         Display_SetBlink(false);
+ 151              		.loc 1 257 29 is_stmt 0 view .LVU32
+ 152 0078 0223     		movs	r3, #2
+ 258:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 153              		.loc 1 258 9 view .LVU33
+ 154 007a 0020     		movs	r0, #0
+ 257:Src/app.c     ****         Display_SetBlink(false);
+ 155              		.loc 1 257 29 view .LVU34
+ 156 007c 9376     		strb	r3, [r2, #26]
+ 258:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 10
+
+
+ 157              		.loc 1 258 9 is_stmt 1 view .LVU35
+ 158 007e FFF7FEFF 		bl	Display_SetBlink
+ 159              	.LVL14:
+ 260:Src/app.c     ****     } else if (mode == MODE_SET_MINUTE) {
+ 160              		.loc 1 260 9 view .LVU36
+ 161 0082 0022     		movs	r2, #0
+ 162 0084 0320     		movs	r0, #3
+ 163 0086 5F49     		ldr	r1, .L34+4
+ 164              	.L33:
+ 327:Src/app.c     ****     }
+ 165              		.loc 1 327 9 is_stmt 0 view .LVU37
+ 166 0088 FFF7FEFF 		bl	Display_ShowSettings
+ 167              	.LVL15:
+ 327:Src/app.c     ****     }
+ 168              		.loc 1 327 9 view .LVU38
+ 169 008c BFE7     		b	.L1
+ 170              	.LVL16:
+ 171              	.L17:
+ 262:Src/app.c     ****         if (g_App.lastTime.minutes > 59) g_App.lastTime.minutes = 0;
+ 172              		.loc 1 262 9 is_stmt 1 view .LVU39
+ 262:Src/app.c     ****         if (g_App.lastTime.minutes > 59) g_App.lastTime.minutes = 0;
+ 173              		.loc 1 262 23 is_stmt 0 view .LVU40
+ 174 008e 5C4A     		ldr	r2, .L34
+ 262:Src/app.c     ****         if (g_App.lastTime.minutes > 59) g_App.lastTime.minutes = 0;
+ 175              		.loc 1 262 31 view .LVU41
+ 176 0090 537E     		ldrb	r3, [r2, #25]
+ 177 0092 0133     		adds	r3, r3, #1
+ 178 0094 DBB2     		uxtb	r3, r3
+ 263:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 179              		.loc 1 263 9 is_stmt 1 view .LVU42
+ 263:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 180              		.loc 1 263 12 is_stmt 0 view .LVU43
+ 181 0096 3B2B     		cmp	r3, #59
+ 182 0098 00D9     		bls	.L22
+ 263:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 183              		.loc 1 263 65 discriminator 1 view .LVU44
+ 184 009a 0023     		movs	r3, #0
+ 185              	.L22:
+ 186 009c 5376     		strb	r3, [r2, #25]
+ 264:Src/app.c     ****         Display_SetBlink(false);
+ 187              		.loc 1 264 9 is_stmt 1 view .LVU45
+ 264:Src/app.c     ****         Display_SetBlink(false);
+ 188              		.loc 1 264 29 is_stmt 0 view .LVU46
+ 189 009e 0223     		movs	r3, #2
+ 265:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 190              		.loc 1 265 9 view .LVU47
+ 191 00a0 0020     		movs	r0, #0
+ 264:Src/app.c     ****         Display_SetBlink(false);
+ 192              		.loc 1 264 29 view .LVU48
+ 193 00a2 9376     		strb	r3, [r2, #26]
+ 265:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 194              		.loc 1 265 9 is_stmt 1 view .LVU49
+ 195 00a4 FFF7FEFF 		bl	Display_SetBlink
+ 196              	.LVL17:
+ 267:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_ENABLE) {
+ 197              		.loc 1 267 9 view .LVU50
+ 198 00a8 0022     		movs	r2, #0
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 11
+
+
+ 199 00aa 0420     		movs	r0, #4
+ 200 00ac 5549     		ldr	r1, .L34+4
+ 201 00ae EBE7     		b	.L33
+ 202              	.L16:
+ 269:Src/app.c     ****         Display_SetBlink(false);
+ 203              		.loc 1 269 9 view .LVU51
+ 204 00b0 0123     		movs	r3, #1
+ 205 00b2 2278     		ldrb	r2, [r4]
+ 270:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_ENABLE, &g_App.lastTime, false);
+ 206              		.loc 1 270 9 is_stmt 0 view .LVU52
+ 207 00b4 0020     		movs	r0, #0
+ 269:Src/app.c     ****         Display_SetBlink(false);
+ 208              		.loc 1 269 9 view .LVU53
+ 209 00b6 5340     		eors	r3, r2
+ 269:Src/app.c     ****         Display_SetBlink(false);
+ 210              		.loc 1 269 34 view .LVU54
+ 211 00b8 2370     		strb	r3, [r4]
+ 270:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_ENABLE, &g_App.lastTime, false);
+ 212              		.loc 1 270 9 is_stmt 1 view .LVU55
+ 213 00ba FFF7FEFF 		bl	Display_SetBlink
+ 214              	.LVL18:
+ 271:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_HOUR) {
+ 215              		.loc 1 271 9 view .LVU56
+ 216 00be 0022     		movs	r2, #0
+ 217 00c0 0520     		movs	r0, #5
+ 218 00c2 5049     		ldr	r1, .L34+4
+ 219 00c4 E0E7     		b	.L33
+ 220              	.L15:
+ 273:Src/app.c     ****         if (settings->alarmHour > 23) settings->alarmHour = 0;
+ 221              		.loc 1 273 9 view .LVU57
+ 273:Src/app.c     ****         if (settings->alarmHour > 23) settings->alarmHour = 0;
+ 222              		.loc 1 273 28 is_stmt 0 view .LVU58
+ 223 00c6 6378     		ldrb	r3, [r4, #1]
+ 224 00c8 0133     		adds	r3, r3, #1
+ 225 00ca DBB2     		uxtb	r3, r3
+ 274:Src/app.c     ****         Display_SetBlink(false);
+ 226              		.loc 1 274 9 is_stmt 1 view .LVU59
+ 274:Src/app.c     ****         Display_SetBlink(false);
+ 227              		.loc 1 274 12 is_stmt 0 view .LVU60
+ 228 00cc 172B     		cmp	r3, #23
+ 229 00ce 00D9     		bls	.L23
+ 274:Src/app.c     ****         Display_SetBlink(false);
+ 230              		.loc 1 274 59 discriminator 1 view .LVU61
+ 231 00d0 0023     		movs	r3, #0
+ 232              	.L23:
+ 275:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_HOUR, &g_App.lastTime, false);
+ 233              		.loc 1 275 9 view .LVU62
+ 234 00d2 0020     		movs	r0, #0
+ 235 00d4 6370     		strb	r3, [r4, #1]
+ 275:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_HOUR, &g_App.lastTime, false);
+ 236              		.loc 1 275 9 is_stmt 1 view .LVU63
+ 237 00d6 FFF7FEFF 		bl	Display_SetBlink
+ 238              	.LVL19:
+ 276:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_MINUTE) {
+ 239              		.loc 1 276 9 view .LVU64
+ 240 00da 0022     		movs	r2, #0
+ 241 00dc 0620     		movs	r0, #6
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 12
+
+
+ 242 00de 4949     		ldr	r1, .L34+4
+ 243 00e0 D2E7     		b	.L33
+ 244              	.L14:
+ 278:Src/app.c     ****         if (settings->alarmMin > 59) settings->alarmMin = 0;
+ 245              		.loc 1 278 9 view .LVU65
+ 278:Src/app.c     ****         if (settings->alarmMin > 59) settings->alarmMin = 0;
+ 246              		.loc 1 278 27 is_stmt 0 view .LVU66
+ 247 00e2 A378     		ldrb	r3, [r4, #2]
+ 248 00e4 0133     		adds	r3, r3, #1
+ 249 00e6 DBB2     		uxtb	r3, r3
+ 279:Src/app.c     ****         Display_SetBlink(false);
+ 250              		.loc 1 279 9 is_stmt 1 view .LVU67
+ 279:Src/app.c     ****         Display_SetBlink(false);
+ 251              		.loc 1 279 12 is_stmt 0 view .LVU68
+ 252 00e8 3B2B     		cmp	r3, #59
+ 253 00ea 00D9     		bls	.L24
+ 279:Src/app.c     ****         Display_SetBlink(false);
+ 254              		.loc 1 279 57 discriminator 1 view .LVU69
+ 255 00ec 0023     		movs	r3, #0
+ 256              	.L24:
+ 280:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_MINUTE, &g_App.lastTime, false);
+ 257              		.loc 1 280 9 view .LVU70
+ 258 00ee 0020     		movs	r0, #0
+ 259 00f0 A370     		strb	r3, [r4, #2]
+ 280:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_MINUTE, &g_App.lastTime, false);
+ 260              		.loc 1 280 9 is_stmt 1 view .LVU71
+ 261 00f2 FFF7FEFF 		bl	Display_SetBlink
+ 262              	.LVL20:
+ 281:Src/app.c     ****     } else if (mode == MODE_SET_TEMP_SHOW) {
+ 263              		.loc 1 281 9 view .LVU72
+ 264 00f6 0022     		movs	r2, #0
+ 265 00f8 0720     		movs	r0, #7
+ 266 00fa 4249     		ldr	r1, .L34+4
+ 267 00fc C4E7     		b	.L33
+ 268              	.L13:
+ 283:Src/app.c     ****         if (settings->tempertureShowTime > TEMPERTURE_MAX_SHOW_TIME) {
+ 269              		.loc 1 283 9 view .LVU73
+ 283:Src/app.c     ****         if (settings->tempertureShowTime > TEMPERTURE_MAX_SHOW_TIME) {
+ 270              		.loc 1 283 37 is_stmt 0 view .LVU74
+ 271 00fe E378     		ldrb	r3, [r4, #3]
+ 272 0100 0133     		adds	r3, r3, #1
+ 273 0102 DBB2     		uxtb	r3, r3
+ 274 0104 E370     		strb	r3, [r4, #3]
+ 284:Src/app.c     ****             settings->tempertureShowTime = settings->tempertureHideTime == 0 ? 1 : 0;
+ 275              		.loc 1 284 9 is_stmt 1 view .LVU75
+ 284:Src/app.c     ****             settings->tempertureShowTime = settings->tempertureHideTime == 0 ? 1 : 0;
+ 276              		.loc 1 284 12 is_stmt 0 view .LVU76
+ 277 0106 0F2B     		cmp	r3, #15
+ 278 0108 03D9     		bls	.L25
+ 285:Src/app.c     ****         }
+ 279              		.loc 1 285 13 is_stmt 1 view .LVU77
+ 285:Src/app.c     ****         }
+ 280              		.loc 1 285 82 is_stmt 0 view .LVU78
+ 281 010a 2379     		ldrb	r3, [r4, #4]
+ 282 010c 5A42     		rsbs	r2, r3, #0
+ 283 010e 5341     		adcs	r3, r3, r2
+ 285:Src/app.c     ****         }
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 13
+
+
+ 284              		.loc 1 285 42 view .LVU79
+ 285 0110 E370     		strb	r3, [r4, #3]
+ 286              	.L25:
+ 287:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_SHOW, &g_App.lastTime, false);
+ 287              		.loc 1 287 9 is_stmt 1 view .LVU80
+ 288 0112 0020     		movs	r0, #0
+ 289 0114 FFF7FEFF 		bl	Display_SetBlink
+ 290              	.LVL21:
+ 288:Src/app.c     ****     } else if (mode == MODE_SET_TEMP_HIDE) {
+ 291              		.loc 1 288 9 view .LVU81
+ 292 0118 0022     		movs	r2, #0
+ 293 011a 0820     		movs	r0, #8
+ 294 011c 3949     		ldr	r1, .L34+4
+ 295 011e B3E7     		b	.L33
+ 296              	.L12:
+ 290:Src/app.c     ****         if (settings->tempertureHideTime > TEMPERTURE_MAX_HIDE_TIME) {
+ 297              		.loc 1 290 9 view .LVU82
+ 290:Src/app.c     ****         if (settings->tempertureHideTime > TEMPERTURE_MAX_HIDE_TIME) {
+ 298              		.loc 1 290 37 is_stmt 0 view .LVU83
+ 299 0120 2379     		ldrb	r3, [r4, #4]
+ 300 0122 0133     		adds	r3, r3, #1
+ 301 0124 DBB2     		uxtb	r3, r3
+ 302 0126 2371     		strb	r3, [r4, #4]
+ 291:Src/app.c     ****             settings->tempertureHideTime = settings->tempertureShowTime == 0 ? 1 : 0;
+ 303              		.loc 1 291 9 is_stmt 1 view .LVU84
+ 291:Src/app.c     ****             settings->tempertureHideTime = settings->tempertureShowTime == 0 ? 1 : 0;
+ 304              		.loc 1 291 12 is_stmt 0 view .LVU85
+ 305 0128 1E2B     		cmp	r3, #30
+ 306 012a 03D9     		bls	.L26
+ 292:Src/app.c     ****         }
+ 307              		.loc 1 292 13 is_stmt 1 view .LVU86
+ 292:Src/app.c     ****         }
+ 308              		.loc 1 292 82 is_stmt 0 view .LVU87
+ 309 012c E378     		ldrb	r3, [r4, #3]
+ 310 012e 5A42     		rsbs	r2, r3, #0
+ 311 0130 5341     		adcs	r3, r3, r2
+ 292:Src/app.c     ****         }
+ 312              		.loc 1 292 42 view .LVU88
+ 313 0132 2371     		strb	r3, [r4, #4]
+ 314              	.L26:
+ 294:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_HIDE, &g_App.lastTime, false);
+ 315              		.loc 1 294 9 is_stmt 1 view .LVU89
+ 316 0134 0020     		movs	r0, #0
+ 317 0136 FFF7FEFF 		bl	Display_SetBlink
+ 318              	.LVL22:
+ 295:Src/app.c     ****     } else if (mode == MODE_SET_BRIGHTNESS) {
+ 319              		.loc 1 295 9 view .LVU90
+ 320 013a 0022     		movs	r2, #0
+ 321 013c 0920     		movs	r0, #9
+ 322 013e 3149     		ldr	r1, .L34+4
+ 323 0140 A2E7     		b	.L33
+ 324              	.L11:
+ 297:Src/app.c     ****         if (settings->savedBrightness > 8) settings->savedBrightness = 0;
+ 325              		.loc 1 297 9 view .LVU91
+ 297:Src/app.c     ****         if (settings->savedBrightness > 8) settings->savedBrightness = 0;
+ 326              		.loc 1 297 34 is_stmt 0 view .LVU92
+ 327 0142 237A     		ldrb	r3, [r4, #8]
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 14
+
+
+ 328 0144 0133     		adds	r3, r3, #1
+ 329 0146 DBB2     		uxtb	r3, r3
+ 298:Src/app.c     ****         Display_SetBrightness(settings->savedBrightness == 0 ? 1 : settings->savedBrightness);
+ 330              		.loc 1 298 9 is_stmt 1 view .LVU93
+ 298:Src/app.c     ****         Display_SetBrightness(settings->savedBrightness == 0 ? 1 : settings->savedBrightness);
+ 331              		.loc 1 298 12 is_stmt 0 view .LVU94
+ 332 0148 082B     		cmp	r3, #8
+ 333 014a 00D9     		bls	.L27
+ 298:Src/app.c     ****         Display_SetBrightness(settings->savedBrightness == 0 ? 1 : settings->savedBrightness);
+ 334              		.loc 1 298 70 discriminator 1 view .LVU95
+ 335 014c 0023     		movs	r3, #0
+ 336              	.L27:
+ 337 014e 2372     		strb	r3, [r4, #8]
+ 299:Src/app.c     ****         Display_SetBlink(false);
+ 338              		.loc 1 299 9 is_stmt 1 view .LVU96
+ 299:Src/app.c     ****         Display_SetBlink(false);
+ 339              		.loc 1 299 9 is_stmt 0 discriminator 4 view .LVU97
+ 340 0150 181C     		adds	r0, r3, #0
+ 341 0152 002B     		cmp	r3, #0
+ 342 0154 00D1     		bne	.L28
+ 343 0156 0120     		movs	r0, #1
+ 344              	.L28:
+ 345 0158 C0B2     		uxtb	r0, r0
+ 346 015a FFF7FEFF 		bl	Display_SetBrightness
+ 347              	.LVL23:
+ 300:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS, &g_App.lastTime, false);
+ 348              		.loc 1 300 9 is_stmt 1 view .LVU98
+ 349 015e 0020     		movs	r0, #0
+ 350 0160 FFF7FEFF 		bl	Display_SetBlink
+ 351              	.LVL24:
+ 301:Src/app.c     ****     } else if (mode == MODE_SET_BRIGHTNESS_STRONG) {
+ 352              		.loc 1 301 9 view .LVU99
+ 353 0164 0022     		movs	r2, #0
+ 354 0166 0A20     		movs	r0, #10
+ 355 0168 2649     		ldr	r1, .L34+4
+ 356 016a 8DE7     		b	.L33
+ 357              	.L10:
+ 303:Src/app.c     ****         if (settings->strongBrightness > 8) settings->strongBrightness = 1;
+ 358              		.loc 1 303 9 view .LVU100
+ 303:Src/app.c     ****         if (settings->strongBrightness > 8) settings->strongBrightness = 1;
+ 359              		.loc 1 303 35 is_stmt 0 view .LVU101
+ 360 016c 637A     		ldrb	r3, [r4, #9]
+ 361 016e 0133     		adds	r3, r3, #1
+ 362 0170 DBB2     		uxtb	r3, r3
+ 304:Src/app.c     ****         Display_SetBlink(false);
+ 363              		.loc 1 304 9 is_stmt 1 view .LVU102
+ 304:Src/app.c     ****         Display_SetBlink(false);
+ 364              		.loc 1 304 12 is_stmt 0 view .LVU103
+ 365 0172 082B     		cmp	r3, #8
+ 366 0174 00D9     		bls	.L29
+ 304:Src/app.c     ****         Display_SetBlink(false);
+ 367              		.loc 1 304 72 discriminator 1 view .LVU104
+ 368 0176 0123     		movs	r3, #1
+ 369              	.L29:
+ 305:Src/app.c     ****         Display_SetBrightness(settings->strongBrightness);
+ 370              		.loc 1 305 9 view .LVU105
+ 371 0178 0020     		movs	r0, #0
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 15
+
+
+ 372 017a 6372     		strb	r3, [r4, #9]
+ 305:Src/app.c     ****         Display_SetBrightness(settings->strongBrightness);
+ 373              		.loc 1 305 9 is_stmt 1 view .LVU106
+ 374 017c FFF7FEFF 		bl	Display_SetBlink
+ 375              	.LVL25:
+ 306:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS_STRONG, &g_App.lastTime, false);
+ 376              		.loc 1 306 9 view .LVU107
+ 377 0180 607A     		ldrb	r0, [r4, #9]
+ 378 0182 FFF7FEFF 		bl	Display_SetBrightness
+ 379              	.LVL26:
+ 307:Src/app.c     ****     } else if (mode == MODE_SET_BRIGHTNESS_WEAK) {
+ 380              		.loc 1 307 9 view .LVU108
+ 381 0186 0022     		movs	r2, #0
+ 382 0188 0B20     		movs	r0, #11
+ 383 018a 1E49     		ldr	r1, .L34+4
+ 384 018c 7CE7     		b	.L33
+ 385              	.L9:
+ 309:Src/app.c     ****         if (settings->weakBrightness > 8) settings->weakBrightness = 1;
+ 386              		.loc 1 309 9 view .LVU109
+ 309:Src/app.c     ****         if (settings->weakBrightness > 8) settings->weakBrightness = 1;
+ 387              		.loc 1 309 33 is_stmt 0 view .LVU110
+ 388 018e A37A     		ldrb	r3, [r4, #10]
+ 389 0190 0133     		adds	r3, r3, #1
+ 390 0192 DBB2     		uxtb	r3, r3
+ 310:Src/app.c     ****         Display_SetBlink(false);
+ 391              		.loc 1 310 9 is_stmt 1 view .LVU111
+ 310:Src/app.c     ****         Display_SetBlink(false);
+ 392              		.loc 1 310 12 is_stmt 0 view .LVU112
+ 393 0194 082B     		cmp	r3, #8
+ 394 0196 00D9     		bls	.L30
+ 310:Src/app.c     ****         Display_SetBlink(false);
+ 395              		.loc 1 310 68 discriminator 1 view .LVU113
+ 396 0198 0123     		movs	r3, #1
+ 397              	.L30:
+ 311:Src/app.c     ****         Display_SetBrightness(settings->weakBrightness);
+ 398              		.loc 1 311 9 view .LVU114
+ 399 019a 0020     		movs	r0, #0
+ 400 019c A372     		strb	r3, [r4, #10]
+ 311:Src/app.c     ****         Display_SetBrightness(settings->weakBrightness);
+ 401              		.loc 1 311 9 is_stmt 1 view .LVU115
+ 402 019e FFF7FEFF 		bl	Display_SetBlink
+ 403              	.LVL27:
+ 312:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS_WEAK, &g_App.lastTime, false);
+ 404              		.loc 1 312 9 view .LVU116
+ 405 01a2 A07A     		ldrb	r0, [r4, #10]
+ 406 01a4 FFF7FEFF 		bl	Display_SetBrightness
+ 407              	.LVL28:
+ 313:Src/app.c     ****     } else if (mode == MODE_SET_ROT_ENABLE) {
+ 408              		.loc 1 313 9 view .LVU117
+ 409 01a8 0022     		movs	r2, #0
+ 410 01aa 0C20     		movs	r0, #12
+ 411 01ac 1549     		ldr	r1, .L34+4
+ 412 01ae 6BE7     		b	.L33
+ 413              	.L8:
+ 315:Src/app.c     ****         Display_SetBlink(false);
+ 414              		.loc 1 315 9 view .LVU118
+ 415 01b0 0123     		movs	r3, #1
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 16
+
+
+ 416 01b2 6279     		ldrb	r2, [r4, #5]
+ 316:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_ENABLE, &g_App.lastTime, false);
+ 417              		.loc 1 316 9 is_stmt 0 view .LVU119
+ 418 01b4 0020     		movs	r0, #0
+ 315:Src/app.c     ****         Display_SetBlink(false);
+ 419              		.loc 1 315 9 view .LVU120
+ 420 01b6 5340     		eors	r3, r2
+ 315:Src/app.c     ****         Display_SetBlink(false);
+ 421              		.loc 1 315 39 view .LVU121
+ 422 01b8 6371     		strb	r3, [r4, #5]
+ 316:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_ENABLE, &g_App.lastTime, false);
+ 423              		.loc 1 316 9 is_stmt 1 view .LVU122
+ 424 01ba FFF7FEFF 		bl	Display_SetBlink
+ 425              	.LVL29:
+ 317:Src/app.c     ****     } else if (mode == MODE_SET_ROT_START) {
+ 426              		.loc 1 317 9 view .LVU123
+ 427 01be 0022     		movs	r2, #0
+ 428 01c0 0D20     		movs	r0, #13
+ 429 01c2 1049     		ldr	r1, .L34+4
+ 430 01c4 60E7     		b	.L33
+ 431              	.L7:
+ 319:Src/app.c     ****         if (settings->ringOnTimeStart > 23) settings->ringOnTimeStart = 0;
+ 432              		.loc 1 319 9 view .LVU124
+ 319:Src/app.c     ****         if (settings->ringOnTimeStart > 23) settings->ringOnTimeStart = 0;
+ 433              		.loc 1 319 34 is_stmt 0 view .LVU125
+ 434 01c6 A379     		ldrb	r3, [r4, #6]
+ 435 01c8 0133     		adds	r3, r3, #1
+ 436 01ca DBB2     		uxtb	r3, r3
+ 320:Src/app.c     ****         Display_SetBlink(false);
+ 437              		.loc 1 320 9 is_stmt 1 view .LVU126
+ 320:Src/app.c     ****         Display_SetBlink(false);
+ 438              		.loc 1 320 12 is_stmt 0 view .LVU127
+ 439 01cc 172B     		cmp	r3, #23
+ 440 01ce 00D9     		bls	.L31
+ 320:Src/app.c     ****         Display_SetBlink(false);
+ 441              		.loc 1 320 71 discriminator 1 view .LVU128
+ 442 01d0 0023     		movs	r3, #0
+ 443              	.L31:
+ 321:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_START, &g_App.lastTime, false);
+ 444              		.loc 1 321 9 view .LVU129
+ 445 01d2 0020     		movs	r0, #0
+ 446 01d4 A371     		strb	r3, [r4, #6]
+ 321:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_START, &g_App.lastTime, false);
+ 447              		.loc 1 321 9 is_stmt 1 view .LVU130
+ 448 01d6 FFF7FEFF 		bl	Display_SetBlink
+ 449              	.LVL30:
+ 322:Src/app.c     ****     } else if (mode == MODE_SET_ROT_STOP) {
+ 450              		.loc 1 322 9 view .LVU131
+ 451 01da 0022     		movs	r2, #0
+ 452 01dc 0E20     		movs	r0, #14
+ 453 01de 0949     		ldr	r1, .L34+4
+ 454 01e0 52E7     		b	.L33
+ 455              	.L5:
+ 324:Src/app.c     ****         if (settings->ringOnTimeStop > 23) settings->ringOnTimeStop = 0;
+ 456              		.loc 1 324 9 view .LVU132
+ 324:Src/app.c     ****         if (settings->ringOnTimeStop > 23) settings->ringOnTimeStop = 0;
+ 457              		.loc 1 324 33 is_stmt 0 view .LVU133
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 17
+
+
+ 458 01e2 E379     		ldrb	r3, [r4, #7]
+ 459 01e4 0133     		adds	r3, r3, #1
+ 460 01e6 DBB2     		uxtb	r3, r3
+ 325:Src/app.c     ****         Display_SetBlink(false);
+ 461              		.loc 1 325 9 is_stmt 1 view .LVU134
+ 325:Src/app.c     ****         Display_SetBlink(false);
+ 462              		.loc 1 325 12 is_stmt 0 view .LVU135
+ 463 01e8 172B     		cmp	r3, #23
+ 464 01ea 00D9     		bls	.L32
+ 325:Src/app.c     ****         Display_SetBlink(false);
+ 465              		.loc 1 325 69 discriminator 1 view .LVU136
+ 466 01ec 0023     		movs	r3, #0
+ 467              	.L32:
+ 326:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_STOP, &g_App.lastTime, false);
+ 468              		.loc 1 326 9 view .LVU137
+ 469 01ee 0020     		movs	r0, #0
+ 470 01f0 E371     		strb	r3, [r4, #7]
+ 326:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_STOP, &g_App.lastTime, false);
+ 471              		.loc 1 326 9 is_stmt 1 view .LVU138
+ 472 01f2 FFF7FEFF 		bl	Display_SetBlink
+ 473              	.LVL31:
+ 327:Src/app.c     ****     }
+ 474              		.loc 1 327 9 view .LVU139
+ 475 01f6 0022     		movs	r2, #0
+ 476 01f8 0F20     		movs	r0, #15
+ 477 01fa 0249     		ldr	r1, .L34+4
+ 478 01fc 44E7     		b	.L33
+ 479              	.L35:
+ 480 01fe C046     		.align	2
+ 481              	.L34:
+ 482 0200 00000000 		.word	g_App
+ 483 0204 18000000 		.word	g_App+24
+ 484              	.LBE5:
+ 485              	.LBE4:
+ 486              		.cfi_endproc
+ 487              	.LFE40:
+ 489              		.section	.text.ModeKey_Clicked,"ax",%progbits
+ 490              		.align	1
+ 491              		.syntax unified
+ 492              		.code	16
+ 493              		.thumb_func
+ 495              	ModeKey_Clicked:
+ 496              	.LFB38:
+  66:Src/app.c     ****     if (Alarm_IsAlarming()) {
+ 497              		.loc 1 66 35 view -0
+ 498              		.cfi_startproc
+ 499              		@ args = 0, pretend = 0, frame = 8
+ 500              		@ frame_needed = 0, uses_anonymous_args = 0
+  67:Src/app.c     ****         Alarm_Stop();
+ 501              		.loc 1 67 5 view .LVU141
+  66:Src/app.c     ****     if (Alarm_IsAlarming()) {
+ 502              		.loc 1 66 35 is_stmt 0 view .LVU142
+ 503 0000 73B5     		push	{r0, r1, r4, r5, r6, lr}
+ 504              	.LCFI1:
+ 505              		.cfi_def_cfa_offset 24
+ 506              		.cfi_offset 0, -24
+ 507              		.cfi_offset 1, -20
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 18
+
+
+ 508              		.cfi_offset 4, -16
+ 509              		.cfi_offset 5, -12
+ 510              		.cfi_offset 6, -8
+ 511              		.cfi_offset 14, -4
+  67:Src/app.c     ****         Alarm_Stop();
+ 512              		.loc 1 67 9 view .LVU143
+ 513 0002 FFF7FEFF 		bl	Alarm_IsAlarming
+ 514              	.LVL32:
+  67:Src/app.c     ****         Alarm_Stop();
+ 515              		.loc 1 67 8 discriminator 1 view .LVU144
+ 516 0006 0028     		cmp	r0, #0
+ 517 0008 02D0     		beq	.L37
+  68:Src/app.c     ****         return;
+ 518              		.loc 1 68 9 is_stmt 1 view .LVU145
+ 519 000a FFF7FEFF 		bl	Alarm_Stop
+ 520              	.LVL33:
+  69:Src/app.c     ****     }
+ 521              		.loc 1 69 9 view .LVU146
+ 522              	.L36:
+ 203:Src/app.c     **** 
+ 523              		.loc 1 203 1 is_stmt 0 view .LVU147
+ 524              		@ sp needed
+ 525 000e 73BD     		pop	{r0, r1, r4, r5, r6, pc}
+ 526              	.L37:
+ 527              	.LBB8:
+ 528              	.LBI8:
+  66:Src/app.c     ****     if (Alarm_IsAlarming()) {
+ 529              		.loc 1 66 13 is_stmt 1 view .LVU148
+ 530              	.LBB9:
+  72:Src/app.c     ****     DateTime time;
+ 531              		.loc 1 72 5 view .LVU149
+  72:Src/app.c     ****     DateTime time;
+ 532              		.loc 1 72 24 is_stmt 0 view .LVU150
+ 533 0010 FFF7FEFF 		bl	Display_GetMode
+ 534              	.LVL34:
+  74:Src/app.c     **** 
+ 535              		.loc 1 74 5 view .LVU151
+ 536 0014 6C46     		mov	r4, sp
+  72:Src/app.c     ****     DateTime time;
+ 537              		.loc 1 72 24 view .LVU152
+ 538 0016 0500     		movs	r5, r0
+ 539              	.LVL35:
+  73:Src/app.c     ****     TimeNow(&time);
+ 540              		.loc 1 73 5 is_stmt 1 view .LVU153
+  74:Src/app.c     **** 
+ 541              		.loc 1 74 5 view .LVU154
+ 542 0018 2000     		movs	r0, r4
+ 543 001a FFF7FEFF 		bl	TimeNow
+ 544              	.LVL36:
+  76:Src/app.c     ****     case MODE_SHOW_TIME:
+ 545              		.loc 1 76 5 view .LVU155
+ 546 001e 0F2D     		cmp	r5, #15
+ 547 0020 F5D8     		bhi	.L36
+ 548 0022 2800     		movs	r0, r5
+ 549 0024 FFF7FEFF 		bl	__gnu_thumb1_case_uqi
+ 550              	.L41:
+ 551 0028 08       		.byte	(.L54-.L41)/2
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 19
+
+
+ 552 0029 1E       		.byte	(.L55-.L41)/2
+ 553 002a 08       		.byte	(.L54-.L41)/2
+ 554 002b 28       		.byte	(.L53-.L41)/2
+ 555 002c 34       		.byte	(.L52-.L41)/2
+ 556 002d 47       		.byte	(.L51-.L41)/2
+ 557 002e 58       		.byte	(.L50-.L41)/2
+ 558 002f 62       		.byte	(.L49-.L41)/2
+ 559 0030 6C       		.byte	(.L48-.L41)/2
+ 560 0031 7C       		.byte	(.L47-.L41)/2
+ 561 0032 86       		.byte	(.L46-.L41)/2
+ 562 0033 8E       		.byte	(.L45-.L41)/2
+ 563 0034 9D       		.byte	(.L44-.L41)/2
+ 564 0035 AC       		.byte	(.L43-.L41)/2
+ 565 0036 D4       		.byte	(.L42-.L41)/2
+ 566 0037 DE       		.byte	(.L40-.L41)/2
+ 567              		.p2align 1
+ 568              	.L54:
+  79:Src/app.c     ****         Display_SetBlink(true);
+ 569              		.loc 1 79 9 view .LVU156
+ 570 0038 0320     		movs	r0, #3
+ 571 003a FFF7FEFF 		bl	Display_SetMode
+ 572              	.LVL37:
+  80:Src/app.c     ****         /* 保存当前 RTC 时间到 g_App.lastTime 用于设置 */
+ 573              		.loc 1 80 9 view .LVU157
+ 574 003e 0120     		movs	r0, #1
+ 575 0040 FFF7FEFF 		bl	Display_SetBlink
+ 576              	.LVL38:
+  82:Src/app.c     ****         Display_SetTime(&g_App.lastTime);
+ 577              		.loc 1 82 9 view .LVU158
+  82:Src/app.c     ****         Display_SetTime(&g_App.lastTime);
+ 578              		.loc 1 82 24 is_stmt 0 view .LVU159
+ 579 0044 754B     		ldr	r3, .L65
+ 580 0046 06CC     		ldmia	r4!, {r1, r2}
+ 581 0048 06C3     		stmia	r3!, {r1, r2}
+  83:Src/app.c     ****         Display_ShowSettings(MODE_SET_HOUR, &g_App.lastTime, true);
+ 582              		.loc 1 83 9 is_stmt 1 view .LVU160
+ 583 004a 744C     		ldr	r4, .L65
+ 584 004c 2000     		movs	r0, r4
+ 585 004e FFF7FEFF 		bl	Display_SetTime
+ 586              	.LVL39:
+  84:Src/app.c     ****         SetInterruptOuput(F_2_HZ);
+ 587              		.loc 1 84 9 view .LVU161
+ 588 0052 0122     		movs	r2, #1
+ 589 0054 2100     		movs	r1, r4
+ 590 0056 0320     		movs	r0, #3
+ 591 0058 FFF7FEFF 		bl	Display_ShowSettings
+ 592              	.LVL40:
+  85:Src/app.c     ****         break;
+ 593              		.loc 1 85 9 view .LVU162
+ 594 005c 0920     		movs	r0, #9
+ 595 005e FFF7FEFF 		bl	SetInterruptOuput
+ 596              	.LVL41:
+  86:Src/app.c     **** 
+ 597              		.loc 1 86 9 view .LVU163
+ 598 0062 D4E7     		b	.L36
+ 599              	.L55:
+  89:Src/app.c     ****         SetTime(&time);
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 20
+
+
+ 600              		.loc 1 89 9 view .LVU164
+  89:Src/app.c     ****         SetTime(&time);
+ 601              		.loc 1 89 22 is_stmt 0 view .LVU165
+ 602 0064 0025     		movs	r5, #0
+ 603              	.LVL42:
+  90:Src/app.c     ****         Display_ShowTime(&time, false);
+ 604              		.loc 1 90 9 view .LVU166
+ 605 0066 2000     		movs	r0, r4
+  89:Src/app.c     ****         SetTime(&time);
+ 606              		.loc 1 89 22 view .LVU167
+ 607 0068 2570     		strb	r5, [r4]
+  90:Src/app.c     ****         Display_ShowTime(&time, false);
+ 608              		.loc 1 90 9 is_stmt 1 view .LVU168
+ 609 006a FFF7FEFF 		bl	SetTime
+ 610              	.LVL43:
+  91:Src/app.c     ****         break;
+ 611              		.loc 1 91 9 view .LVU169
+ 612 006e 2900     		movs	r1, r5
+ 613 0070 2000     		movs	r0, r4
+ 614 0072 FFF7FEFF 		bl	Display_ShowTime
+ 615              	.LVL44:
+  92:Src/app.c     **** 
+ 616              		.loc 1 92 9 view .LVU170
+ 617 0076 CAE7     		b	.L36
+ 618              	.LVL45:
+ 619              	.L53:
+  95:Src/app.c     ****         Display_SetBlink(true);
+ 620              		.loc 1 95 9 view .LVU171
+ 621 0078 0420     		movs	r0, #4
+ 622 007a FFF7FEFF 		bl	Display_SetMode
+ 623              	.LVL46:
+  96:Src/app.c     ****         Display_ShowSettings(MODE_SET_MINUTE, &g_App.lastTime, true);
+ 624              		.loc 1 96 9 view .LVU172
+ 625 007e 0120     		movs	r0, #1
+ 626 0080 FFF7FEFF 		bl	Display_SetBlink
+ 627              	.LVL47:
+  97:Src/app.c     ****         break;
+ 628              		.loc 1 97 9 view .LVU173
+ 629 0084 0122     		movs	r2, #1
+ 630 0086 0420     		movs	r0, #4
+ 631 0088 6449     		ldr	r1, .L65
+ 632              	.LVL48:
+ 633              	.L64:
+ 184:Src/app.c     ****         break;
+ 634              		.loc 1 184 9 is_stmt 0 view .LVU174
+ 635 008a FFF7FEFF 		bl	Display_ShowSettings
+ 636              	.LVL49:
+ 185:Src/app.c     **** 
+ 637              		.loc 1 185 9 is_stmt 1 view .LVU175
+ 638 008e BEE7     		b	.L36
+ 639              	.LVL50:
+ 640              	.L52:
+ 102:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 641              		.loc 1 102 9 view .LVU176
+ 103:Src/app.c     ****         SetTime(&g_App.lastTime);
+ 642              		.loc 1 103 29 is_stmt 0 view .LVU177
+ 643 0090 0222     		movs	r2, #2
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 21
+
+
+ 102:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 644              		.loc 1 102 32 view .LVU178
+ 645 0092 0024     		movs	r4, #0
+ 104:Src/app.c     ****         Display_SetMode(MODE_SET_ALARM_ENABLE);
+ 646              		.loc 1 104 9 view .LVU179
+ 647 0094 614D     		ldr	r5, .L65
+ 648              	.LVL51:
+ 102:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 649              		.loc 1 102 32 view .LVU180
+ 650 0096 624B     		ldr	r3, .L65+4
+ 104:Src/app.c     ****         Display_SetMode(MODE_SET_ALARM_ENABLE);
+ 651              		.loc 1 104 9 view .LVU181
+ 652 0098 2800     		movs	r0, r5
+ 103:Src/app.c     ****         SetTime(&g_App.lastTime);
+ 653              		.loc 1 103 29 view .LVU182
+ 654 009a 9A76     		strb	r2, [r3, #26]
+ 102:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 655              		.loc 1 102 32 view .LVU183
+ 656 009c 1C76     		strb	r4, [r3, #24]
+ 103:Src/app.c     ****         SetTime(&g_App.lastTime);
+ 657              		.loc 1 103 9 is_stmt 1 view .LVU184
+ 104:Src/app.c     ****         Display_SetMode(MODE_SET_ALARM_ENABLE);
+ 658              		.loc 1 104 9 view .LVU185
+ 659 009e FFF7FEFF 		bl	SetTime
+ 660              	.LVL52:
+ 105:Src/app.c     ****         Display_SetBlink(false);
+ 661              		.loc 1 105 9 view .LVU186
+ 662 00a2 0520     		movs	r0, #5
+ 663 00a4 FFF7FEFF 		bl	Display_SetMode
+ 664              	.LVL53:
+ 106:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_ENABLE, &g_App.lastTime, false);
+ 665              		.loc 1 106 9 view .LVU187
+ 666 00a8 2000     		movs	r0, r4
+ 667 00aa FFF7FEFF 		bl	Display_SetBlink
+ 668              	.LVL54:
+ 107:Src/app.c     ****         break;
+ 669              		.loc 1 107 9 view .LVU188
+ 670 00ae 2200     		movs	r2, r4
+ 671 00b0 2900     		movs	r1, r5
+ 672 00b2 0520     		movs	r0, #5
+ 673 00b4 E9E7     		b	.L64
+ 674              	.LVL55:
+ 675              	.L51:
+ 111:Src/app.c     ****         Display_SetBlink(true);
+ 676              		.loc 1 111 9 view .LVU189
+ 111:Src/app.c     ****         Display_SetBlink(true);
+ 677              		.loc 1 111 25 is_stmt 0 view .LVU190
+ 678 00b6 FFF7FEFF 		bl	Alarm_IsEnabled
+ 679              	.LVL56:
+ 111:Src/app.c     ****         Display_SetBlink(true);
+ 680              		.loc 1 111 9 discriminator 2 view .LVU191
+ 681 00ba 0823     		movs	r3, #8
+ 111:Src/app.c     ****         Display_SetBlink(true);
+ 682              		.loc 1 111 9 discriminator 1 view .LVU192
+ 683 00bc 0028     		cmp	r0, #0
+ 684 00be 00D0     		beq	.L56
+ 685 00c0 023B     		subs	r3, r3, #2
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 22
+
+
+ 686              	.L56:
+ 111:Src/app.c     ****         Display_SetBlink(true);
+ 687              		.loc 1 111 9 discriminator 4 view .LVU193
+ 688 00c2 1800     		movs	r0, r3
+ 689 00c4 FFF7FEFF 		bl	Display_SetMode
+ 690              	.LVL57:
+ 112:Src/app.c     ****         Display_ShowSettings(Display_GetMode(), &g_App.lastTime, true);
+ 691              		.loc 1 112 9 is_stmt 1 view .LVU194
+ 692 00c8 0120     		movs	r0, #1
+ 693 00ca FFF7FEFF 		bl	Display_SetBlink
+ 694              	.LVL58:
+ 113:Src/app.c     ****         break;
+ 695              		.loc 1 113 9 view .LVU195
+ 696 00ce FFF7FEFF 		bl	Display_GetMode
+ 697              	.LVL59:
+ 113:Src/app.c     ****         break;
+ 698              		.loc 1 113 9 is_stmt 0 discriminator 1 view .LVU196
+ 699 00d2 0122     		movs	r2, #1
+ 700 00d4 5149     		ldr	r1, .L65
+ 701 00d6 D8E7     		b	.L64
+ 702              	.L50:
+ 117:Src/app.c     ****         Display_SetBlink(true);
+ 703              		.loc 1 117 9 is_stmt 1 view .LVU197
+ 704 00d8 0720     		movs	r0, #7
+ 705 00da FFF7FEFF 		bl	Display_SetMode
+ 706              	.LVL60:
+ 118:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_MINUTE, &g_App.lastTime, true);
+ 707              		.loc 1 118 9 view .LVU198
+ 708 00de 0120     		movs	r0, #1
+ 709 00e0 FFF7FEFF 		bl	Display_SetBlink
+ 710              	.LVL61:
+ 119:Src/app.c     ****         break;
+ 711              		.loc 1 119 9 view .LVU199
+ 712 00e4 0122     		movs	r2, #1
+ 713 00e6 0720     		movs	r0, #7
+ 714 00e8 4C49     		ldr	r1, .L65
+ 715 00ea CEE7     		b	.L64
+ 716              	.L49:
+ 123:Src/app.c     ****         Display_SetBlink(false);
+ 717              		.loc 1 123 9 view .LVU200
+ 718 00ec 0820     		movs	r0, #8
+ 719 00ee FFF7FEFF 		bl	Display_SetMode
+ 720              	.LVL62:
+ 124:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_SHOW, &g_App.lastTime, false);
+ 721              		.loc 1 124 9 view .LVU201
+ 722 00f2 0020     		movs	r0, #0
+ 723 00f4 FFF7FEFF 		bl	Display_SetBlink
+ 724              	.LVL63:
+ 125:Src/app.c     ****         break;
+ 725              		.loc 1 125 9 view .LVU202
+ 726 00f8 0022     		movs	r2, #0
+ 727 00fa 0820     		movs	r0, #8
+ 728 00fc 4749     		ldr	r1, .L65
+ 729 00fe C4E7     		b	.L64
+ 730              	.L48:
+ 129:Src/app.c     ****                         MODE_SET_TEMP_HIDE : MODE_SET_BRIGHTNESS);
+ 731              		.loc 1 129 9 view .LVU203
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 23
+
+
+ 129:Src/app.c     ****                         MODE_SET_TEMP_HIDE : MODE_SET_BRIGHTNESS);
+ 732              		.loc 1 129 25 is_stmt 0 view .LVU204
+ 733 0100 FFF7FEFF 		bl	Settings_Get
+ 734              	.LVL64:
+ 129:Src/app.c     ****                         MODE_SET_TEMP_HIDE : MODE_SET_BRIGHTNESS);
+ 735              		.loc 1 129 9 discriminator 1 view .LVU205
+ 736 0104 C078     		ldrb	r0, [r0, #3]
+ 737 0106 4342     		rsbs	r3, r0, #0
+ 738 0108 5841     		adcs	r0, r0, r3
+ 739 010a 0930     		adds	r0, r0, #9
+ 740              	.L58:
+ 142:Src/app.c     ****                         MODE_SET_BRIGHTNESS_STRONG : MODE_SET_ROT_ENABLE);
+ 741              		.loc 1 142 9 discriminator 4 view .LVU206
+ 742 010c FFF7FEFF 		bl	Display_SetMode
+ 743              	.LVL65:
+ 144:Src/app.c     ****         Display_ShowSettings(Display_GetMode(), &g_App.lastTime, false);
+ 744              		.loc 1 144 9 is_stmt 1 view .LVU207
+ 745 0110 0020     		movs	r0, #0
+ 746 0112 FFF7FEFF 		bl	Display_SetBlink
+ 747              	.LVL66:
+ 145:Src/app.c     ****         break;
+ 748              		.loc 1 145 9 view .LVU208
+ 749 0116 FFF7FEFF 		bl	Display_GetMode
+ 750              	.LVL67:
+ 145:Src/app.c     ****         break;
+ 751              		.loc 1 145 9 is_stmt 0 discriminator 1 view .LVU209
+ 752 011a 0022     		movs	r2, #0
+ 753 011c 3F49     		ldr	r1, .L65
+ 754 011e B4E7     		b	.L64
+ 755              	.L47:
+ 136:Src/app.c     ****         Display_SetBlink(false);
+ 756              		.loc 1 136 9 is_stmt 1 view .LVU210
+ 757 0120 0A20     		movs	r0, #10
+ 758 0122 FFF7FEFF 		bl	Display_SetMode
+ 759              	.LVL68:
+ 137:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS, &g_App.lastTime, false);
+ 760              		.loc 1 137 9 view .LVU211
+ 761 0126 0020     		movs	r0, #0
+ 762 0128 FFF7FEFF 		bl	Display_SetBlink
+ 763              	.LVL69:
+ 138:Src/app.c     ****         break;
+ 764              		.loc 1 138 9 view .LVU212
+ 765 012c 0022     		movs	r2, #0
+ 766 012e 0A20     		movs	r0, #10
+ 767 0130 3A49     		ldr	r1, .L65
+ 768 0132 AAE7     		b	.L64
+ 769              	.L46:
+ 142:Src/app.c     ****                         MODE_SET_BRIGHTNESS_STRONG : MODE_SET_ROT_ENABLE);
+ 770              		.loc 1 142 9 view .LVU213
+ 142:Src/app.c     ****                         MODE_SET_BRIGHTNESS_STRONG : MODE_SET_ROT_ENABLE);
+ 771              		.loc 1 142 25 is_stmt 0 view .LVU214
+ 772 0134 FFF7FEFF 		bl	Settings_Get
+ 773              	.LVL70:
+ 142:Src/app.c     ****                         MODE_SET_BRIGHTNESS_STRONG : MODE_SET_ROT_ENABLE);
+ 774              		.loc 1 142 9 discriminator 1 view .LVU215
+ 775 0138 037A     		ldrb	r3, [r0, #8]
+ 142:Src/app.c     ****                         MODE_SET_BRIGHTNESS_STRONG : MODE_SET_ROT_ENABLE);
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 24
+
+
+ 776              		.loc 1 142 9 discriminator 2 view .LVU216
+ 777 013a 0D20     		movs	r0, #13
+ 142:Src/app.c     ****                         MODE_SET_BRIGHTNESS_STRONG : MODE_SET_ROT_ENABLE);
+ 778              		.loc 1 142 9 discriminator 1 view .LVU217
+ 779 013c 002B     		cmp	r3, #0
+ 780 013e E5D1     		bne	.L58
+ 781 0140 0238     		subs	r0, r0, #2
+ 782 0142 E3E7     		b	.L58
+ 783              	.L45:
+ 149:Src/app.c     ****         Display_SetBlink(false);
+ 784              		.loc 1 149 9 is_stmt 1 view .LVU218
+ 785 0144 0C20     		movs	r0, #12
+ 786 0146 FFF7FEFF 		bl	Display_SetMode
+ 787              	.LVL71:
+ 150:Src/app.c     ****         Display_SetBrightness(Settings_Get()->weakBrightness);
+ 788              		.loc 1 150 9 view .LVU219
+ 789 014a 0020     		movs	r0, #0
+ 790 014c FFF7FEFF 		bl	Display_SetBlink
+ 791              	.LVL72:
+ 151:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS_WEAK, &g_App.lastTime, false);
+ 792              		.loc 1 151 9 view .LVU220
+ 151:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS_WEAK, &g_App.lastTime, false);
+ 793              		.loc 1 151 31 is_stmt 0 view .LVU221
+ 794 0150 FFF7FEFF 		bl	Settings_Get
+ 795              	.LVL73:
+ 151:Src/app.c     ****         Display_ShowSettings(MODE_SET_BRIGHTNESS_WEAK, &g_App.lastTime, false);
+ 796              		.loc 1 151 9 discriminator 1 view .LVU222
+ 797 0154 807A     		ldrb	r0, [r0, #10]
+ 798 0156 FFF7FEFF 		bl	Display_SetBrightness
+ 799              	.LVL74:
+ 152:Src/app.c     ****         break;
+ 800              		.loc 1 152 9 is_stmt 1 view .LVU223
+ 801 015a 0022     		movs	r2, #0
+ 802 015c 0C20     		movs	r0, #12
+ 803 015e 2F49     		ldr	r1, .L65
+ 804 0160 93E7     		b	.L64
+ 805              	.L44:
+ 156:Src/app.c     ****         Display_SetBlink(false);
+ 806              		.loc 1 156 9 view .LVU224
+ 807 0162 0D20     		movs	r0, #13
+ 808 0164 FFF7FEFF 		bl	Display_SetMode
+ 809              	.LVL75:
+ 157:Src/app.c     ****         Display_SetBrightness(Settings_Get()->strongBrightness);
+ 810              		.loc 1 157 9 view .LVU225
+ 811 0168 0020     		movs	r0, #0
+ 812 016a FFF7FEFF 		bl	Display_SetBlink
+ 813              	.LVL76:
+ 158:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_ENABLE, &g_App.lastTime, false);
+ 814              		.loc 1 158 9 view .LVU226
+ 158:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_ENABLE, &g_App.lastTime, false);
+ 815              		.loc 1 158 31 is_stmt 0 view .LVU227
+ 816 016e FFF7FEFF 		bl	Settings_Get
+ 817              	.LVL77:
+ 158:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_ENABLE, &g_App.lastTime, false);
+ 818              		.loc 1 158 9 discriminator 1 view .LVU228
+ 819 0172 407A     		ldrb	r0, [r0, #9]
+ 820 0174 FFF7FEFF 		bl	Display_SetBrightness
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 25
+
+
+ 821              	.LVL78:
+ 159:Src/app.c     ****         break;
+ 822              		.loc 1 159 9 is_stmt 1 view .LVU229
+ 823 0178 0022     		movs	r2, #0
+ 824 017a 0D20     		movs	r0, #13
+ 825 017c 2749     		ldr	r1, .L65
+ 826 017e 84E7     		b	.L64
+ 827              	.L43:
+ 163:Src/app.c     ****         if (!Ring_IsEnabled()) {
+ 828              		.loc 1 163 9 view .LVU230
+ 829 0180 0020     		movs	r0, #0
+ 830 0182 FFF7FEFF 		bl	Display_SetBlink
+ 831              	.LVL79:
+ 164:Src/app.c     ****             /* 保存设置的时间到 RTC */
+ 832              		.loc 1 164 9 view .LVU231
+ 164:Src/app.c     ****             /* 保存设置的时间到 RTC */
+ 833              		.loc 1 164 14 is_stmt 0 view .LVU232
+ 834 0186 FFF7FEFF 		bl	Ring_IsEnabled
+ 835              	.LVL80:
+ 836 018a 244E     		ldr	r6, .L65
+ 837 018c 041E     		subs	r4, r0, #0
+ 164:Src/app.c     ****             /* 保存设置的时间到 RTC */
+ 838              		.loc 1 164 12 discriminator 1 view .LVU233
+ 839 018e 18D1     		bne	.L59
+ 166:Src/app.c     ****             g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 840              		.loc 1 166 13 is_stmt 1 view .LVU234
+ 167:Src/app.c     ****             SetTime(&g_App.lastTime);
+ 841              		.loc 1 167 33 is_stmt 0 view .LVU235
+ 842 0190 0223     		movs	r3, #2
+ 166:Src/app.c     ****             g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 843              		.loc 1 166 36 view .LVU236
+ 844 0192 234D     		ldr	r5, .L65+4
+ 845              	.LVL81:
+ 166:Src/app.c     ****             g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 846              		.loc 1 166 36 view .LVU237
+ 847 0194 2876     		strb	r0, [r5, #24]
+ 167:Src/app.c     ****             SetTime(&g_App.lastTime);
+ 848              		.loc 1 167 13 is_stmt 1 view .LVU238
+ 168:Src/app.c     ****             Ring_SetStartTime(g_App.lastTime.hours);
+ 849              		.loc 1 168 13 is_stmt 0 view .LVU239
+ 850 0196 3000     		movs	r0, r6
+ 167:Src/app.c     ****             SetTime(&g_App.lastTime);
+ 851              		.loc 1 167 33 view .LVU240
+ 852 0198 AB76     		strb	r3, [r5, #26]
+ 168:Src/app.c     ****             Ring_SetStartTime(g_App.lastTime.hours);
+ 853              		.loc 1 168 13 is_stmt 1 view .LVU241
+ 854 019a FFF7FEFF 		bl	SetTime
+ 855              	.LVL82:
+ 169:Src/app.c     ****             Settings_Save();
+ 856              		.loc 1 169 13 view .LVU242
+ 857 019e E87E     		ldrb	r0, [r5, #27]
+ 858 01a0 FFF7FEFF 		bl	Ring_SetStartTime
+ 859              	.LVL83:
+ 170:Src/app.c     ****             Display_SetMode(MODE_SHOW_TIME);
+ 860              		.loc 1 170 13 view .LVU243
+ 861 01a4 FFF7FEFF 		bl	Settings_Save
+ 862              	.LVL84:
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 26
+
+
+ 171:Src/app.c     ****             Display_ShowTime(&g_App.lastTime, false);
+ 863              		.loc 1 171 13 view .LVU244
+ 864 01a8 2000     		movs	r0, r4
+ 865 01aa FFF7FEFF 		bl	Display_SetMode
+ 866              	.LVL85:
+ 172:Src/app.c     ****             EnableSencodInterruptOuput();
+ 867              		.loc 1 172 13 view .LVU245
+ 868 01ae 2100     		movs	r1, r4
+ 869 01b0 3000     		movs	r0, r6
+ 870 01b2 FFF7FEFF 		bl	Display_ShowTime
+ 871              	.LVL86:
+ 173:Src/app.c     ****             g_App.lastDisplayChangeTime = HAL_GetTick();
+ 872              		.loc 1 173 13 view .LVU246
+ 873 01b6 FFF7FEFF 		bl	EnableSencodInterruptOuput
+ 874              	.LVL87:
+ 174:Src/app.c     ****         } else {
+ 875              		.loc 1 174 13 view .LVU247
+ 174:Src/app.c     ****         } else {
+ 876              		.loc 1 174 43 is_stmt 0 view .LVU248
+ 877 01ba FFF7FEFF 		bl	HAL_GetTick
+ 878              	.LVL88:
+ 174:Src/app.c     ****         } else {
+ 879              		.loc 1 174 41 discriminator 1 view .LVU249
+ 880 01be 6860     		str	r0, [r5, #4]
+ 881 01c0 25E7     		b	.L36
+ 882              	.LVL89:
+ 883              	.L59:
+ 176:Src/app.c     ****             Display_ShowSettings(MODE_SET_ROT_START, &g_App.lastTime, false);
+ 884              		.loc 1 176 13 is_stmt 1 view .LVU250
+ 885 01c2 0E20     		movs	r0, #14
+ 886 01c4 FFF7FEFF 		bl	Display_SetMode
+ 887              	.LVL90:
+ 177:Src/app.c     ****         }
+ 888              		.loc 1 177 13 view .LVU251
+ 889 01c8 0022     		movs	r2, #0
+ 890 01ca 3100     		movs	r1, r6
+ 891 01cc 0E20     		movs	r0, #14
+ 892 01ce 5CE7     		b	.L64
+ 893              	.L42:
+ 182:Src/app.c     ****         Display_SetBlink(false);
+ 894              		.loc 1 182 9 view .LVU252
+ 895 01d0 0F20     		movs	r0, #15
+ 896 01d2 FFF7FEFF 		bl	Display_SetMode
+ 897              	.LVL91:
+ 183:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_STOP, &g_App.lastTime, false);
+ 898              		.loc 1 183 9 view .LVU253
+ 899 01d6 0020     		movs	r0, #0
+ 900 01d8 FFF7FEFF 		bl	Display_SetBlink
+ 901              	.LVL92:
+ 184:Src/app.c     ****         break;
+ 902              		.loc 1 184 9 view .LVU254
+ 903 01dc 0022     		movs	r2, #0
+ 904 01de 0F20     		movs	r0, #15
+ 905 01e0 0E49     		ldr	r1, .L65
+ 906 01e2 52E7     		b	.L64
+ 907              	.L40:
+ 189:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 27
+
+
+ 908              		.loc 1 189 9 view .LVU255
+ 190:Src/app.c     ****         SetTime(&g_App.lastTime);
+ 909              		.loc 1 190 29 is_stmt 0 view .LVU256
+ 910 01e4 0223     		movs	r3, #2
+ 189:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 911              		.loc 1 189 32 view .LVU257
+ 912 01e6 0025     		movs	r5, #0
+ 913              	.LVL93:
+ 191:Src/app.c     ****         Ring_SetStartTime(g_App.lastTime.hours);
+ 914              		.loc 1 191 9 view .LVU258
+ 915 01e8 0C4E     		ldr	r6, .L65
+ 189:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 916              		.loc 1 189 32 view .LVU259
+ 917 01ea 0D4C     		ldr	r4, .L65+4
+ 191:Src/app.c     ****         Ring_SetStartTime(g_App.lastTime.hours);
+ 918              		.loc 1 191 9 view .LVU260
+ 919 01ec 3000     		movs	r0, r6
+ 190:Src/app.c     ****         SetTime(&g_App.lastTime);
+ 920              		.loc 1 190 29 view .LVU261
+ 921 01ee A376     		strb	r3, [r4, #26]
+ 189:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 922              		.loc 1 189 32 view .LVU262
+ 923 01f0 2576     		strb	r5, [r4, #24]
+ 190:Src/app.c     ****         SetTime(&g_App.lastTime);
+ 924              		.loc 1 190 9 is_stmt 1 view .LVU263
+ 191:Src/app.c     ****         Ring_SetStartTime(g_App.lastTime.hours);
+ 925              		.loc 1 191 9 view .LVU264
+ 926 01f2 FFF7FEFF 		bl	SetTime
+ 927              	.LVL94:
+ 192:Src/app.c     ****         Settings_Save();
+ 928              		.loc 1 192 9 view .LVU265
+ 929 01f6 E07E     		ldrb	r0, [r4, #27]
+ 930 01f8 FFF7FEFF 		bl	Ring_SetStartTime
+ 931              	.LVL95:
+ 193:Src/app.c     ****         Display_SetMode(MODE_SHOW_TIME);
+ 932              		.loc 1 193 9 view .LVU266
+ 933 01fc FFF7FEFF 		bl	Settings_Save
+ 934              	.LVL96:
+ 194:Src/app.c     ****         Display_ShowTime(&g_App.lastTime, false);
+ 935              		.loc 1 194 9 view .LVU267
+ 936 0200 2800     		movs	r0, r5
+ 937 0202 FFF7FEFF 		bl	Display_SetMode
+ 938              	.LVL97:
+ 195:Src/app.c     ****         EnableSencodInterruptOuput();
+ 939              		.loc 1 195 9 view .LVU268
+ 940 0206 2900     		movs	r1, r5
+ 941 0208 3000     		movs	r0, r6
+ 942 020a FFF7FEFF 		bl	Display_ShowTime
+ 943              	.LVL98:
+ 196:Src/app.c     ****         g_App.lastDisplayChangeTime = HAL_GetTick();
+ 944              		.loc 1 196 9 view .LVU269
+ 945 020e FFF7FEFF 		bl	EnableSencodInterruptOuput
+ 946              	.LVL99:
+ 197:Src/app.c     ****         break;
+ 947              		.loc 1 197 9 view .LVU270
+ 197:Src/app.c     ****         break;
+ 948              		.loc 1 197 39 is_stmt 0 view .LVU271
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 28
+
+
+ 949 0212 FFF7FEFF 		bl	HAL_GetTick
+ 950              	.LVL100:
+ 197:Src/app.c     ****         break;
+ 951              		.loc 1 197 37 discriminator 1 view .LVU272
+ 952 0216 6060     		str	r0, [r4, #4]
+ 198:Src/app.c     **** 
+ 953              		.loc 1 198 9 is_stmt 1 view .LVU273
+ 954              	.LVL101:
+ 198:Src/app.c     **** 
+ 955              		.loc 1 198 9 is_stmt 0 view .LVU274
+ 956 0218 F9E6     		b	.L36
+ 957              	.L66:
+ 958 021a C046     		.align	2
+ 959              	.L65:
+ 960 021c 18000000 		.word	g_App+24
+ 961 0220 00000000 		.word	g_App
+ 962              	.LBE9:
+ 963              	.LBE8:
+ 964              		.cfi_endproc
+ 965              	.LFE38:
+ 967              		.section	.text.App_Init,"ax",%progbits
+ 968              		.align	1
+ 969              		.global	App_Init
+ 970              		.syntax unified
+ 971              		.code	16
+ 972              		.thumb_func
+ 974              	App_Init:
+ 975              	.LFB37:
+  27:Src/app.c     ****     /* 初始化各模块 */
+ 976              		.loc 1 27 21 is_stmt 1 view -0
+ 977              		.cfi_startproc
+ 978              		@ args = 0, pretend = 0, frame = 8
+ 979              		@ frame_needed = 0, uses_anonymous_args = 0
+  29:Src/app.c     ****     Display_Init();
+ 980              		.loc 1 29 5 view .LVU276
+  27:Src/app.c     ****     /* 初始化各模块 */
+ 981              		.loc 1 27 21 is_stmt 0 view .LVU277
+ 982 0000 73B5     		push	{r0, r1, r4, r5, r6, lr}
+ 983              	.LCFI2:
+ 984              		.cfi_def_cfa_offset 24
+ 985              		.cfi_offset 0, -24
+ 986              		.cfi_offset 1, -20
+ 987              		.cfi_offset 4, -16
+ 988              		.cfi_offset 5, -12
+ 989              		.cfi_offset 6, -8
+ 990              		.cfi_offset 14, -4
+  29:Src/app.c     ****     Display_Init();
+ 991              		.loc 1 29 5 view .LVU278
+ 992 0002 FFF7FEFF 		bl	Settings_Init
+ 993              	.LVL102:
+  30:Src/app.c     ****     Temperature_Init();
+ 994              		.loc 1 30 5 is_stmt 1 view .LVU279
+  61:Src/app.c     **** 
+ 995              		.loc 1 61 1 is_stmt 0 view .LVU280
+ 996              		@ sp needed
+  30:Src/app.c     ****     Temperature_Init();
+ 997              		.loc 1 30 5 view .LVU281
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 29
+
+
+ 998 0006 FFF7FEFF 		bl	Display_Init
+ 999              	.LVL103:
+  31:Src/app.c     ****     Alarm_Init();
+ 1000              		.loc 1 31 5 is_stmt 1 view .LVU282
+ 1001 000a FFF7FEFF 		bl	Temperature_Init
+ 1002              	.LVL104:
+  32:Src/app.c     ****     Ring_Init();
+ 1003              		.loc 1 32 5 view .LVU283
+ 1004 000e FFF7FEFF 		bl	Alarm_Init
+ 1005              	.LVL105:
+  33:Src/app.c     **** 
+ 1006              		.loc 1 33 5 view .LVU284
+ 1007 0012 FFF7FEFF 		bl	Ring_Init
+ 1008              	.LVL106:
+  36:Src/app.c     ****     g_App.isWeakBrightness = true;
+ 1009              		.loc 1 36 5 view .LVU285
+  37:Src/app.c     ****     g_App.lastDisplayChangeTime = 0;
+ 1010              		.loc 1 37 5 view .LVU286
+  36:Src/app.c     ****     g_App.isWeakBrightness = true;
+ 1011              		.loc 1 36 27 is_stmt 0 view .LVU287
+ 1012 0016 8023     		movs	r3, #128
+ 1013 0018 194C     		ldr	r4, .L68
+ 1014 001a 5B00     		lsls	r3, r3, #1
+ 1015 001c 2380     		strh	r3, [r4]
+  38:Src/app.c     ****     g_App.lastModeKeyPressTime = 0;
+ 1016              		.loc 1 38 5 is_stmt 1 view .LVU288
+  42:Src/app.c     **** 
+ 1017              		.loc 1 42 32 is_stmt 0 view .LVU289
+ 1018 001e 2300     		movs	r3, r4
+  38:Src/app.c     ****     g_App.lastModeKeyPressTime = 0;
+ 1019              		.loc 1 38 33 view .LVU290
+ 1020 0020 0026     		movs	r6, #0
+  45:Src/app.c     ****     HAL_ADC_Start_DMA(&hadc, g_App.adcValue, 2);
+ 1021              		.loc 1 45 5 view .LVU291
+ 1022 0022 184D     		ldr	r5, .L68+4
+  42:Src/app.c     **** 
+ 1023              		.loc 1 42 32 view .LVU292
+ 1024 0024 2C33     		adds	r3, r3, #44
+  45:Src/app.c     ****     HAL_ADC_Start_DMA(&hadc, g_App.adcValue, 2);
+ 1025              		.loc 1 45 5 view .LVU293
+ 1026 0026 2800     		movs	r0, r5
+  42:Src/app.c     **** 
+ 1027              		.loc 1 42 32 view .LVU294
+ 1028 0028 1E70     		strb	r6, [r3]
+  38:Src/app.c     ****     g_App.lastModeKeyPressTime = 0;
+ 1029              		.loc 1 38 33 view .LVU295
+ 1030 002a 6660     		str	r6, [r4, #4]
+  39:Src/app.c     ****     g_App.lastSetKeyPressTime = 0;
+ 1031              		.loc 1 39 5 is_stmt 1 view .LVU296
+  39:Src/app.c     ****     g_App.lastSetKeyPressTime = 0;
+ 1032              		.loc 1 39 32 is_stmt 0 view .LVU297
+ 1033 002c 2662     		str	r6, [r4, #32]
+  40:Src/app.c     ****     g_App.lastSetKeyPressReportTime = 0;
+ 1034              		.loc 1 40 5 is_stmt 1 view .LVU298
+  40:Src/app.c     ****     g_App.lastSetKeyPressReportTime = 0;
+ 1035              		.loc 1 40 31 is_stmt 0 view .LVU299
+ 1036 002e 6662     		str	r6, [r4, #36]
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 30
+
+
+  41:Src/app.c     ****     g_App.setKeyRepeatReported = false;
+ 1037              		.loc 1 41 5 is_stmt 1 view .LVU300
+  41:Src/app.c     ****     g_App.setKeyRepeatReported = false;
+ 1038              		.loc 1 41 37 is_stmt 0 view .LVU301
+ 1039 0030 A662     		str	r6, [r4, #40]
+  42:Src/app.c     **** 
+ 1040              		.loc 1 42 5 is_stmt 1 view .LVU302
+  45:Src/app.c     ****     HAL_ADC_Start_DMA(&hadc, g_App.adcValue, 2);
+ 1041              		.loc 1 45 5 view .LVU303
+ 1042 0032 FFF7FEFF 		bl	HAL_ADCEx_Calibration_Start
+ 1043              	.LVL107:
+  46:Src/app.c     ****     HAL_TIM_Base_Start(&htim3);
+ 1044              		.loc 1 46 5 view .LVU304
+ 1045 0036 2800     		movs	r0, r5
+  51:Src/app.c     ****     TimeNow(&time);
+ 1046              		.loc 1 51 14 is_stmt 0 view .LVU305
+ 1047 0038 6D46     		mov	r5, sp
+  46:Src/app.c     ****     HAL_TIM_Base_Start(&htim3);
+ 1048              		.loc 1 46 5 view .LVU306
+ 1049 003a 0222     		movs	r2, #2
+ 1050 003c 1249     		ldr	r1, .L68+8
+ 1051 003e FFF7FEFF 		bl	HAL_ADC_Start_DMA
+ 1052              	.LVL108:
+  47:Src/app.c     ****     HAL_TIM_Base_Start_IT(&LIGHT_CONTROL_TIMER_HANDLE);
+ 1053              		.loc 1 47 5 is_stmt 1 view .LVU307
+ 1054 0042 1248     		ldr	r0, .L68+12
+ 1055 0044 FFF7FEFF 		bl	HAL_TIM_Base_Start
+ 1056              	.LVL109:
+  48:Src/app.c     **** 
+ 1057              		.loc 1 48 5 view .LVU308
+ 1058 0048 1148     		ldr	r0, .L68+16
+ 1059 004a FFF7FEFF 		bl	HAL_TIM_Base_Start_IT
+ 1060              	.LVL110:
+  51:Src/app.c     ****     TimeNow(&time);
+ 1061              		.loc 1 51 5 view .LVU309
+  51:Src/app.c     ****     TimeNow(&time);
+ 1062              		.loc 1 51 14 is_stmt 0 view .LVU310
+ 1063 004e 3100     		movs	r1, r6
+ 1064 0050 0822     		movs	r2, #8
+ 1065 0052 2800     		movs	r0, r5
+ 1066 0054 FFF7FEFF 		bl	memset
+ 1067              	.LVL111:
+  52:Src/app.c     ****     g_App.lastTime = time;
+ 1068              		.loc 1 52 5 is_stmt 1 view .LVU311
+ 1069 0058 2800     		movs	r0, r5
+ 1070 005a FFF7FEFF 		bl	TimeNow
+ 1071              	.LVL112:
+  53:Src/app.c     ****     Ring_SetStartTime(time.hours);
+ 1072              		.loc 1 53 5 view .LVU312
+  53:Src/app.c     ****     Ring_SetStartTime(time.hours);
+ 1073              		.loc 1 53 20 is_stmt 0 view .LVU313
+ 1074 005e 2300     		movs	r3, r4
+ 1075 0060 2A00     		movs	r2, r5
+ 1076 0062 1833     		adds	r3, r3, #24
+ 1077 0064 03CA     		ldmia	r2!, {r0, r1}
+ 1078 0066 03C3     		stmia	r3!, {r0, r1}
+  54:Src/app.c     **** 
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 31
+
+
+ 1079              		.loc 1 54 5 is_stmt 1 view .LVU314
+ 1080 0068 E878     		ldrb	r0, [r5, #3]
+ 1081 006a FFF7FEFF 		bl	Ring_SetStartTime
+ 1082              	.LVL113:
+  57:Src/app.c     **** 
+ 1083              		.loc 1 57 5 view .LVU315
+ 1084 006e FFF7FEFF 		bl	EnableSencodInterruptOuput
+ 1085              	.LVL114:
+  59:Src/app.c     ****     g_App.isInitCompleted = true;
+ 1086              		.loc 1 59 5 view .LVU316
+  59:Src/app.c     ****     g_App.isInitCompleted = true;
+ 1087              		.loc 1 59 35 is_stmt 0 view .LVU317
+ 1088 0072 FFF7FEFF 		bl	HAL_GetTick
+ 1089              	.LVL115:
+  60:Src/app.c     **** }
+ 1090              		.loc 1 60 27 view .LVU318
+ 1091 0076 0123     		movs	r3, #1
+  59:Src/app.c     ****     g_App.isInitCompleted = true;
+ 1092              		.loc 1 59 33 discriminator 1 view .LVU319
+ 1093 0078 6060     		str	r0, [r4, #4]
+  60:Src/app.c     **** }
+ 1094              		.loc 1 60 5 is_stmt 1 view .LVU320
+  60:Src/app.c     **** }
+ 1095              		.loc 1 60 27 is_stmt 0 view .LVU321
+ 1096 007a 2370     		strb	r3, [r4]
+  61:Src/app.c     **** 
+ 1097              		.loc 1 61 1 view .LVU322
+ 1098 007c 73BD     		pop	{r0, r1, r4, r5, r6, pc}
+ 1099              	.L69:
+ 1100 007e C046     		.align	2
+ 1101              	.L68:
+ 1102 0080 00000000 		.word	g_App
+ 1103 0084 00000000 		.word	hadc
+ 1104 0088 08000000 		.word	g_App+8
+ 1105 008c 00000000 		.word	htim3
+ 1106 0090 00000000 		.word	htim16
+ 1107              		.cfi_endproc
+ 1108              	.LFE37:
+ 1110              		.section	.text.App_MainLoop,"ax",%progbits
+ 1111              		.align	1
+ 1112              		.global	App_MainLoop
+ 1113              		.syntax unified
+ 1114              		.code	16
+ 1115              		.thumb_func
+ 1117              	App_MainLoop:
+ 1118              	.LFB42:
+ 330:Src/app.c     **** 
+ 331:Src/app.c     **** /**
+ 332:Src/app.c     ****  * @brief  设置键重复触发处理
+ 333:Src/app.c     ****  */
+ 334:Src/app.c     **** static void SetKey_Repeat(void) {
+ 335:Src/app.c     ****     DisplayMode mode = Display_GetMode();
+ 336:Src/app.c     ****     SystemSettings *settings = Settings_Get();
+ 337:Src/app.c     **** 
+ 338:Src/app.c     ****     if (mode == MODE_SET_HOUR) {
+ 339:Src/app.c     ****         g_App.lastTime.hours++;
+ 340:Src/app.c     ****         if (g_App.lastTime.hours > 23) g_App.lastTime.hours = 0;
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 32
+
+
+ 341:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 342:Src/app.c     ****         Display_SetBlink(false);
+ 343:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 344:Src/app.c     ****         Display_ShowSettings(MODE_SET_HOUR, &g_App.lastTime, false);
+ 345:Src/app.c     ****     } else if (mode == MODE_SET_MINUTE) {
+ 346:Src/app.c     ****         g_App.lastTime.minutes++;
+ 347:Src/app.c     ****         if (g_App.lastTime.minutes > 59) g_App.lastTime.minutes = 0;
+ 348:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 349:Src/app.c     ****         Display_SetBlink(false);
+ 350:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 351:Src/app.c     ****         Display_ShowSettings(MODE_SET_MINUTE, &g_App.lastTime, false);
+ 352:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_HOUR) {
+ 353:Src/app.c     ****         settings->alarmHour++;
+ 354:Src/app.c     ****         if (settings->alarmHour > 23) settings->alarmHour = 0;
+ 355:Src/app.c     ****         Display_SetBlink(false);
+ 356:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_HOUR, &g_App.lastTime, false);
+ 357:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_MINUTE) {
+ 358:Src/app.c     ****         settings->alarmMin++;
+ 359:Src/app.c     ****         if (settings->alarmMin > 59) settings->alarmMin = 0;
+ 360:Src/app.c     ****         Display_SetBlink(false);
+ 361:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_MINUTE, &g_App.lastTime, false);
+ 362:Src/app.c     ****     } else if (mode == MODE_SET_TEMP_SHOW) {
+ 363:Src/app.c     ****         settings->tempertureShowTime++;
+ 364:Src/app.c     ****         if (settings->tempertureShowTime > TEMPERTURE_MAX_SHOW_TIME) {
+ 365:Src/app.c     ****             settings->tempertureShowTime = settings->tempertureHideTime == 0 ? 1 : 0;
+ 366:Src/app.c     ****         }
+ 367:Src/app.c     ****         Display_SetBlink(false);
+ 368:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_SHOW, &g_App.lastTime, false);
+ 369:Src/app.c     ****     } else if (mode == MODE_SET_TEMP_HIDE) {
+ 370:Src/app.c     ****         settings->tempertureHideTime++;
+ 371:Src/app.c     ****         if (settings->tempertureHideTime > TEMPERTURE_MAX_HIDE_TIME) {
+ 372:Src/app.c     ****             settings->tempertureHideTime = settings->tempertureShowTime == 0 ? 1 : 0;
+ 373:Src/app.c     ****         }
+ 374:Src/app.c     ****         Display_SetBlink(false);
+ 375:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_HIDE, &g_App.lastTime, false);
+ 376:Src/app.c     ****     } else if (mode == MODE_SET_ROT_START) {
+ 377:Src/app.c     ****         settings->ringOnTimeStart++;
+ 378:Src/app.c     ****         if (settings->ringOnTimeStart > 23) settings->ringOnTimeStart = 0;
+ 379:Src/app.c     ****         Display_SetBlink(false);
+ 380:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_START, &g_App.lastTime, false);
+ 381:Src/app.c     ****     } else if (mode == MODE_SET_ROT_STOP) {
+ 382:Src/app.c     ****         settings->ringOnTimeStop++;
+ 383:Src/app.c     ****         if (settings->ringOnTimeStop > 23) settings->ringOnTimeStop = 0;
+ 384:Src/app.c     ****         Display_SetBlink(false);
+ 385:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_STOP, &g_App.lastTime, false);
+ 386:Src/app.c     ****     }
+ 387:Src/app.c     **** }
+ 388:Src/app.c     **** 
+ 389:Src/app.c     **** /**
+ 390:Src/app.c     ****  * @brief  主循环处理
+ 391:Src/app.c     ****  */
+ 392:Src/app.c     **** void App_MainLoop(void) {
+ 1119              		.loc 1 392 25 is_stmt 1 view -0
+ 1120              		.cfi_startproc
+ 1121              		@ args = 0, pretend = 0, frame = 0
+ 1122              		@ frame_needed = 0, uses_anonymous_args = 0
+ 393:Src/app.c     ****     SystemSettings *settings = Settings_Get();
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 33
+
+
+ 1123              		.loc 1 393 5 view .LVU324
+ 392:Src/app.c     ****     SystemSettings *settings = Settings_Get();
+ 1124              		.loc 1 392 25 is_stmt 0 view .LVU325
+ 1125 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 1126              	.LCFI3:
+ 1127              		.cfi_def_cfa_offset 24
+ 1128              		.cfi_offset 3, -24
+ 1129              		.cfi_offset 4, -20
+ 1130              		.cfi_offset 5, -16
+ 1131              		.cfi_offset 6, -12
+ 1132              		.cfi_offset 7, -8
+ 1133              		.cfi_offset 14, -4
+ 1134              		.loc 1 393 32 view .LVU326
+ 1135 0002 FFF7FEFF 		bl	Settings_Get
+ 1136              	.LVL116:
+ 1137 0006 0600     		movs	r6, r0
+ 1138              	.LVL117:
+ 394:Src/app.c     ****     DisplayMode mode = Display_GetMode();
+ 1139              		.loc 1 394 5 is_stmt 1 view .LVU327
+ 1140              		.loc 1 394 24 is_stmt 0 view .LVU328
+ 1141 0008 FFF7FEFF 		bl	Display_GetMode
+ 1142              	.LVL118:
+ 1143              		.loc 1 394 24 view .LVU329
+ 1144 000c 0400     		movs	r4, r0
+ 1145              	.LVL119:
+ 395:Src/app.c     ****     uint32_t now = HAL_GetTick();
+ 1146              		.loc 1 395 5 is_stmt 1 view .LVU330
+ 1147              		.loc 1 395 20 is_stmt 0 view .LVU331
+ 1148 000e FFF7FEFF 		bl	HAL_GetTick
+ 1149              	.LVL120:
+ 1150 0012 0500     		movs	r5, r0
+ 1151              	.LVL121:
+ 396:Src/app.c     ****     uint32_t passedTime;
+ 1152              		.loc 1 396 5 is_stmt 1 view .LVU332
+ 397:Src/app.c     **** 
+ 398:Src/app.c     ****     /* 温度显示自动切换逻辑 */
+ 399:Src/app.c     ****     if (settings->tempertureShowTime > 0) {
+ 1153              		.loc 1 399 5 view .LVU333
+ 1154              		.loc 1 399 17 is_stmt 0 view .LVU334
+ 1155 0014 F078     		ldrb	r0, [r6, #3]
+ 1156              	.LVL122:
+ 1157              		.loc 1 399 8 view .LVU335
+ 1158 0016 0028     		cmp	r0, #0
+ 1159 0018 4FD0     		beq	.L71
+ 400:Src/app.c     ****         if (mode == MODE_SHOW_TIME) {
+ 1160              		.loc 1 400 9 is_stmt 1 view .LVU336
+ 1161              		.loc 1 400 12 is_stmt 0 view .LVU337
+ 1162 001a 002C     		cmp	r4, #0
+ 1163 001c 39D1     		bne	.L72
+ 401:Src/app.c     ****             passedTime = now - g_App.lastDisplayChangeTime;
+ 1164              		.loc 1 401 13 is_stmt 1 view .LVU338
+ 1165              		.loc 1 401 37 is_stmt 0 view .LVU339
+ 1166 001e 694F     		ldr	r7, .L101
+ 1167 0020 7B68     		ldr	r3, [r7, #4]
+ 1168              	.LVL123:
+ 402:Src/app.c     ****             if (now < g_App.lastDisplayChangeTime ||
+ 1169              		.loc 1 402 13 is_stmt 1 view .LVU340
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 34
+
+
+ 1170              		.loc 1 402 16 is_stmt 0 view .LVU341
+ 1171 0022 AB42     		cmp	r3, r5
+ 1172 0024 06D8     		bhi	.L73
+ 403:Src/app.c     ****                 passedTime >= (settings->tempertureHideTime * 1000)) {
+ 1173              		.loc 1 403 61 view .LVU342
+ 1174 0026 FA22     		movs	r2, #250
+ 1175              		.loc 1 403 40 view .LVU343
+ 1176 0028 3179     		ldrb	r1, [r6, #4]
+ 1177              		.loc 1 403 61 view .LVU344
+ 1178 002a 9200     		lsls	r2, r2, #2
+ 1179 002c 4A43     		muls	r2, r1
+ 401:Src/app.c     ****             passedTime = now - g_App.lastDisplayChangeTime;
+ 1180              		.loc 1 401 24 view .LVU345
+ 1181 002e EB1A     		subs	r3, r5, r3
+ 1182              	.LVL124:
+ 402:Src/app.c     ****             if (now < g_App.lastDisplayChangeTime ||
+ 1183              		.loc 1 402 51 discriminator 1 view .LVU346
+ 1184 0030 9A42     		cmp	r2, r3
+ 1185 0032 03D8     		bhi	.L74
+ 1186              	.LVL125:
+ 1187              	.L73:
+ 404:Src/app.c     ****                 Display_SetMode(MODE_SHOW_TEMPERTURE);
+ 1188              		.loc 1 404 17 is_stmt 1 view .LVU347
+ 1189 0034 0220     		movs	r0, #2
+ 1190 0036 FFF7FEFF 		bl	Display_SetMode
+ 1191              	.LVL126:
+ 405:Src/app.c     ****                 g_App.lastDisplayChangeTime = now;
+ 1192              		.loc 1 405 17 view .LVU348
+ 1193              		.loc 1 405 45 is_stmt 0 view .LVU349
+ 1194 003a 7D60     		str	r5, [r7, #4]
+ 1195              	.LVL127:
+ 1196              	.L74:
+ 406:Src/app.c     ****             }
+ 407:Src/app.c     ****         } else if (mode == MODE_SHOW_TEMPERTURE && settings->tempertureHideTime > 0) {
+ 408:Src/app.c     ****             passedTime = now - g_App.lastDisplayChangeTime;
+ 409:Src/app.c     ****             if (now < g_App.lastDisplayChangeTime ||
+ 410:Src/app.c     ****                 passedTime >= (settings->tempertureShowTime * 1000)) {
+ 411:Src/app.c     ****                 Display_SetMode(MODE_SHOW_TIME);
+ 412:Src/app.c     ****                 g_App.lastDisplayChangeTime = now;
+ 413:Src/app.c     ****             }
+ 414:Src/app.c     ****         }
+ 415:Src/app.c     ****     } else if (mode == MODE_SHOW_TEMPERTURE) {
+ 416:Src/app.c     ****         Display_SetMode(MODE_SHOW_TIME);
+ 417:Src/app.c     ****         g_App.lastDisplayChangeTime = now;
+ 418:Src/app.c     ****     }
+ 419:Src/app.c     **** 
+ 420:Src/app.c     ****     /* 设置键长按重复触发逻辑 */
+ 421:Src/app.c     ****     if (HAL_GPIO_ReadPin(SET_KEY_GPIO_PORT, SET_KEY_PIN) == GPIO_PIN_RESET &&
+ 1197              		.loc 1 421 5 is_stmt 1 view .LVU350
+ 1198              		.loc 1 421 9 is_stmt 0 view .LVU351
+ 1199 003c 9020     		movs	r0, #144
+ 1200 003e 0821     		movs	r1, #8
+ 1201 0040 C005     		lsls	r0, r0, #23
+ 1202 0042 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 1203              	.LVL128:
+ 1204              		.loc 1 421 8 discriminator 1 view .LVU352
+ 1205 0046 0028     		cmp	r0, #0
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 35
+
+
+ 1206 0048 50D1     		bne	.L70
+ 1207              		.loc 1 421 76 discriminator 1 view .LVU353
+ 1208 004a 033C     		subs	r4, r4, #3
+ 1209              	.LVL129:
+ 1210              		.loc 1 421 76 discriminator 1 view .LVU354
+ 1211 004c E4B2     		uxtb	r4, r4
+ 1212 004e 0C2C     		cmp	r4, #12
+ 1213 0050 4CD8     		bhi	.L70
+ 1214              	.LBB13:
+ 422:Src/app.c     ****         mode >= MODE_SET_HOUR && mode <= MODE_SET_ROT_STOP) {
+ 423:Src/app.c     ****         uint32_t curVal = HAL_GetTick();
+ 1215              		.loc 1 423 9 is_stmt 1 view .LVU355
+ 1216              		.loc 1 423 27 is_stmt 0 view .LVU356
+ 1217 0052 FFF7FEFF 		bl	HAL_GetTick
+ 1218              	.LVL130:
+ 424:Src/app.c     ****         uint32_t timePassed = curVal - g_App.lastSetKeyPressTime;
+ 425:Src/app.c     ****         if (timePassed > KEY_LONG_PRESS_EFFECT_TIME) {
+ 1219              		.loc 1 425 12 view .LVU357
+ 1220 0056 C822     		movs	r2, #200
+ 424:Src/app.c     ****         uint32_t timePassed = curVal - g_App.lastSetKeyPressTime;
+ 1221              		.loc 1 424 45 view .LVU358
+ 1222 0058 5A4C     		ldr	r4, .L101
+ 423:Src/app.c     ****         uint32_t timePassed = curVal - g_App.lastSetKeyPressTime;
+ 1223              		.loc 1 423 27 view .LVU359
+ 1224 005a 0500     		movs	r5, r0
+ 1225              	.LVL131:
+ 424:Src/app.c     ****         uint32_t timePassed = curVal - g_App.lastSetKeyPressTime;
+ 1226              		.loc 1 424 9 is_stmt 1 view .LVU360
+ 1227              		.loc 1 425 9 view .LVU361
+ 424:Src/app.c     ****         uint32_t timePassed = curVal - g_App.lastSetKeyPressTime;
+ 1228              		.loc 1 424 18 is_stmt 0 view .LVU362
+ 1229 005c 636A     		ldr	r3, [r4, #36]
+ 1230              		.loc 1 425 12 view .LVU363
+ 1231 005e 9200     		lsls	r2, r2, #2
+ 424:Src/app.c     ****         uint32_t timePassed = curVal - g_App.lastSetKeyPressTime;
+ 1232              		.loc 1 424 18 view .LVU364
+ 1233 0060 C31A     		subs	r3, r0, r3
+ 1234              	.LVL132:
+ 1235              		.loc 1 425 12 view .LVU365
+ 1236 0062 9342     		cmp	r3, r2
+ 1237 0064 42D9     		bls	.L70
+ 426:Src/app.c     ****             if (curVal - g_App.lastSetKeyPressReportTime > KEY_REPEAT_TIME_INTERVAL) {
+ 1238              		.loc 1 426 13 is_stmt 1 view .LVU366
+ 1239              		.loc 1 426 24 is_stmt 0 view .LVU367
+ 1240 0066 A36A     		ldr	r3, [r4, #40]
+ 1241              	.LVL133:
+ 1242              		.loc 1 426 24 view .LVU368
+ 1243 0068 C31A     		subs	r3, r0, r3
+ 1244              		.loc 1 426 16 view .LVU369
+ 1245 006a FA2B     		cmp	r3, #250
+ 1246 006c 3ED9     		bls	.L70
+ 427:Src/app.c     ****                 SetKey_Repeat();
+ 1247              		.loc 1 427 17 is_stmt 1 view .LVU370
+ 1248              	.LBB14:
+ 1249              	.LBI14:
+ 334:Src/app.c     ****     DisplayMode mode = Display_GetMode();
+ 1250              		.loc 1 334 13 view .LVU371
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 36
+
+
+ 1251              	.LBB15:
+ 335:Src/app.c     ****     SystemSettings *settings = Settings_Get();
+ 1252              		.loc 1 335 5 view .LVU372
+ 335:Src/app.c     ****     SystemSettings *settings = Settings_Get();
+ 1253              		.loc 1 335 24 is_stmt 0 view .LVU373
+ 1254 006e FFF7FEFF 		bl	Display_GetMode
+ 1255              	.LVL134:
+ 335:Src/app.c     ****     SystemSettings *settings = Settings_Get();
+ 1256              		.loc 1 335 24 view .LVU374
+ 1257 0072 0600     		movs	r6, r0
+ 1258              	.LVL135:
+ 336:Src/app.c     **** 
+ 1259              		.loc 1 336 5 is_stmt 1 view .LVU375
+ 336:Src/app.c     **** 
+ 1260              		.loc 1 336 32 is_stmt 0 view .LVU376
+ 1261 0074 FFF7FEFF 		bl	Settings_Get
+ 1262              	.LVL136:
+ 1263 0078 0300     		movs	r3, r0
+ 1264              	.LVL137:
+ 338:Src/app.c     ****         g_App.lastTime.hours++;
+ 1265              		.loc 1 338 5 is_stmt 1 view .LVU377
+ 1266 007a F01E     		subs	r0, r6, #3
+ 1267              	.LVL138:
+ 338:Src/app.c     ****         g_App.lastTime.hours++;
+ 1268              		.loc 1 338 5 is_stmt 0 view .LVU378
+ 1269 007c 0C28     		cmp	r0, #12
+ 1270 007e 34D8     		bhi	.L79
+ 1271 0080 FFF7FEFF 		bl	__gnu_thumb1_case_uqi
+ 1272              	.L81:
+ 1273 0084 22       		.byte	(.L88-.L81)/2
+ 1274 0085 35       		.byte	(.L87-.L81)/2
+ 1275 0086 33       		.byte	(.L79-.L81)/2
+ 1276 0087 45       		.byte	(.L86-.L81)/2
+ 1277 0088 53       		.byte	(.L85-.L81)/2
+ 1278 0089 61       		.byte	(.L84-.L81)/2
+ 1279 008a 72       		.byte	(.L83-.L81)/2
+ 1280 008b 33       		.byte	(.L79-.L81)/2
+ 1281 008c 33       		.byte	(.L79-.L81)/2
+ 1282 008d 33       		.byte	(.L79-.L81)/2
+ 1283 008e 33       		.byte	(.L79-.L81)/2
+ 1284 008f 83       		.byte	(.L82-.L81)/2
+ 1285 0090 91       		.byte	(.L80-.L81)/2
+ 1286              	.LVL139:
+ 1287 0091 00       		.p2align 1
+ 1288              	.L72:
+ 338:Src/app.c     ****         g_App.lastTime.hours++;
+ 1289              		.loc 1 338 5 view .LVU379
+ 1290              	.LBE15:
+ 1291              	.LBE14:
+ 1292              	.LBE13:
+ 407:Src/app.c     ****             passedTime = now - g_App.lastDisplayChangeTime;
+ 1293              		.loc 1 407 16 is_stmt 1 view .LVU380
+ 407:Src/app.c     ****             passedTime = now - g_App.lastDisplayChangeTime;
+ 1294              		.loc 1 407 19 is_stmt 0 view .LVU381
+ 1295 0092 022C     		cmp	r4, #2
+ 1296 0094 D2D1     		bne	.L74
+ 407:Src/app.c     ****             passedTime = now - g_App.lastDisplayChangeTime;
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 37
+
+
+ 1297              		.loc 1 407 49 discriminator 1 view .LVU382
+ 1298 0096 3379     		ldrb	r3, [r6, #4]
+ 1299 0098 002B     		cmp	r3, #0
+ 1300 009a CFD0     		beq	.L74
+ 408:Src/app.c     ****             if (now < g_App.lastDisplayChangeTime ||
+ 1301              		.loc 1 408 13 is_stmt 1 view .LVU383
+ 408:Src/app.c     ****             if (now < g_App.lastDisplayChangeTime ||
+ 1302              		.loc 1 408 37 is_stmt 0 view .LVU384
+ 1303 009c 494E     		ldr	r6, .L101
+ 1304              	.LVL140:
+ 408:Src/app.c     ****             if (now < g_App.lastDisplayChangeTime ||
+ 1305              		.loc 1 408 37 view .LVU385
+ 1306 009e 7368     		ldr	r3, [r6, #4]
+ 1307              	.LVL141:
+ 409:Src/app.c     ****                 passedTime >= (settings->tempertureShowTime * 1000)) {
+ 1308              		.loc 1 409 13 is_stmt 1 view .LVU386
+ 409:Src/app.c     ****                 passedTime >= (settings->tempertureShowTime * 1000)) {
+ 1309              		.loc 1 409 16 is_stmt 0 view .LVU387
+ 1310 00a0 AB42     		cmp	r3, r5
+ 1311 00a2 05D8     		bhi	.L75
+ 410:Src/app.c     ****                 Display_SetMode(MODE_SHOW_TIME);
+ 1312              		.loc 1 410 61 view .LVU388
+ 1313 00a4 FA22     		movs	r2, #250
+ 1314 00a6 9200     		lsls	r2, r2, #2
+ 1315 00a8 4243     		muls	r2, r0
+ 408:Src/app.c     ****             if (now < g_App.lastDisplayChangeTime ||
+ 1316              		.loc 1 408 24 view .LVU389
+ 1317 00aa EB1A     		subs	r3, r5, r3
+ 1318              	.LVL142:
+ 409:Src/app.c     ****                 passedTime >= (settings->tempertureShowTime * 1000)) {
+ 1319              		.loc 1 409 51 discriminator 1 view .LVU390
+ 1320 00ac 9A42     		cmp	r2, r3
+ 1321 00ae C5D8     		bhi	.L74
+ 1322              	.LVL143:
+ 1323              	.L75:
+ 411:Src/app.c     ****                 g_App.lastDisplayChangeTime = now;
+ 1324              		.loc 1 411 17 is_stmt 1 view .LVU391
+ 1325 00b0 0020     		movs	r0, #0
+ 1326 00b2 FFF7FEFF 		bl	Display_SetMode
+ 1327              	.LVL144:
+ 412:Src/app.c     ****             }
+ 1328              		.loc 1 412 17 view .LVU392
+ 412:Src/app.c     ****             }
+ 1329              		.loc 1 412 45 is_stmt 0 view .LVU393
+ 1330 00b6 7560     		str	r5, [r6, #4]
+ 1331 00b8 C0E7     		b	.L74
+ 1332              	.LVL145:
+ 1333              	.L71:
+ 415:Src/app.c     ****         Display_SetMode(MODE_SHOW_TIME);
+ 1334              		.loc 1 415 12 is_stmt 1 view .LVU394
+ 415:Src/app.c     ****         Display_SetMode(MODE_SHOW_TIME);
+ 1335              		.loc 1 415 15 is_stmt 0 view .LVU395
+ 1336 00ba 022C     		cmp	r4, #2
+ 1337 00bc BED1     		bne	.L74
+ 416:Src/app.c     ****         g_App.lastDisplayChangeTime = now;
+ 1338              		.loc 1 416 9 is_stmt 1 view .LVU396
+ 1339 00be FFF7FEFF 		bl	Display_SetMode
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 38
+
+
+ 1340              	.LVL146:
+ 417:Src/app.c     ****     }
+ 1341              		.loc 1 417 9 view .LVU397
+ 417:Src/app.c     ****     }
+ 1342              		.loc 1 417 37 is_stmt 0 view .LVU398
+ 1343 00c2 404B     		ldr	r3, .L101
+ 1344 00c4 5D60     		str	r5, [r3, #4]
+ 1345 00c6 B9E7     		b	.L74
+ 1346              	.LVL147:
+ 1347              	.L88:
+ 1348              	.LBB20:
+ 1349              	.LBB18:
+ 1350              	.LBB16:
+ 339:Src/app.c     ****         if (g_App.lastTime.hours > 23) g_App.lastTime.hours = 0;
+ 1351              		.loc 1 339 9 is_stmt 1 view .LVU399
+ 339:Src/app.c     ****         if (g_App.lastTime.hours > 23) g_App.lastTime.hours = 0;
+ 1352              		.loc 1 339 29 is_stmt 0 view .LVU400
+ 1353 00c8 E37E     		ldrb	r3, [r4, #27]
+ 1354              	.LVL148:
+ 339:Src/app.c     ****         if (g_App.lastTime.hours > 23) g_App.lastTime.hours = 0;
+ 1355              		.loc 1 339 29 view .LVU401
+ 1356 00ca 0133     		adds	r3, r3, #1
+ 1357 00cc DBB2     		uxtb	r3, r3
+ 340:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 1358              		.loc 1 340 9 is_stmt 1 view .LVU402
+ 340:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 1359              		.loc 1 340 12 is_stmt 0 view .LVU403
+ 1360 00ce 172B     		cmp	r3, #23
+ 1361 00d0 00D9     		bls	.L89
+ 340:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 1362              		.loc 1 340 61 discriminator 1 view .LVU404
+ 1363 00d2 0023     		movs	r3, #0
+ 1364              	.L89:
+ 1365 00d4 E376     		strb	r3, [r4, #27]
+ 341:Src/app.c     ****         Display_SetBlink(false);
+ 1366              		.loc 1 341 9 is_stmt 1 view .LVU405
+ 341:Src/app.c     ****         Display_SetBlink(false);
+ 1367              		.loc 1 341 29 is_stmt 0 view .LVU406
+ 1368 00d6 0223     		movs	r3, #2
+ 342:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 1369              		.loc 1 342 9 view .LVU407
+ 1370 00d8 0020     		movs	r0, #0
+ 341:Src/app.c     ****         Display_SetBlink(false);
+ 1371              		.loc 1 341 29 view .LVU408
+ 1372 00da A376     		strb	r3, [r4, #26]
+ 342:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 1373              		.loc 1 342 9 is_stmt 1 view .LVU409
+ 1374 00dc FFF7FEFF 		bl	Display_SetBlink
+ 1375              	.LVL149:
+ 344:Src/app.c     ****     } else if (mode == MODE_SET_MINUTE) {
+ 1376              		.loc 1 344 9 view .LVU410
+ 1377 00e0 0022     		movs	r2, #0
+ 1378 00e2 0320     		movs	r0, #3
+ 1379 00e4 3849     		ldr	r1, .L101+4
+ 1380              	.L100:
+ 385:Src/app.c     ****     }
+ 1381              		.loc 1 385 9 is_stmt 0 view .LVU411
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 39
+
+
+ 1382 00e6 FFF7FEFF 		bl	Display_ShowSettings
+ 1383              	.LVL150:
+ 1384              	.L79:
+ 385:Src/app.c     ****     }
+ 1385              		.loc 1 385 9 view .LVU412
+ 1386              	.LBE16:
+ 1387              	.LBE18:
+ 428:Src/app.c     ****                 g_App.lastSetKeyPressReportTime = curVal;
+ 1388              		.loc 1 428 17 is_stmt 1 view .LVU413
+ 1389              		.loc 1 428 49 is_stmt 0 view .LVU414
+ 1390 00ea A562     		str	r5, [r4, #40]
+ 1391              	.LVL151:
+ 1392              	.L70:
+ 1393              		.loc 1 428 49 view .LVU415
+ 1394              	.LBE20:
+ 429:Src/app.c     ****             }
+ 430:Src/app.c     ****         }
+ 431:Src/app.c     ****     }
+ 432:Src/app.c     **** }
+ 1395              		.loc 1 432 1 view .LVU416
+ 1396              		@ sp needed
+ 1397 00ec F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 1398              	.LVL152:
+ 1399              	.L87:
+ 1400              	.LBB21:
+ 1401              	.LBB19:
+ 1402              	.LBB17:
+ 346:Src/app.c     ****         if (g_App.lastTime.minutes > 59) g_App.lastTime.minutes = 0;
+ 1403              		.loc 1 346 9 is_stmt 1 view .LVU417
+ 346:Src/app.c     ****         if (g_App.lastTime.minutes > 59) g_App.lastTime.minutes = 0;
+ 1404              		.loc 1 346 31 is_stmt 0 view .LVU418
+ 1405 00ee 637E     		ldrb	r3, [r4, #25]
+ 1406              	.LVL153:
+ 346:Src/app.c     ****         if (g_App.lastTime.minutes > 59) g_App.lastTime.minutes = 0;
+ 1407              		.loc 1 346 31 view .LVU419
+ 1408 00f0 0133     		adds	r3, r3, #1
+ 1409 00f2 DBB2     		uxtb	r3, r3
+ 347:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 1410              		.loc 1 347 9 is_stmt 1 view .LVU420
+ 347:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 1411              		.loc 1 347 12 is_stmt 0 view .LVU421
+ 1412 00f4 3B2B     		cmp	r3, #59
+ 1413 00f6 00D9     		bls	.L90
+ 347:Src/app.c     ****         g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 1414              		.loc 1 347 65 discriminator 1 view .LVU422
+ 1415 00f8 0023     		movs	r3, #0
+ 1416              	.L90:
+ 1417 00fa 6376     		strb	r3, [r4, #25]
+ 348:Src/app.c     ****         Display_SetBlink(false);
+ 1418              		.loc 1 348 9 is_stmt 1 view .LVU423
+ 348:Src/app.c     ****         Display_SetBlink(false);
+ 1419              		.loc 1 348 29 is_stmt 0 view .LVU424
+ 1420 00fc 0223     		movs	r3, #2
+ 349:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 1421              		.loc 1 349 9 view .LVU425
+ 1422 00fe 0020     		movs	r0, #0
+ 348:Src/app.c     ****         Display_SetBlink(false);
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 40
+
+
+ 1423              		.loc 1 348 29 view .LVU426
+ 1424 0100 A376     		strb	r3, [r4, #26]
+ 349:Src/app.c     ****         /* 设置模式下只修改内存，不写入 RTC */
+ 1425              		.loc 1 349 9 is_stmt 1 view .LVU427
+ 1426 0102 FFF7FEFF 		bl	Display_SetBlink
+ 1427              	.LVL154:
+ 351:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_HOUR) {
+ 1428              		.loc 1 351 9 view .LVU428
+ 1429 0106 0022     		movs	r2, #0
+ 1430 0108 0420     		movs	r0, #4
+ 1431 010a 2F49     		ldr	r1, .L101+4
+ 1432 010c EBE7     		b	.L100
+ 1433              	.LVL155:
+ 1434              	.L86:
+ 353:Src/app.c     ****         if (settings->alarmHour > 23) settings->alarmHour = 0;
+ 1435              		.loc 1 353 9 view .LVU429
+ 353:Src/app.c     ****         if (settings->alarmHour > 23) settings->alarmHour = 0;
+ 1436              		.loc 1 353 28 is_stmt 0 view .LVU430
+ 1437 010e 5A78     		ldrb	r2, [r3, #1]
+ 1438 0110 0132     		adds	r2, r2, #1
+ 1439 0112 D2B2     		uxtb	r2, r2
+ 354:Src/app.c     ****         Display_SetBlink(false);
+ 1440              		.loc 1 354 9 is_stmt 1 view .LVU431
+ 354:Src/app.c     ****         Display_SetBlink(false);
+ 1441              		.loc 1 354 12 is_stmt 0 view .LVU432
+ 1442 0114 172A     		cmp	r2, #23
+ 1443 0116 00D9     		bls	.L91
+ 354:Src/app.c     ****         Display_SetBlink(false);
+ 1444              		.loc 1 354 59 discriminator 1 view .LVU433
+ 1445 0118 0022     		movs	r2, #0
+ 1446              	.L91:
+ 355:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_HOUR, &g_App.lastTime, false);
+ 1447              		.loc 1 355 9 view .LVU434
+ 1448 011a 0020     		movs	r0, #0
+ 1449 011c 5A70     		strb	r2, [r3, #1]
+ 355:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_HOUR, &g_App.lastTime, false);
+ 1450              		.loc 1 355 9 is_stmt 1 view .LVU435
+ 1451 011e FFF7FEFF 		bl	Display_SetBlink
+ 1452              	.LVL156:
+ 356:Src/app.c     ****     } else if (mode == MODE_SET_ALARM_MINUTE) {
+ 1453              		.loc 1 356 9 view .LVU436
+ 1454 0122 0022     		movs	r2, #0
+ 1455 0124 0620     		movs	r0, #6
+ 1456 0126 2849     		ldr	r1, .L101+4
+ 1457 0128 DDE7     		b	.L100
+ 1458              	.LVL157:
+ 1459              	.L85:
+ 358:Src/app.c     ****         if (settings->alarmMin > 59) settings->alarmMin = 0;
+ 1460              		.loc 1 358 9 view .LVU437
+ 358:Src/app.c     ****         if (settings->alarmMin > 59) settings->alarmMin = 0;
+ 1461              		.loc 1 358 27 is_stmt 0 view .LVU438
+ 1462 012a 9A78     		ldrb	r2, [r3, #2]
+ 1463 012c 0132     		adds	r2, r2, #1
+ 1464 012e D2B2     		uxtb	r2, r2
+ 359:Src/app.c     ****         Display_SetBlink(false);
+ 1465              		.loc 1 359 9 is_stmt 1 view .LVU439
+ 359:Src/app.c     ****         Display_SetBlink(false);
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 41
+
+
+ 1466              		.loc 1 359 12 is_stmt 0 view .LVU440
+ 1467 0130 3B2A     		cmp	r2, #59
+ 1468 0132 00D9     		bls	.L92
+ 359:Src/app.c     ****         Display_SetBlink(false);
+ 1469              		.loc 1 359 57 discriminator 1 view .LVU441
+ 1470 0134 0022     		movs	r2, #0
+ 1471              	.L92:
+ 360:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_MINUTE, &g_App.lastTime, false);
+ 1472              		.loc 1 360 9 view .LVU442
+ 1473 0136 0020     		movs	r0, #0
+ 1474 0138 9A70     		strb	r2, [r3, #2]
+ 360:Src/app.c     ****         Display_ShowSettings(MODE_SET_ALARM_MINUTE, &g_App.lastTime, false);
+ 1475              		.loc 1 360 9 is_stmt 1 view .LVU443
+ 1476 013a FFF7FEFF 		bl	Display_SetBlink
+ 1477              	.LVL158:
+ 361:Src/app.c     ****     } else if (mode == MODE_SET_TEMP_SHOW) {
+ 1478              		.loc 1 361 9 view .LVU444
+ 1479 013e 0022     		movs	r2, #0
+ 1480 0140 0720     		movs	r0, #7
+ 1481 0142 2149     		ldr	r1, .L101+4
+ 1482 0144 CFE7     		b	.L100
+ 1483              	.LVL159:
+ 1484              	.L84:
+ 363:Src/app.c     ****         if (settings->tempertureShowTime > TEMPERTURE_MAX_SHOW_TIME) {
+ 1485              		.loc 1 363 9 view .LVU445
+ 363:Src/app.c     ****         if (settings->tempertureShowTime > TEMPERTURE_MAX_SHOW_TIME) {
+ 1486              		.loc 1 363 37 is_stmt 0 view .LVU446
+ 1487 0146 DA78     		ldrb	r2, [r3, #3]
+ 1488 0148 0132     		adds	r2, r2, #1
+ 1489 014a D2B2     		uxtb	r2, r2
+ 1490 014c DA70     		strb	r2, [r3, #3]
+ 364:Src/app.c     ****             settings->tempertureShowTime = settings->tempertureHideTime == 0 ? 1 : 0;
+ 1491              		.loc 1 364 9 is_stmt 1 view .LVU447
+ 364:Src/app.c     ****             settings->tempertureShowTime = settings->tempertureHideTime == 0 ? 1 : 0;
+ 1492              		.loc 1 364 12 is_stmt 0 view .LVU448
+ 1493 014e 0F2A     		cmp	r2, #15
+ 1494 0150 03D9     		bls	.L93
+ 365:Src/app.c     ****         }
+ 1495              		.loc 1 365 13 is_stmt 1 view .LVU449
+ 365:Src/app.c     ****         }
+ 1496              		.loc 1 365 82 is_stmt 0 view .LVU450
+ 1497 0152 1A79     		ldrb	r2, [r3, #4]
+ 1498 0154 5142     		rsbs	r1, r2, #0
+ 1499 0156 4A41     		adcs	r2, r2, r1
+ 365:Src/app.c     ****         }
+ 1500              		.loc 1 365 42 view .LVU451
+ 1501 0158 DA70     		strb	r2, [r3, #3]
+ 1502              	.L93:
+ 367:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_SHOW, &g_App.lastTime, false);
+ 1503              		.loc 1 367 9 is_stmt 1 view .LVU452
+ 1504 015a 0020     		movs	r0, #0
+ 1505 015c FFF7FEFF 		bl	Display_SetBlink
+ 1506              	.LVL160:
+ 368:Src/app.c     ****     } else if (mode == MODE_SET_TEMP_HIDE) {
+ 1507              		.loc 1 368 9 view .LVU453
+ 1508 0160 0022     		movs	r2, #0
+ 1509 0162 0820     		movs	r0, #8
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 42
+
+
+ 1510 0164 1849     		ldr	r1, .L101+4
+ 1511 0166 BEE7     		b	.L100
+ 1512              	.LVL161:
+ 1513              	.L83:
+ 370:Src/app.c     ****         if (settings->tempertureHideTime > TEMPERTURE_MAX_HIDE_TIME) {
+ 1514              		.loc 1 370 9 view .LVU454
+ 370:Src/app.c     ****         if (settings->tempertureHideTime > TEMPERTURE_MAX_HIDE_TIME) {
+ 1515              		.loc 1 370 37 is_stmt 0 view .LVU455
+ 1516 0168 1A79     		ldrb	r2, [r3, #4]
+ 1517 016a 0132     		adds	r2, r2, #1
+ 1518 016c D2B2     		uxtb	r2, r2
+ 1519 016e 1A71     		strb	r2, [r3, #4]
+ 371:Src/app.c     ****             settings->tempertureHideTime = settings->tempertureShowTime == 0 ? 1 : 0;
+ 1520              		.loc 1 371 9 is_stmt 1 view .LVU456
+ 371:Src/app.c     ****             settings->tempertureHideTime = settings->tempertureShowTime == 0 ? 1 : 0;
+ 1521              		.loc 1 371 12 is_stmt 0 view .LVU457
+ 1522 0170 1E2A     		cmp	r2, #30
+ 1523 0172 03D9     		bls	.L94
+ 372:Src/app.c     ****         }
+ 1524              		.loc 1 372 13 is_stmt 1 view .LVU458
+ 372:Src/app.c     ****         }
+ 1525              		.loc 1 372 82 is_stmt 0 view .LVU459
+ 1526 0174 DA78     		ldrb	r2, [r3, #3]
+ 1527 0176 5142     		rsbs	r1, r2, #0
+ 1528 0178 4A41     		adcs	r2, r2, r1
+ 372:Src/app.c     ****         }
+ 1529              		.loc 1 372 42 view .LVU460
+ 1530 017a 1A71     		strb	r2, [r3, #4]
+ 1531              	.L94:
+ 374:Src/app.c     ****         Display_ShowSettings(MODE_SET_TEMP_HIDE, &g_App.lastTime, false);
+ 1532              		.loc 1 374 9 is_stmt 1 view .LVU461
+ 1533 017c 0020     		movs	r0, #0
+ 1534 017e FFF7FEFF 		bl	Display_SetBlink
+ 1535              	.LVL162:
+ 375:Src/app.c     ****     } else if (mode == MODE_SET_ROT_START) {
+ 1536              		.loc 1 375 9 view .LVU462
+ 1537 0182 0022     		movs	r2, #0
+ 1538 0184 0920     		movs	r0, #9
+ 1539 0186 1049     		ldr	r1, .L101+4
+ 1540 0188 ADE7     		b	.L100
+ 1541              	.LVL163:
+ 1542              	.L82:
+ 377:Src/app.c     ****         if (settings->ringOnTimeStart > 23) settings->ringOnTimeStart = 0;
+ 1543              		.loc 1 377 9 view .LVU463
+ 377:Src/app.c     ****         if (settings->ringOnTimeStart > 23) settings->ringOnTimeStart = 0;
+ 1544              		.loc 1 377 34 is_stmt 0 view .LVU464
+ 1545 018a 9A79     		ldrb	r2, [r3, #6]
+ 1546 018c 0132     		adds	r2, r2, #1
+ 1547 018e D2B2     		uxtb	r2, r2
+ 378:Src/app.c     ****         Display_SetBlink(false);
+ 1548              		.loc 1 378 9 is_stmt 1 view .LVU465
+ 378:Src/app.c     ****         Display_SetBlink(false);
+ 1549              		.loc 1 378 12 is_stmt 0 view .LVU466
+ 1550 0190 172A     		cmp	r2, #23
+ 1551 0192 00D9     		bls	.L95
+ 378:Src/app.c     ****         Display_SetBlink(false);
+ 1552              		.loc 1 378 71 discriminator 1 view .LVU467
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 43
+
+
+ 1553 0194 0022     		movs	r2, #0
+ 1554              	.L95:
+ 379:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_START, &g_App.lastTime, false);
+ 1555              		.loc 1 379 9 view .LVU468
+ 1556 0196 0020     		movs	r0, #0
+ 1557 0198 9A71     		strb	r2, [r3, #6]
+ 379:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_START, &g_App.lastTime, false);
+ 1558              		.loc 1 379 9 is_stmt 1 view .LVU469
+ 1559 019a FFF7FEFF 		bl	Display_SetBlink
+ 1560              	.LVL164:
+ 380:Src/app.c     ****     } else if (mode == MODE_SET_ROT_STOP) {
+ 1561              		.loc 1 380 9 view .LVU470
+ 1562 019e 0022     		movs	r2, #0
+ 1563 01a0 0E20     		movs	r0, #14
+ 1564 01a2 0949     		ldr	r1, .L101+4
+ 1565 01a4 9FE7     		b	.L100
+ 1566              	.LVL165:
+ 1567              	.L80:
+ 382:Src/app.c     ****         if (settings->ringOnTimeStop > 23) settings->ringOnTimeStop = 0;
+ 1568              		.loc 1 382 9 view .LVU471
+ 382:Src/app.c     ****         if (settings->ringOnTimeStop > 23) settings->ringOnTimeStop = 0;
+ 1569              		.loc 1 382 33 is_stmt 0 view .LVU472
+ 1570 01a6 DA79     		ldrb	r2, [r3, #7]
+ 1571 01a8 0132     		adds	r2, r2, #1
+ 1572 01aa D2B2     		uxtb	r2, r2
+ 383:Src/app.c     ****         Display_SetBlink(false);
+ 1573              		.loc 1 383 9 is_stmt 1 view .LVU473
+ 383:Src/app.c     ****         Display_SetBlink(false);
+ 1574              		.loc 1 383 12 is_stmt 0 view .LVU474
+ 1575 01ac 172A     		cmp	r2, #23
+ 1576 01ae 00D9     		bls	.L96
+ 383:Src/app.c     ****         Display_SetBlink(false);
+ 1577              		.loc 1 383 69 discriminator 1 view .LVU475
+ 1578 01b0 0022     		movs	r2, #0
+ 1579              	.L96:
+ 384:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_STOP, &g_App.lastTime, false);
+ 1580              		.loc 1 384 9 view .LVU476
+ 1581 01b2 0020     		movs	r0, #0
+ 1582 01b4 DA71     		strb	r2, [r3, #7]
+ 384:Src/app.c     ****         Display_ShowSettings(MODE_SET_ROT_STOP, &g_App.lastTime, false);
+ 1583              		.loc 1 384 9 is_stmt 1 view .LVU477
+ 1584 01b6 FFF7FEFF 		bl	Display_SetBlink
+ 1585              	.LVL166:
+ 385:Src/app.c     ****     }
+ 1586              		.loc 1 385 9 view .LVU478
+ 1587 01ba 0022     		movs	r2, #0
+ 1588 01bc 0F20     		movs	r0, #15
+ 1589 01be 0249     		ldr	r1, .L101+4
+ 1590 01c0 91E7     		b	.L100
+ 1591              	.L102:
+ 1592 01c2 C046     		.align	2
+ 1593              	.L101:
+ 1594 01c4 00000000 		.word	g_App
+ 1595 01c8 18000000 		.word	g_App+24
+ 1596              	.LBE17:
+ 1597              	.LBE19:
+ 1598              	.LBE21:
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 44
+
+
+ 1599              		.cfi_endproc
+ 1600              	.LFE42:
+ 1602              		.section	.text.App_TIM_PeriodElapsedCallback,"ax",%progbits
+ 1603              		.align	1
+ 1604              		.global	App_TIM_PeriodElapsedCallback
+ 1605              		.syntax unified
+ 1606              		.code	16
+ 1607              		.thumb_func
+ 1609              	App_TIM_PeriodElapsedCallback:
+ 1610              	.LVL167:
+ 1611              	.LFB43:
+ 433:Src/app.c     **** 
+ 434:Src/app.c     **** /**
+ 435:Src/app.c     ****  * @brief  定时器周期回调
+ 436:Src/app.c     ****  */
+ 437:Src/app.c     **** void App_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
+ 1612              		.loc 1 437 61 view -0
+ 1613              		.cfi_startproc
+ 1614              		@ args = 0, pretend = 0, frame = 0
+ 1615              		@ frame_needed = 0, uses_anonymous_args = 0
+ 438:Src/app.c     ****     if (htim->Instance == ALARM_CONTROL_TIMER) {
+ 1616              		.loc 1 438 5 view .LVU480
+ 1617              		.loc 1 438 13 is_stmt 0 view .LVU481
+ 1618 0000 0368     		ldr	r3, [r0]
+ 1619              		.loc 1 438 8 view .LVU482
+ 1620 0002 154A     		ldr	r2, .L118
+ 437:Src/app.c     ****     if (htim->Instance == ALARM_CONTROL_TIMER) {
+ 1621              		.loc 1 437 61 view .LVU483
+ 1622 0004 70B5     		push	{r4, r5, r6, lr}
+ 1623              	.LCFI4:
+ 1624              		.cfi_def_cfa_offset 16
+ 1625              		.cfi_offset 4, -16
+ 1626              		.cfi_offset 5, -12
+ 1627              		.cfi_offset 6, -8
+ 1628              		.cfi_offset 14, -4
+ 1629              		.loc 1 438 8 view .LVU484
+ 1630 0006 9342     		cmp	r3, r2
+ 1631 0008 02D1     		bne	.L104
+ 439:Src/app.c     ****         Alarm_TimerTick();
+ 1632              		.loc 1 439 9 is_stmt 1 view .LVU485
+ 1633 000a FFF7FEFF 		bl	Alarm_TimerTick
+ 1634              	.LVL168:
+ 1635              	.L103:
+ 440:Src/app.c     ****     } else if (htim->Instance == LIGHT_CONTROL_TIMER) {
+ 441:Src/app.c     ****         /* 亮度控制定时器中断（1ms） */
+ 442:Src/app.c     ****         SystemSettings *settings = Settings_Get();
+ 443:Src/app.c     ****         
+ 444:Src/app.c     ****         /* 更新温度（使用最新的 ADC 值） */
+ 445:Src/app.c     ****         Temperature_Update(g_App.adcValue[1]);
+ 446:Src/app.c     ****         
+ 447:Src/app.c     ****         /* 自动亮度调节 */
+ 448:Src/app.c     ****         if (settings->savedBrightness == 0) {
+ 449:Src/app.c     ****             if (g_App.isWeakBrightness && g_App.adcValue[0] > STRONG_BRIGHTNESS_ADC_VALUE) {
+ 450:Src/app.c     ****                 g_App.isWeakBrightness = false;
+ 451:Src/app.c     ****                 if (settings->strongBrightness > 0) {
+ 452:Src/app.c     ****                     Display_SetBrightness(settings->strongBrightness);
+ 453:Src/app.c     ****                 }
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 45
+
+
+ 454:Src/app.c     ****             } else if (!g_App.isWeakBrightness && g_App.adcValue[0] < WEAK_BRIGHTNESS_ADC_VALUE) {
+ 455:Src/app.c     ****                 g_App.isWeakBrightness = true;
+ 456:Src/app.c     ****                 if (settings->weakBrightness > 0) {
+ 457:Src/app.c     ****                     Display_SetBrightness(settings->weakBrightness);
+ 458:Src/app.c     ****                 }
+ 459:Src/app.c     ****             }
+ 460:Src/app.c     ****         }
+ 461:Src/app.c     ****     }
+ 462:Src/app.c     **** }
+ 1636              		.loc 1 462 1 is_stmt 0 view .LVU486
+ 1637              		@ sp needed
+ 1638 000e 70BD     		pop	{r4, r5, r6, pc}
+ 1639              	.LVL169:
+ 1640              	.L104:
+ 440:Src/app.c     ****     } else if (htim->Instance == LIGHT_CONTROL_TIMER) {
+ 1641              		.loc 1 440 12 is_stmt 1 view .LVU487
+ 440:Src/app.c     ****     } else if (htim->Instance == LIGHT_CONTROL_TIMER) {
+ 1642              		.loc 1 440 15 is_stmt 0 view .LVU488
+ 1643 0010 124A     		ldr	r2, .L118+4
+ 1644 0012 9342     		cmp	r3, r2
+ 1645 0014 FBD1     		bne	.L103
+ 1646              	.LBB22:
+ 442:Src/app.c     ****         
+ 1647              		.loc 1 442 9 is_stmt 1 view .LVU489
+ 442:Src/app.c     ****         
+ 1648              		.loc 1 442 36 is_stmt 0 view .LVU490
+ 1649 0016 FFF7FEFF 		bl	Settings_Get
+ 1650              	.LVL170:
+ 442:Src/app.c     ****         
+ 1651              		.loc 1 442 36 view .LVU491
+ 1652 001a 0400     		movs	r4, r0
+ 1653              	.LVL171:
+ 445:Src/app.c     ****         
+ 1654              		.loc 1 445 9 is_stmt 1 view .LVU492
+ 1655 001c 104D     		ldr	r5, .L118+8
+ 1656 001e E868     		ldr	r0, [r5, #12]
+ 1657              	.LVL172:
+ 445:Src/app.c     ****         
+ 1658              		.loc 1 445 9 is_stmt 0 view .LVU493
+ 1659 0020 FFF7FEFF 		bl	Temperature_Update
+ 1660              	.LVL173:
+ 448:Src/app.c     ****             if (g_App.isWeakBrightness && g_App.adcValue[0] > STRONG_BRIGHTNESS_ADC_VALUE) {
+ 1661              		.loc 1 448 9 is_stmt 1 view .LVU494
+ 448:Src/app.c     ****             if (g_App.isWeakBrightness && g_App.adcValue[0] > STRONG_BRIGHTNESS_ADC_VALUE) {
+ 1662              		.loc 1 448 12 is_stmt 0 view .LVU495
+ 1663 0024 227A     		ldrb	r2, [r4, #8]
+ 1664 0026 002A     		cmp	r2, #0
+ 1665 0028 F1D1     		bne	.L103
+ 449:Src/app.c     ****                 g_App.isWeakBrightness = false;
+ 1666              		.loc 1 449 13 is_stmt 1 view .LVU496
+ 449:Src/app.c     ****                 g_App.isWeakBrightness = false;
+ 1667              		.loc 1 449 16 is_stmt 0 view .LVU497
+ 1668 002a 6978     		ldrb	r1, [r5, #1]
+ 449:Src/app.c     ****                 g_App.isWeakBrightness = false;
+ 1669              		.loc 1 449 57 discriminator 1 view .LVU498
+ 1670 002c AB68     		ldr	r3, [r5, #8]
+ 449:Src/app.c     ****                 g_App.isWeakBrightness = false;
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 46
+
+
+ 1671              		.loc 1 449 16 view .LVU499
+ 1672 002e 0029     		cmp	r1, #0
+ 1673 0030 0AD0     		beq	.L108
+ 449:Src/app.c     ****                 g_App.isWeakBrightness = false;
+ 1674              		.loc 1 449 40 discriminator 1 view .LVU500
+ 1675 0032 AF21     		movs	r1, #175
+ 1676 0034 0901     		lsls	r1, r1, #4
+ 1677 0036 8B42     		cmp	r3, r1
+ 1678 0038 E9D9     		bls	.L103
+ 450:Src/app.c     ****                 if (settings->strongBrightness > 0) {
+ 1679              		.loc 1 450 17 is_stmt 1 view .LVU501
+ 450:Src/app.c     ****                 if (settings->strongBrightness > 0) {
+ 1680              		.loc 1 450 40 is_stmt 0 view .LVU502
+ 1681 003a 6A70     		strb	r2, [r5, #1]
+ 451:Src/app.c     ****                     Display_SetBrightness(settings->strongBrightness);
+ 1682              		.loc 1 451 17 is_stmt 1 view .LVU503
+ 451:Src/app.c     ****                     Display_SetBrightness(settings->strongBrightness);
+ 1683              		.loc 1 451 29 is_stmt 0 view .LVU504
+ 1684 003c 607A     		ldrb	r0, [r4, #9]
+ 1685              	.L117:
+ 456:Src/app.c     ****                     Display_SetBrightness(settings->weakBrightness);
+ 1686              		.loc 1 456 20 view .LVU505
+ 1687 003e 0028     		cmp	r0, #0
+ 1688 0040 E5D0     		beq	.L103
+ 457:Src/app.c     ****                 }
+ 1689              		.loc 1 457 21 is_stmt 1 view .LVU506
+ 1690 0042 FFF7FEFF 		bl	Display_SetBrightness
+ 1691              	.LVL174:
+ 1692              	.LBE22:
+ 1693              		.loc 1 462 1 is_stmt 0 view .LVU507
+ 1694 0046 E2E7     		b	.L103
+ 1695              	.L108:
+ 1696              	.LBB23:
+ 454:Src/app.c     ****                 g_App.isWeakBrightness = true;
+ 1697              		.loc 1 454 20 is_stmt 1 view .LVU508
+ 454:Src/app.c     ****                 g_App.isWeakBrightness = true;
+ 1698              		.loc 1 454 48 is_stmt 0 discriminator 1 view .LVU509
+ 1699 0048 064A     		ldr	r2, .L118+12
+ 1700 004a 9342     		cmp	r3, r2
+ 1701 004c DFD8     		bhi	.L103
+ 455:Src/app.c     ****                 if (settings->weakBrightness > 0) {
+ 1702              		.loc 1 455 17 is_stmt 1 view .LVU510
+ 455:Src/app.c     ****                 if (settings->weakBrightness > 0) {
+ 1703              		.loc 1 455 40 is_stmt 0 view .LVU511
+ 1704 004e 0123     		movs	r3, #1
+ 1705 0050 6B70     		strb	r3, [r5, #1]
+ 456:Src/app.c     ****                     Display_SetBrightness(settings->weakBrightness);
+ 1706              		.loc 1 456 17 is_stmt 1 view .LVU512
+ 456:Src/app.c     ****                     Display_SetBrightness(settings->weakBrightness);
+ 1707              		.loc 1 456 29 is_stmt 0 view .LVU513
+ 1708 0052 A07A     		ldrb	r0, [r4, #10]
+ 1709 0054 F3E7     		b	.L117
+ 1710              	.L119:
+ 1711 0056 C046     		.align	2
+ 1712              	.L118:
+ 1713 0058 00480140 		.word	1073825792
+ 1714 005c 00440140 		.word	1073824768
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 47
+
+
+ 1715 0060 00000000 		.word	g_App
+ 1716 0064 FB080000 		.word	2299
+ 1717              	.LBE23:
+ 1718              		.cfi_endproc
+ 1719              	.LFE43:
+ 1721              		.section	.text.App_GPIO_EXTI_Callback,"ax",%progbits
+ 1722              		.align	1
+ 1723              		.global	App_GPIO_EXTI_Callback
+ 1724              		.syntax unified
+ 1725              		.code	16
+ 1726              		.thumb_func
+ 1728              	App_GPIO_EXTI_Callback:
+ 1729              	.LVL175:
+ 1730              	.LFB44:
+ 463:Src/app.c     **** 
+ 464:Src/app.c     **** /**
+ 465:Src/app.c     ****  * @brief  GPIO 外部中断回调
+ 466:Src/app.c     ****  */
+ 467:Src/app.c     **** void App_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+ 1731              		.loc 1 467 48 is_stmt 1 view -0
+ 1732              		.cfi_startproc
+ 1733              		@ args = 0, pretend = 0, frame = 8
+ 1734              		@ frame_needed = 0, uses_anonymous_args = 0
+ 468:Src/app.c     ****     DisplayMode mode = Display_GetMode();
+ 1735              		.loc 1 468 5 view .LVU515
+ 467:Src/app.c     ****     DisplayMode mode = Display_GetMode();
+ 1736              		.loc 1 467 48 is_stmt 0 view .LVU516
+ 1737 0000 F7B5     		push	{r0, r1, r2, r4, r5, r6, r7, lr}
+ 1738              	.LCFI5:
+ 1739              		.cfi_def_cfa_offset 32
+ 1740              		.cfi_offset 0, -32
+ 1741              		.cfi_offset 1, -28
+ 1742              		.cfi_offset 2, -24
+ 1743              		.cfi_offset 4, -20
+ 1744              		.cfi_offset 5, -16
+ 1745              		.cfi_offset 6, -12
+ 1746              		.cfi_offset 7, -8
+ 1747              		.cfi_offset 14, -4
+ 467:Src/app.c     ****     DisplayMode mode = Display_GetMode();
+ 1748              		.loc 1 467 48 view .LVU517
+ 1749 0002 0400     		movs	r4, r0
+ 1750              		.loc 1 468 24 view .LVU518
+ 1751 0004 FFF7FEFF 		bl	Display_GetMode
+ 1752              	.LVL176:
+ 1753              		.loc 1 468 24 view .LVU519
+ 1754 0008 0500     		movs	r5, r0
+ 1755              	.LVL177:
+ 469:Src/app.c     ****     bool blink = Display_GetBlink();
+ 1756              		.loc 1 469 5 is_stmt 1 view .LVU520
+ 1757              		.loc 1 469 18 is_stmt 0 view .LVU521
+ 1758 000a FFF7FEFF 		bl	Display_GetBlink
+ 1759              	.LVL178:
+ 1760 000e 0600     		movs	r6, r0
+ 1761              	.LVL179:
+ 470:Src/app.c     **** 
+ 471:Src/app.c     ****     if (GPIO_Pin == SEC_INT_Pin && g_App.isInitCompleted) {
+ 1762              		.loc 1 471 5 is_stmt 1 view .LVU522
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 48
+
+
+ 1763              		.loc 1 471 8 is_stmt 0 view .LVU523
+ 1764 0010 022C     		cmp	r4, #2
+ 1765 0012 32D1     		bne	.L121
+ 1766              		.loc 1 471 41 discriminator 1 view .LVU524
+ 1767 0014 4C4F     		ldr	r7, .L145
+ 1768              		.loc 1 471 33 discriminator 1 view .LVU525
+ 1769 0016 3B78     		ldrb	r3, [r7]
+ 1770 0018 002B     		cmp	r3, #0
+ 1771 001a 19D0     		beq	.L120
+ 472:Src/app.c     ****         if (mode == MODE_SHOW_TIME || mode == MODE_SHOW_SECOND ||
+ 1772              		.loc 1 472 9 is_stmt 1 view .LVU526
+ 1773              		.loc 1 472 12 is_stmt 0 view .LVU527
+ 1774 001c 022D     		cmp	r5, #2
+ 1775 001e 22D8     		bhi	.L124
+ 473:Src/app.c     ****             mode == MODE_SHOW_TEMPERTURE) {
+ 474:Src/app.c     ****             TimeNow(&g_App.currentTime);
+ 1776              		.loc 1 474 13 is_stmt 1 view .LVU528
+ 1777 0020 4A4C     		ldr	r4, .L145+4
+ 1778              	.LVL180:
+ 475:Src/app.c     ****             g_App.lastTime = g_App.currentTime;
+ 1779              		.loc 1 475 28 is_stmt 0 view .LVU529
+ 1780 0022 1837     		adds	r7, r7, #24
+ 474:Src/app.c     ****             g_App.lastTime = g_App.currentTime;
+ 1781              		.loc 1 474 13 view .LVU530
+ 1782 0024 2000     		movs	r0, r4
+ 1783              	.LVL181:
+ 474:Src/app.c     ****             g_App.lastTime = g_App.currentTime;
+ 1784              		.loc 1 474 13 view .LVU531
+ 1785 0026 FFF7FEFF 		bl	TimeNow
+ 1786              	.LVL182:
+ 1787              		.loc 1 475 13 is_stmt 1 view .LVU532
+ 1788              		.loc 1 475 28 is_stmt 0 view .LVU533
+ 1789 002a 2000     		movs	r0, r4
+ 1790 002c 06C8     		ldmia	r0!, {r1, r2}
+ 1791 002e 06C7     		stmia	r7!, {r1, r2}
+ 476:Src/app.c     **** 
+ 477:Src/app.c     ****             if (mode == MODE_SHOW_TIME) {
+ 1792              		.loc 1 477 13 is_stmt 1 view .LVU534
+ 1793              		.loc 1 477 16 is_stmt 0 view .LVU535
+ 1794 0030 002D     		cmp	r5, #0
+ 1795 0032 0ED1     		bne	.L125
+ 478:Src/app.c     ****                 Display_ShowTime(&g_App.lastTime, blink);
+ 1796              		.loc 1 478 17 is_stmt 1 view .LVU536
+ 1797 0034 3100     		movs	r1, r6
+ 1798 0036 FFF7FEFF 		bl	Display_ShowTime
+ 1799              	.LVL183:
+ 1800              	.L126:
+ 479:Src/app.c     ****             } else if (mode == MODE_SHOW_SECOND) {
+ 480:Src/app.c     ****                 Display_ShowSecond(&g_App.lastTime);
+ 481:Src/app.c     ****             } else if (mode == MODE_SHOW_TEMPERTURE) {
+ 482:Src/app.c     ****                 Display_ShowTemperature(Temperature_Get());
+ 483:Src/app.c     ****             }
+ 484:Src/app.c     **** 
+ 485:Src/app.c     ****             Alarm_Check(&g_App.currentTime);
+ 1801              		.loc 1 485 13 view .LVU537
+ 1802 003a 2000     		movs	r0, r4
+ 1803 003c FFF7FEFF 		bl	Alarm_Check
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 49
+
+
+ 1804              	.LVL184:
+ 486:Src/app.c     ****             Ring_Check(&g_App.currentTime);
+ 1805              		.loc 1 486 13 view .LVU538
+ 1806 0040 2000     		movs	r0, r4
+ 1807 0042 FFF7FEFF 		bl	Ring_Check
+ 1808              	.LVL185:
+ 1809              	.L128:
+ 487:Src/app.c     ****         } else if (mode >= MODE_SET_HOUR && mode <= MODE_SET_ROT_STOP) {
+ 488:Src/app.c     ****             /* 设置模式下，不更新 g_App.lastTime，只刷新显示 */
+ 489:Src/app.c     ****             Display_ShowSettings(mode, &g_App.lastTime, blink);
+ 490:Src/app.c     ****         }
+ 491:Src/app.c     ****         Display_SetBlink(!blink);
+ 1810              		.loc 1 491 9 view .LVU539
+ 1811 0046 0120     		movs	r0, #1
+ 1812 0048 7040     		eors	r0, r6
+ 1813 004a C0B2     		uxtb	r0, r0
+ 1814 004c FFF7FEFF 		bl	Display_SetBlink
+ 1815              	.LVL186:
+ 1816              	.L120:
+ 492:Src/app.c     ****     } else if (GPIO_Pin == MODE_KEY_PIN) {
+ 493:Src/app.c     ****         if (HAL_GPIO_ReadPin(MODE_KEY_GPIO_PORT, MODE_KEY_PIN) == GPIO_PIN_RESET) {
+ 494:Src/app.c     ****             g_App.lastModeKeyPressTime = HAL_GetTick();
+ 495:Src/app.c     ****         } else {
+ 496:Src/app.c     ****             uint32_t currentVal = HAL_GetTick();
+ 497:Src/app.c     ****             if (g_App.lastModeKeyPressTime > currentVal) {
+ 498:Src/app.c     ****                 ModeKey_Clicked();
+ 499:Src/app.c     ****             } else if (currentVal - g_App.lastModeKeyPressTime > KEY_LONG_PRESS_EFFECT_TIME) {
+ 500:Src/app.c     ****                 ModeKey_LongPressed();
+ 501:Src/app.c     ****             } else if (currentVal - g_App.lastModeKeyPressTime > KEY_CLICK_EFFECT_TIME) {
+ 502:Src/app.c     ****                 ModeKey_Clicked();
+ 503:Src/app.c     ****             }
+ 504:Src/app.c     ****         }
+ 505:Src/app.c     ****     } else if (GPIO_Pin == SET_KEY_PIN) {
+ 506:Src/app.c     ****         if (HAL_GPIO_ReadPin(SET_KEY_GPIO_PORT, SET_KEY_PIN) == GPIO_PIN_RESET) {
+ 507:Src/app.c     ****             g_App.lastSetKeyPressTime = HAL_GetTick();
+ 508:Src/app.c     ****             g_App.lastSetKeyPressReportTime = 0;
+ 509:Src/app.c     ****             g_App.setKeyRepeatReported = false;
+ 510:Src/app.c     ****         } else {
+ 511:Src/app.c     ****             uint32_t currentVal = HAL_GetTick();
+ 512:Src/app.c     ****             if (g_App.lastSetKeyPressTime > currentVal) {
+ 513:Src/app.c     ****                 SetKey_Clicked();
+ 514:Src/app.c     ****             } else if (currentVal - g_App.lastSetKeyPressTime > KEY_CLICK_EFFECT_TIME &&
+ 515:Src/app.c     ****                        !g_App.setKeyRepeatReported) {
+ 516:Src/app.c     ****                 SetKey_Clicked();
+ 517:Src/app.c     ****             }
+ 518:Src/app.c     ****             g_App.setKeyRepeatReported = false;
+ 519:Src/app.c     ****         }
+ 520:Src/app.c     ****     }
+ 521:Src/app.c     **** }
+ 1817              		.loc 1 521 1 is_stmt 0 view .LVU540
+ 1818              		@ sp needed
+ 1819 0050 F7BD     		pop	{r0, r1, r2, r4, r5, r6, r7, pc}
+ 1820              	.LVL187:
+ 1821              	.L125:
+ 479:Src/app.c     ****                 Display_ShowSecond(&g_App.lastTime);
+ 1822              		.loc 1 479 20 is_stmt 1 view .LVU541
+ 479:Src/app.c     ****                 Display_ShowSecond(&g_App.lastTime);
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 50
+
+
+ 1823              		.loc 1 479 23 is_stmt 0 view .LVU542
+ 1824 0052 012D     		cmp	r5, #1
+ 1825 0054 02D1     		bne	.L127
+ 480:Src/app.c     ****             } else if (mode == MODE_SHOW_TEMPERTURE) {
+ 1826              		.loc 1 480 17 is_stmt 1 view .LVU543
+ 1827 0056 FFF7FEFF 		bl	Display_ShowSecond
+ 1828              	.LVL188:
+ 1829 005a EEE7     		b	.L126
+ 1830              	.L127:
+ 481:Src/app.c     ****                 Display_ShowTemperature(Temperature_Get());
+ 1831              		.loc 1 481 20 view .LVU544
+ 482:Src/app.c     ****             }
+ 1832              		.loc 1 482 17 view .LVU545
+ 1833 005c FFF7FEFF 		bl	Temperature_Get
+ 1834              	.LVL189:
+ 482:Src/app.c     ****             }
+ 1835              		.loc 1 482 17 is_stmt 0 discriminator 1 view .LVU546
+ 1836 0060 FFF7FEFF 		bl	Display_ShowTemperature
+ 1837              	.LVL190:
+ 1838 0064 E9E7     		b	.L126
+ 1839              	.LVL191:
+ 1840              	.L124:
+ 487:Src/app.c     ****             /* 设置模式下，不更新 g_App.lastTime，只刷新显示 */
+ 1841              		.loc 1 487 16 is_stmt 1 view .LVU547
+ 487:Src/app.c     ****             /* 设置模式下，不更新 g_App.lastTime，只刷新显示 */
+ 1842              		.loc 1 487 42 is_stmt 0 view .LVU548
+ 1843 0066 EB1E     		subs	r3, r5, #3
+ 487:Src/app.c     ****             /* 设置模式下，不更新 g_App.lastTime，只刷新显示 */
+ 1844              		.loc 1 487 19 view .LVU549
+ 1845 0068 DBB2     		uxtb	r3, r3
+ 1846 006a 0C2B     		cmp	r3, #12
+ 1847 006c EBD8     		bhi	.L128
+ 489:Src/app.c     ****         }
+ 1848              		.loc 1 489 13 is_stmt 1 view .LVU550
+ 1849 006e 0200     		movs	r2, r0
+ 1850 0070 3749     		ldr	r1, .L145+8
+ 1851 0072 2800     		movs	r0, r5
+ 1852              	.LVL192:
+ 489:Src/app.c     ****         }
+ 1853              		.loc 1 489 13 is_stmt 0 view .LVU551
+ 1854 0074 FFF7FEFF 		bl	Display_ShowSettings
+ 1855              	.LVL193:
+ 1856 0078 E5E7     		b	.L128
+ 1857              	.LVL194:
+ 1858              	.L121:
+ 492:Src/app.c     ****         if (HAL_GPIO_ReadPin(MODE_KEY_GPIO_PORT, MODE_KEY_PIN) == GPIO_PIN_RESET) {
+ 1859              		.loc 1 492 12 is_stmt 1 view .LVU552
+ 492:Src/app.c     ****         if (HAL_GPIO_ReadPin(MODE_KEY_GPIO_PORT, MODE_KEY_PIN) == GPIO_PIN_RESET) {
+ 1860              		.loc 1 492 15 is_stmt 0 view .LVU553
+ 1861 007a 042C     		cmp	r4, #4
+ 1862 007c 3ED1     		bne	.L129
+ 493:Src/app.c     ****             g_App.lastModeKeyPressTime = HAL_GetTick();
+ 1863              		.loc 1 493 9 is_stmt 1 view .LVU554
+ 493:Src/app.c     ****             g_App.lastModeKeyPressTime = HAL_GetTick();
+ 1864              		.loc 1 493 13 is_stmt 0 view .LVU555
+ 1865 007e 9020     		movs	r0, #144
+ 1866              	.LVL195:
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 51
+
+
+ 493:Src/app.c     ****             g_App.lastModeKeyPressTime = HAL_GetTick();
+ 1867              		.loc 1 493 13 view .LVU556
+ 1868 0080 2100     		movs	r1, r4
+ 1869 0082 C005     		lsls	r0, r0, #23
+ 1870 0084 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 1871              	.LVL196:
+ 1872 0088 2F4C     		ldr	r4, .L145
+ 493:Src/app.c     ****             g_App.lastModeKeyPressTime = HAL_GetTick();
+ 1873              		.loc 1 493 12 discriminator 1 view .LVU557
+ 1874 008a 0028     		cmp	r0, #0
+ 1875 008c 03D1     		bne	.L130
+ 494:Src/app.c     ****         } else {
+ 1876              		.loc 1 494 13 is_stmt 1 view .LVU558
+ 494:Src/app.c     ****         } else {
+ 1877              		.loc 1 494 42 is_stmt 0 view .LVU559
+ 1878 008e FFF7FEFF 		bl	HAL_GetTick
+ 1879              	.LVL197:
+ 494:Src/app.c     ****         } else {
+ 1880              		.loc 1 494 40 discriminator 1 view .LVU560
+ 1881 0092 2062     		str	r0, [r4, #32]
+ 1882 0094 DCE7     		b	.L120
+ 1883              	.L130:
+ 1884              	.LBB28:
+ 496:Src/app.c     ****             if (g_App.lastModeKeyPressTime > currentVal) {
+ 1885              		.loc 1 496 13 is_stmt 1 view .LVU561
+ 496:Src/app.c     ****             if (g_App.lastModeKeyPressTime > currentVal) {
+ 1886              		.loc 1 496 35 is_stmt 0 view .LVU562
+ 1887 0096 FFF7FEFF 		bl	HAL_GetTick
+ 1888              	.LVL198:
+ 497:Src/app.c     ****                 ModeKey_Clicked();
+ 1889              		.loc 1 497 13 is_stmt 1 view .LVU563
+ 497:Src/app.c     ****                 ModeKey_Clicked();
+ 1890              		.loc 1 497 22 is_stmt 0 view .LVU564
+ 1891 009a 236A     		ldr	r3, [r4, #32]
+ 497:Src/app.c     ****                 ModeKey_Clicked();
+ 1892              		.loc 1 497 16 view .LVU565
+ 1893 009c 8342     		cmp	r3, r0
+ 1894 009e 02D9     		bls	.L131
+ 1895              	.LVL199:
+ 1896              	.L136:
+ 498:Src/app.c     ****             } else if (currentVal - g_App.lastModeKeyPressTime > KEY_LONG_PRESS_EFFECT_TIME) {
+ 1897              		.loc 1 498 17 is_stmt 1 view .LVU566
+ 1898 00a0 FFF7FEFF 		bl	ModeKey_Clicked
+ 1899              	.LVL200:
+ 1900 00a4 D4E7     		b	.L120
+ 1901              	.LVL201:
+ 1902              	.L131:
+ 499:Src/app.c     ****                 ModeKey_LongPressed();
+ 1903              		.loc 1 499 20 view .LVU567
+ 499:Src/app.c     ****                 ModeKey_LongPressed();
+ 1904              		.loc 1 499 35 is_stmt 0 view .LVU568
+ 1905 00a6 C01A     		subs	r0, r0, r3
+ 1906              	.LVL202:
+ 499:Src/app.c     ****                 ModeKey_LongPressed();
+ 1907              		.loc 1 499 23 view .LVU569
+ 1908 00a8 C823     		movs	r3, #200
+ 1909 00aa 9B00     		lsls	r3, r3, #2
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 52
+
+
+ 1910 00ac 9842     		cmp	r0, r3
+ 1911 00ae 22D9     		bls	.L132
+ 500:Src/app.c     ****             } else if (currentVal - g_App.lastModeKeyPressTime > KEY_CLICK_EFFECT_TIME) {
+ 1912              		.loc 1 500 17 is_stmt 1 view .LVU570
+ 1913              	.LBB29:
+ 1914              	.LBI29:
+ 208:Src/app.c     ****     if (Alarm_IsAlarming()) {
+ 1915              		.loc 1 208 13 view .LVU571
+ 1916              	.LBB30:
+ 209:Src/app.c     ****         Alarm_Stop();
+ 1917              		.loc 1 209 5 view .LVU572
+ 209:Src/app.c     ****         Alarm_Stop();
+ 1918              		.loc 1 209 9 is_stmt 0 view .LVU573
+ 1919 00b0 FFF7FEFF 		bl	Alarm_IsAlarming
+ 1920              	.LVL203:
+ 1921 00b4 051E     		subs	r5, r0, #0
+ 1922              	.LVL204:
+ 209:Src/app.c     ****         Alarm_Stop();
+ 1923              		.loc 1 209 8 discriminator 1 view .LVU574
+ 1924 00b6 02D0     		beq	.L133
+ 210:Src/app.c     ****         return;
+ 1925              		.loc 1 210 9 is_stmt 1 view .LVU575
+ 1926 00b8 FFF7FEFF 		bl	Alarm_Stop
+ 1927              	.LVL205:
+ 211:Src/app.c     ****     }
+ 1928              		.loc 1 211 9 view .LVU576
+ 1929 00bc C8E7     		b	.L120
+ 1930              	.L133:
+ 214:Src/app.c     ****     DateTime time;
+ 1931              		.loc 1 214 5 view .LVU577
+ 214:Src/app.c     ****     DateTime time;
+ 1932              		.loc 1 214 24 is_stmt 0 view .LVU578
+ 1933 00be FFF7FEFF 		bl	Display_GetMode
+ 1934              	.LVL206:
+ 215:Src/app.c     **** 
+ 1935              		.loc 1 215 5 is_stmt 1 view .LVU579
+ 217:Src/app.c     ****         if (mode == MODE_SET_HOUR || mode == MODE_SET_MINUTE) {
+ 1936              		.loc 1 217 5 view .LVU580
+ 217:Src/app.c     ****         if (mode == MODE_SET_HOUR || mode == MODE_SET_MINUTE) {
+ 1937              		.loc 1 217 31 is_stmt 0 view .LVU581
+ 1938 00c2 0338     		subs	r0, r0, #3
+ 1939              	.LVL207:
+ 217:Src/app.c     ****         if (mode == MODE_SET_HOUR || mode == MODE_SET_MINUTE) {
+ 1940              		.loc 1 217 31 view .LVU582
+ 1941 00c4 C0B2     		uxtb	r0, r0
+ 1942              	.LVL208:
+ 217:Src/app.c     ****         if (mode == MODE_SET_HOUR || mode == MODE_SET_MINUTE) {
+ 1943              		.loc 1 217 8 view .LVU583
+ 1944 00c6 0C28     		cmp	r0, #12
+ 1945 00c8 C2D8     		bhi	.L120
+ 218:Src/app.c     ****             /* 保存设置的时间到 RTC */
+ 1946              		.loc 1 218 9 is_stmt 1 view .LVU584
+ 218:Src/app.c     ****             /* 保存设置的时间到 RTC */
+ 1947              		.loc 1 218 12 is_stmt 0 view .LVU585
+ 1948 00ca 0128     		cmp	r0, #1
+ 1949 00cc 05D8     		bhi	.L135
+ 220:Src/app.c     ****             g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 53
+
+
+ 1950              		.loc 1 220 13 is_stmt 1 view .LVU586
+ 221:Src/app.c     ****             SetTime(&g_App.lastTime);
+ 1951              		.loc 1 221 33 is_stmt 0 view .LVU587
+ 1952 00ce 0223     		movs	r3, #2
+ 222:Src/app.c     ****         }
+ 1953              		.loc 1 222 13 view .LVU588
+ 1954 00d0 1F48     		ldr	r0, .L145+8
+ 220:Src/app.c     ****             g_App.lastTime.ampm = HOUR24;  /* 确保 24 小时制 */
+ 1955              		.loc 1 220 36 view .LVU589
+ 1956 00d2 2576     		strb	r5, [r4, #24]
+ 221:Src/app.c     ****             SetTime(&g_App.lastTime);
+ 1957              		.loc 1 221 13 is_stmt 1 view .LVU590
+ 221:Src/app.c     ****             SetTime(&g_App.lastTime);
+ 1958              		.loc 1 221 33 is_stmt 0 view .LVU591
+ 1959 00d4 A376     		strb	r3, [r4, #26]
+ 222:Src/app.c     ****         }
+ 1960              		.loc 1 222 13 is_stmt 1 view .LVU592
+ 1961 00d6 FFF7FEFF 		bl	SetTime
+ 1962              	.LVL209:
+ 1963              	.L135:
+ 224:Src/app.c     ****         /* 从 RTC 读取最新时间并显示 */
+ 1964              		.loc 1 224 9 view .LVU593
+ 1965 00da 0020     		movs	r0, #0
+ 1966 00dc FFF7FEFF 		bl	Display_SetMode
+ 1967              	.LVL210:
+ 226:Src/app.c     ****         Display_ShowTime(&time, false);
+ 1968              		.loc 1 226 9 view .LVU594
+ 1969 00e0 6846     		mov	r0, sp
+ 1970 00e2 FFF7FEFF 		bl	TimeNow
+ 1971              	.LVL211:
+ 227:Src/app.c     ****         g_App.lastDisplayChangeTime = HAL_GetTick();
+ 1972              		.loc 1 227 9 view .LVU595
+ 1973 00e6 0021     		movs	r1, #0
+ 1974 00e8 6846     		mov	r0, sp
+ 1975 00ea FFF7FEFF 		bl	Display_ShowTime
+ 1976              	.LVL212:
+ 228:Src/app.c     ****     }
+ 1977              		.loc 1 228 9 view .LVU596
+ 228:Src/app.c     ****     }
+ 1978              		.loc 1 228 39 is_stmt 0 view .LVU597
+ 1979 00ee FFF7FEFF 		bl	HAL_GetTick
+ 1980              	.LVL213:
+ 228:Src/app.c     ****     }
+ 1981              		.loc 1 228 37 discriminator 1 view .LVU598
+ 1982 00f2 6060     		str	r0, [r4, #4]
+ 1983 00f4 ACE7     		b	.L120
+ 1984              	.LVL214:
+ 1985              	.L132:
+ 228:Src/app.c     ****     }
+ 1986              		.loc 1 228 37 discriminator 1 view .LVU599
+ 1987              	.LBE30:
+ 1988              	.LBE29:
+ 501:Src/app.c     ****                 ModeKey_Clicked();
+ 1989              		.loc 1 501 20 is_stmt 1 view .LVU600
+ 501:Src/app.c     ****                 ModeKey_Clicked();
+ 1990              		.loc 1 501 23 is_stmt 0 view .LVU601
+ 1991 00f6 3228     		cmp	r0, #50
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 54
+
+
+ 1992 00f8 AAD9     		bls	.L120
+ 1993 00fa D1E7     		b	.L136
+ 1994              	.LVL215:
+ 1995              	.L129:
+ 501:Src/app.c     ****                 ModeKey_Clicked();
+ 1996              		.loc 1 501 23 view .LVU602
+ 1997              	.LBE28:
+ 505:Src/app.c     ****         if (HAL_GPIO_ReadPin(SET_KEY_GPIO_PORT, SET_KEY_PIN) == GPIO_PIN_RESET) {
+ 1998              		.loc 1 505 12 is_stmt 1 view .LVU603
+ 505:Src/app.c     ****         if (HAL_GPIO_ReadPin(SET_KEY_GPIO_PORT, SET_KEY_PIN) == GPIO_PIN_RESET) {
+ 1999              		.loc 1 505 15 is_stmt 0 view .LVU604
+ 2000 00fc 082C     		cmp	r4, #8
+ 2001 00fe A7D1     		bne	.L120
+ 506:Src/app.c     ****             g_App.lastSetKeyPressTime = HAL_GetTick();
+ 2002              		.loc 1 506 9 is_stmt 1 view .LVU605
+ 506:Src/app.c     ****             g_App.lastSetKeyPressTime = HAL_GetTick();
+ 2003              		.loc 1 506 13 is_stmt 0 view .LVU606
+ 2004 0100 9020     		movs	r0, #144
+ 2005              	.LVL216:
+ 506:Src/app.c     ****             g_App.lastSetKeyPressTime = HAL_GetTick();
+ 2006              		.loc 1 506 13 view .LVU607
+ 2007 0102 2100     		movs	r1, r4
+ 2008 0104 C005     		lsls	r0, r0, #23
+ 2009 0106 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 2010              	.LVL217:
+ 2011 010a 0F4C     		ldr	r4, .L145
+ 2012 010c 051E     		subs	r5, r0, #0
+ 2013              	.LVL218:
+ 506:Src/app.c     ****             g_App.lastSetKeyPressTime = HAL_GetTick();
+ 2014              		.loc 1 506 12 discriminator 1 view .LVU608
+ 2015 010e 06D1     		bne	.L138
+ 507:Src/app.c     ****             g_App.lastSetKeyPressReportTime = 0;
+ 2016              		.loc 1 507 13 is_stmt 1 view .LVU609
+ 507:Src/app.c     ****             g_App.lastSetKeyPressReportTime = 0;
+ 2017              		.loc 1 507 41 is_stmt 0 view .LVU610
+ 2018 0110 FFF7FEFF 		bl	HAL_GetTick
+ 2019              	.LVL219:
+ 508:Src/app.c     ****             g_App.setKeyRepeatReported = false;
+ 2020              		.loc 1 508 45 view .LVU611
+ 2021 0114 A562     		str	r5, [r4, #40]
+ 507:Src/app.c     ****             g_App.lastSetKeyPressReportTime = 0;
+ 2022              		.loc 1 507 39 discriminator 1 view .LVU612
+ 2023 0116 6062     		str	r0, [r4, #36]
+ 508:Src/app.c     ****             g_App.setKeyRepeatReported = false;
+ 2024              		.loc 1 508 13 is_stmt 1 view .LVU613
+ 509:Src/app.c     ****         } else {
+ 2025              		.loc 1 509 13 view .LVU614
+ 509:Src/app.c     ****         } else {
+ 2026              		.loc 1 509 40 is_stmt 0 view .LVU615
+ 2027 0118 2C34     		adds	r4, r4, #44
+ 2028 011a 2570     		strb	r5, [r4]
+ 2029 011c 98E7     		b	.L120
+ 2030              	.L138:
+ 2031              	.LBB31:
+ 511:Src/app.c     ****             if (g_App.lastSetKeyPressTime > currentVal) {
+ 2032              		.loc 1 511 13 is_stmt 1 view .LVU616
+ 511:Src/app.c     ****             if (g_App.lastSetKeyPressTime > currentVal) {
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 55
+
+
+ 2033              		.loc 1 511 35 is_stmt 0 view .LVU617
+ 2034 011e FFF7FEFF 		bl	HAL_GetTick
+ 2035              	.LVL220:
+ 512:Src/app.c     ****                 SetKey_Clicked();
+ 2036              		.loc 1 512 13 is_stmt 1 view .LVU618
+ 512:Src/app.c     ****                 SetKey_Clicked();
+ 2037              		.loc 1 512 22 is_stmt 0 view .LVU619
+ 2038 0122 636A     		ldr	r3, [r4, #36]
+ 512:Src/app.c     ****                 SetKey_Clicked();
+ 2039              		.loc 1 512 16 view .LVU620
+ 2040 0124 8342     		cmp	r3, r0
+ 2041 0126 05D9     		bls	.L139
+ 2042              	.LVL221:
+ 2043              	.L141:
+ 513:Src/app.c     ****             } else if (currentVal - g_App.lastSetKeyPressTime > KEY_CLICK_EFFECT_TIME &&
+ 2044              		.loc 1 513 17 is_stmt 1 view .LVU621
+ 2045 0128 FFF7FEFF 		bl	SetKey_Clicked
+ 2046              	.LVL222:
+ 2047              	.L140:
+ 518:Src/app.c     ****         }
+ 2048              		.loc 1 518 13 view .LVU622
+ 518:Src/app.c     ****         }
+ 2049              		.loc 1 518 40 is_stmt 0 view .LVU623
+ 2050 012c 0023     		movs	r3, #0
+ 2051 012e 2C34     		adds	r4, r4, #44
+ 2052 0130 2370     		strb	r3, [r4]
+ 2053              	.LBE31:
+ 2054              		.loc 1 521 1 view .LVU624
+ 2055 0132 8DE7     		b	.L120
+ 2056              	.LVL223:
+ 2057              	.L139:
+ 2058              	.LBB32:
+ 514:Src/app.c     ****                        !g_App.setKeyRepeatReported) {
+ 2059              		.loc 1 514 20 is_stmt 1 view .LVU625
+ 514:Src/app.c     ****                        !g_App.setKeyRepeatReported) {
+ 2060              		.loc 1 514 35 is_stmt 0 view .LVU626
+ 2061 0134 C01A     		subs	r0, r0, r3
+ 2062              	.LVL224:
+ 514:Src/app.c     ****                        !g_App.setKeyRepeatReported) {
+ 2063              		.loc 1 514 23 view .LVU627
+ 2064 0136 3228     		cmp	r0, #50
+ 2065 0138 F8D9     		bls	.L140
+ 515:Src/app.c     ****                 SetKey_Clicked();
+ 2066              		.loc 1 515 30 view .LVU628
+ 2067 013a 2300     		movs	r3, r4
+ 2068 013c 2C33     		adds	r3, r3, #44
+ 514:Src/app.c     ****                        !g_App.setKeyRepeatReported) {
+ 2069              		.loc 1 514 87 discriminator 1 view .LVU629
+ 2070 013e 1B78     		ldrb	r3, [r3]
+ 2071 0140 002B     		cmp	r3, #0
+ 2072 0142 F3D1     		bne	.L140
+ 2073 0144 F0E7     		b	.L141
+ 2074              	.L146:
+ 2075 0146 C046     		.align	2
+ 2076              	.L145:
+ 2077 0148 00000000 		.word	g_App
+ 2078 014c 10000000 		.word	g_App+16
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 56
+
+
+ 2079 0150 18000000 		.word	g_App+24
+ 2080              	.LBE32:
+ 2081              		.cfi_endproc
+ 2082              	.LFE44:
+ 2084              		.section	.text.App_GetState,"ax",%progbits
+ 2085              		.align	1
+ 2086              		.global	App_GetState
+ 2087              		.syntax unified
+ 2088              		.code	16
+ 2089              		.thumb_func
+ 2091              	App_GetState:
+ 2092              	.LFB45:
+ 522:Src/app.c     **** 
+ 523:Src/app.c     **** /**
+ 524:Src/app.c     ****  * @brief  获取应用状态指针
+ 525:Src/app.c     ****  */
+ 526:Src/app.c     **** AppState* App_GetState(void) {
+ 2093              		.loc 1 526 30 is_stmt 1 view -0
+ 2094              		.cfi_startproc
+ 2095              		@ args = 0, pretend = 0, frame = 0
+ 2096              		@ frame_needed = 0, uses_anonymous_args = 0
+ 2097              		@ link register save eliminated.
+ 527:Src/app.c     ****     return &g_App;
+ 2098              		.loc 1 527 5 view .LVU631
+ 2099              		.loc 1 527 12 is_stmt 0 discriminator 1 view .LVU632
+ 2100 0000 0048     		ldr	r0, .L148
+ 528:Src/app.c     **** }
+ 2101              		.loc 1 528 1 view .LVU633
+ 2102              		@ sp needed
+ 2103 0002 7047     		bx	lr
+ 2104              	.L149:
+ 2105              		.align	2
+ 2106              	.L148:
+ 2107 0004 00000000 		.word	g_App
+ 2108              		.cfi_endproc
+ 2109              	.LFE45:
+ 2111              		.global	g_App
+ 2112              		.section	.bss.g_App,"aw",%nobits
+ 2113              		.align	2
+ 2116              	g_App:
+ 2117 0000 00000000 		.space	48
+ 2117      00000000 
+ 2117      00000000 
+ 2117      00000000 
+ 2117      00000000 
+ 2118              		.text
+ 2119              	.Letext0:
+ 2120              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 2121              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 2122              		.file 4 "Drivers/CMSIS/Device/ST/STM32F0xx/Include/stm32f030x6.h"
+ 2123              		.file 5 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_def.h"
+ 2124              		.file 6 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_gpio.h"
+ 2125              		.file 7 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_dma.h"
+ 2126              		.file 8 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_adc.h"
+ 2127              		.file 9 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim.h"
+ 2128              		.file 10 "Lib/SD3077.h"
+ 2129              		.file 11 "Inc/settings.h"
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 57
+
+
+ 2130              		.file 12 "Inc/display.h"
+ 2131              		.file 13 "Inc/tim.h"
+ 2132              		.file 14 "Inc/app.h"
+ 2133              		.file 15 "Inc/adc.h"
+ 2134              		.file 16 "Inc/ring.h"
+ 2135              		.file 17 "Inc/alarm.h"
+ 2136              		.file 18 "Inc/temperature.h"
+ 2137              		.file 19 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal.h"
+ 2138              		.file 20 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_adc_ex.h"
+ 2139              		.file 21 "<built-in>"
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 58
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 app.c
+  D:\Temp\ccfLMaJs.s:19     .text.SetKey_Clicked:00000000 $t
+  D:\Temp\ccfLMaJs.s:24     .text.SetKey_Clicked:00000000 SetKey_Clicked
+  D:\Temp\ccfLMaJs.s:81     .text.SetKey_Clicked:00000026 $d
+  D:\Temp\ccfLMaJs.s:97     .text.SetKey_Clicked:00000036 $t
+  D:\Temp\ccfLMaJs.s:482    .text.SetKey_Clicked:00000200 $d
+  D:\Temp\ccfLMaJs.s:2116   .bss.g_App:00000000 g_App
+  D:\Temp\ccfLMaJs.s:490    .text.ModeKey_Clicked:00000000 $t
+  D:\Temp\ccfLMaJs.s:495    .text.ModeKey_Clicked:00000000 ModeKey_Clicked
+  D:\Temp\ccfLMaJs.s:551    .text.ModeKey_Clicked:00000028 $d
+  D:\Temp\ccfLMaJs.s:567    .text.ModeKey_Clicked:00000038 $t
+  D:\Temp\ccfLMaJs.s:960    .text.ModeKey_Clicked:0000021c $d
+  D:\Temp\ccfLMaJs.s:968    .text.App_Init:00000000 $t
+  D:\Temp\ccfLMaJs.s:974    .text.App_Init:00000000 App_Init
+  D:\Temp\ccfLMaJs.s:1102   .text.App_Init:00000080 $d
+  D:\Temp\ccfLMaJs.s:1111   .text.App_MainLoop:00000000 $t
+  D:\Temp\ccfLMaJs.s:1117   .text.App_MainLoop:00000000 App_MainLoop
+  D:\Temp\ccfLMaJs.s:1273   .text.App_MainLoop:00000084 $d
+  D:\Temp\ccfLMaJs.s:1594   .text.App_MainLoop:000001c4 $d
+  D:\Temp\ccfLMaJs.s:1603   .text.App_TIM_PeriodElapsedCallback:00000000 $t
+  D:\Temp\ccfLMaJs.s:1609   .text.App_TIM_PeriodElapsedCallback:00000000 App_TIM_PeriodElapsedCallback
+  D:\Temp\ccfLMaJs.s:1713   .text.App_TIM_PeriodElapsedCallback:00000058 $d
+  D:\Temp\ccfLMaJs.s:1722   .text.App_GPIO_EXTI_Callback:00000000 $t
+  D:\Temp\ccfLMaJs.s:1728   .text.App_GPIO_EXTI_Callback:00000000 App_GPIO_EXTI_Callback
+  D:\Temp\ccfLMaJs.s:2077   .text.App_GPIO_EXTI_Callback:00000148 $d
+  D:\Temp\ccfLMaJs.s:2085   .text.App_GetState:00000000 $t
+  D:\Temp\ccfLMaJs.s:2091   .text.App_GetState:00000000 App_GetState
+  D:\Temp\ccfLMaJs.s:2107   .text.App_GetState:00000004 $d
+  D:\Temp\ccfLMaJs.s:2113   .bss.g_App:00000000 $d
+  D:\Temp\ccfLMaJs.s:1287   .text.App_MainLoop:00000091 $d
+  D:\Temp\ccfLMaJs.s:1287   .text.App_MainLoop:00000092 $t
+
+UNDEFINED SYMBOLS
+Alarm_IsAlarming
+Alarm_Stop
+Display_GetMode
+Settings_Get
+__gnu_thumb1_case_uqi
+Display_SetMode
+TimeNow
+Display_ShowSecond
+Display_ShowTime
+HAL_GetTick
+Display_SetBlink
+Display_ShowSettings
+Display_SetBrightness
+Display_SetTime
+SetInterruptOuput
+SetTime
+Alarm_IsEnabled
+Ring_IsEnabled
+Ring_SetStartTime
+Settings_Save
+EnableSencodInterruptOuput
+Settings_Init
+Display_Init
+ARM GAS  D:\Temp\ccfLMaJs.s 			page 59
+
+
+Temperature_Init
+Alarm_Init
+Ring_Init
+HAL_ADCEx_Calibration_Start
+HAL_ADC_Start_DMA
+HAL_TIM_Base_Start
+HAL_TIM_Base_Start_IT
+memset
+hadc
+htim3
+htim16
+HAL_GPIO_ReadPin
+Alarm_TimerTick
+Temperature_Update
+Display_GetBlink
+Alarm_Check
+Ring_Check
+Temperature_Get
+Display_ShowTemperature

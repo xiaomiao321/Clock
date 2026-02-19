@@ -1,4 +1,4 @@
-ARM GAS  D:\Temp\ccojMvWV.s 			page 1
+ARM GAS  D:\Temp\cceXi2jl.s 			page 1
 
 
    1              		.cpu cortex-m0
@@ -58,7 +58,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
   30:Src/system_stm32f0xx.c ****   *-----------------------------------------------------------------------------
   31:Src/system_stm32f0xx.c ****   *        SYSCLK(Hz)                             | 8000000
   32:Src/system_stm32f0xx.c ****   *-----------------------------------------------------------------------------
-ARM GAS  D:\Temp\ccojMvWV.s 			page 2
+ARM GAS  D:\Temp\cceXi2jl.s 			page 2
 
 
   33:Src/system_stm32f0xx.c ****   *        HCLK(Hz)                               | 8000000
@@ -118,7 +118,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
   87:Src/system_stm32f0xx.c **** 
   88:Src/system_stm32f0xx.c **** /** @addtogroup STM32F0xx_System_Private_TypesDefinitions
   89:Src/system_stm32f0xx.c ****   * @{
-ARM GAS  D:\Temp\ccojMvWV.s 			page 3
+ARM GAS  D:\Temp\cceXi2jl.s 			page 3
 
 
   90:Src/system_stm32f0xx.c ****   */
@@ -178,7 +178,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
  144:Src/system_stm32f0xx.c **** 
  145:Src/system_stm32f0xx.c **** /** @addtogroup STM32F0xx_System_Private_FunctionPrototypes
  146:Src/system_stm32f0xx.c ****   * @{
-ARM GAS  D:\Temp\ccojMvWV.s 			page 4
+ARM GAS  D:\Temp\cceXi2jl.s 			page 4
 
 
  147:Src/system_stm32f0xx.c ****   */
@@ -238,7 +238,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
  193:Src/system_stm32f0xx.c ****   /* Reset USART2SW[1:0], USART1SW[1:0], I2C1SW, CECSW and ADCSW bits */
  194:Src/system_stm32f0xx.c ****   RCC->CFGR3 &= (uint32_t)0xFFFFCEACU;
  195:Src/system_stm32f0xx.c **** #elif defined (STM32F091xC) || defined (STM32F098xx)
-ARM GAS  D:\Temp\ccojMvWV.s 			page 5
+ARM GAS  D:\Temp\cceXi2jl.s 			page 5
 
 
  196:Src/system_stm32f0xx.c ****   /* Reset USART3SW[1:0], USART2SW[1:0], USART1SW[1:0], I2C1SW, CECSW and ADCSW bits */
@@ -298,7 +298,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
   53              		.loc 1 178 6 is_stmt 0 view .LVU12
   54 0012 1A68     		ldr	r2, [r3]
  178:Src/system_stm32f0xx.c **** 
-ARM GAS  D:\Temp\ccojMvWV.s 			page 6
+ARM GAS  D:\Temp\cceXi2jl.s 			page 6
 
 
   55              		.loc 1 178 11 view .LVU13
@@ -358,7 +358,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
   92              		.loc 1 217 12 view .LVU30
   93 003c 8A43     		bics	r2, r1
   94 003e 5A63     		str	r2, [r3, #52]
-ARM GAS  D:\Temp\ccojMvWV.s 			page 7
+ARM GAS  D:\Temp\cceXi2jl.s 			page 7
 
 
  220:Src/system_stm32f0xx.c **** 
@@ -418,7 +418,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
  248:Src/system_stm32f0xx.c ****   *
  249:Src/system_stm32f0xx.c ****   *         (**) HSE_VALUE is a constant defined in stm32f0xx_hal.h file (default value
  250:Src/system_stm32f0xx.c ****   *              8 MHz), user has to ensure that HSE_VALUE is same as the real
-ARM GAS  D:\Temp\ccojMvWV.s 			page 8
+ARM GAS  D:\Temp\cceXi2jl.s 			page 8
 
 
  251:Src/system_stm32f0xx.c ****   *              frequency of the crystal used. Otherwise, this function may
@@ -478,7 +478,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
  275:Src/system_stm32f0xx.c ****     case RCC_CFGR_SWS_PLL:  /* PLL used as system clock */
  276:Src/system_stm32f0xx.c ****       /* Get PLL clock source and multiplication factor ----------------------*/
  277:Src/system_stm32f0xx.c ****       pllmull = RCC->CFGR & RCC_CFGR_PLLMUL;
-ARM GAS  D:\Temp\ccojMvWV.s 			page 9
+ARM GAS  D:\Temp\cceXi2jl.s 			page 9
 
 
  152              		.loc 1 277 7 is_stmt 1 view .LVU43
@@ -538,7 +538,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
  288:Src/system_stm32f0xx.c ****       else if (pllsource == RCC_CFGR_PLLSRC_HSI48_PREDIV)
  289:Src/system_stm32f0xx.c ****       {
  290:Src/system_stm32f0xx.c ****         /* HSI48 used as PLL clock source : SystemCoreClock = HSI48/PREDIV * PLLMUL */
-ARM GAS  D:\Temp\ccojMvWV.s 			page 10
+ARM GAS  D:\Temp\cceXi2jl.s 			page 10
 
 
  291:Src/system_stm32f0xx.c ****         SystemCoreClock = (HSI48_VALUE/predivfactor) * pllmull;
@@ -598,7 +598,7 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
  317:Src/system_stm32f0xx.c **** }
  212              		.loc 1 317 19 view .LVU70
  213 0036 0749     		ldr	r1, .L9+12
-ARM GAS  D:\Temp\ccojMvWV.s 			page 11
+ARM GAS  D:\Temp\cceXi2jl.s 			page 11
 
 
  214 0038 D840     		lsrs	r0, r0, r3
@@ -649,25 +649,25 @@ ARM GAS  D:\Temp\ccojMvWV.s 			page 1
  259 0000 00127A00 		.word	8000000
  260              		.text
  261              	.Letext0:
- 262              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin\\../lib/gcc/arm-none-eabi
- 263              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin\\../lib/gcc/arm-none-eabi
+ 262              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 263              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
  264              		.file 4 "Drivers/CMSIS/Device/ST/STM32F0xx/Include/system_stm32f0xx.h"
  265              		.file 5 "Drivers/CMSIS/Device/ST/STM32F0xx/Include/stm32f030x6.h"
-ARM GAS  D:\Temp\ccojMvWV.s 			page 12
+ARM GAS  D:\Temp\cceXi2jl.s 			page 12
 
 
 DEFINED SYMBOLS
                             *ABS*:00000000 system_stm32f0xx.c
-  D:\Temp\ccojMvWV.s:19     .text.SystemInit:00000000 $t
-  D:\Temp\ccojMvWV.s:25     .text.SystemInit:00000000 SystemInit
-  D:\Temp\ccojMvWV.s:104    .text.SystemInit:00000048 $d
-  D:\Temp\ccojMvWV.s:116    .text.SystemCoreClockUpdate:00000000 $t
-  D:\Temp\ccojMvWV.s:122    .text.SystemCoreClockUpdate:00000000 SystemCoreClockUpdate
-  D:\Temp\ccojMvWV.s:232    .text.SystemCoreClockUpdate:00000048 $d
-  D:\Temp\ccojMvWV.s:250    .rodata.AHBPrescTable:00000000 AHBPrescTable
-  D:\Temp\ccojMvWV.s:258    .data.SystemCoreClock:00000000 SystemCoreClock
-  D:\Temp\ccojMvWV.s:244    .rodata.APBPrescTable:00000000 APBPrescTable
-  D:\Temp\ccojMvWV.s:255    .data.SystemCoreClock:00000000 $d
+  D:\Temp\cceXi2jl.s:19     .text.SystemInit:00000000 $t
+  D:\Temp\cceXi2jl.s:25     .text.SystemInit:00000000 SystemInit
+  D:\Temp\cceXi2jl.s:104    .text.SystemInit:00000048 $d
+  D:\Temp\cceXi2jl.s:116    .text.SystemCoreClockUpdate:00000000 $t
+  D:\Temp\cceXi2jl.s:122    .text.SystemCoreClockUpdate:00000000 SystemCoreClockUpdate
+  D:\Temp\cceXi2jl.s:232    .text.SystemCoreClockUpdate:00000048 $d
+  D:\Temp\cceXi2jl.s:250    .rodata.AHBPrescTable:00000000 AHBPrescTable
+  D:\Temp\cceXi2jl.s:258    .data.SystemCoreClock:00000000 SystemCoreClock
+  D:\Temp\cceXi2jl.s:244    .rodata.APBPrescTable:00000000 APBPrescTable
+  D:\Temp\cceXi2jl.s:255    .data.SystemCoreClock:00000000 $d
 
 UNDEFINED SYMBOLS
 __aeabi_uidiv

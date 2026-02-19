@@ -1,0 +1,819 @@
+ARM GAS  D:\Temp\ccce4kCj.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.arch armv6s-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"alarm.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Src/alarm.c"
+  18              		.section	.text.Alarm_Init,"ax",%progbits
+  19              		.align	1
+  20              		.global	Alarm_Init
+  21              		.syntax unified
+  22              		.code	16
+  23              		.thumb_func
+  25              	Alarm_Init:
+  26              	.LFB37:
+   1:Src/alarm.c   **** /*
+   2:Src/alarm.c   ****  * @file           : alarm.c
+   3:Src/alarm.c   ****  * @brief          : 闹钟控制模块源文件
+   4:Src/alarm.c   ****  */
+   5:Src/alarm.c   **** #include "alarm.h"
+   6:Src/alarm.c   **** #include "gpio.h"
+   7:Src/alarm.c   **** 
+   8:Src/alarm.c   **** /* 蜂鸣器 GPIO 定义 */
+   9:Src/alarm.c   **** #define BUZZER_GPIO_PORT    BUZZER_GPIO_Port
+  10:Src/alarm.c   **** #define BUZZER_PIN          BUZZER_Pin
+  11:Src/alarm.c   **** 
+  12:Src/alarm.c   **** /* 闹钟响铃参数 */
+  13:Src/alarm.c   **** #define ALARM_ON_TIME       50      /* 鸣叫时长 (ms) */
+  14:Src/alarm.c   **** #define ALARM_OFF_TIME      50      /* 间隔时长 (ms) */
+  15:Src/alarm.c   **** #define ALARM_REST_TIME     500     /* 一组响铃后的休息时间 (ms) */
+  16:Src/alarm.c   **** #define ALARM_RING_COUNT    4       /* 每组响铃次数 */
+  17:Src/alarm.c   **** 
+  18:Src/alarm.c   **** /* 全局闹钟状态 */
+  19:Src/alarm.c   **** static AlarmState g_Alarm = {0};
+  20:Src/alarm.c   **** static uint32_t alarmTimestamp = 0;
+  21:Src/alarm.c   **** static uint8_t alarmBeepCount = 0;
+  22:Src/alarm.c   **** 
+  23:Src/alarm.c   **** /**
+  24:Src/alarm.c   ****  * @brief  闹钟模块初始化
+  25:Src/alarm.c   ****  */
+  26:Src/alarm.c   **** void Alarm_Init(void) {
+  27              		.loc 1 26 23 view -0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  27:Src/alarm.c   ****     g_Alarm.isEnabled = false;
+ARM GAS  D:\Temp\ccce4kCj.s 			page 2
+
+
+  32              		.loc 1 27 5 view .LVU1
+  33              		.loc 1 27 23 is_stmt 0 view .LVU2
+  34 0000 0023     		movs	r3, #0
+  28:Src/alarm.c   ****     g_Alarm.isAlarmed = false;
+  29:Src/alarm.c   ****     g_Alarm.isAlarming = false;
+  30:Src/alarm.c   ****     g_Alarm.hour = 0;
+  31:Src/alarm.c   ****     g_Alarm.minute = 0;
+  32:Src/alarm.c   ****     alarmTimestamp = 0;
+  33:Src/alarm.c   ****     alarmBeepCount = 0;
+  34:Src/alarm.c   **** }
+  35              		.loc 1 34 1 view .LVU3
+  36              		@ sp needed
+  27:Src/alarm.c   ****     g_Alarm.isEnabled = false;
+  37              		.loc 1 27 23 view .LVU4
+  38 0002 054A     		ldr	r2, .L2
+  39 0004 1370     		strb	r3, [r2]
+  28:Src/alarm.c   ****     g_Alarm.isAlarmed = false;
+  40              		.loc 1 28 5 is_stmt 1 view .LVU5
+  28:Src/alarm.c   ****     g_Alarm.isAlarmed = false;
+  41              		.loc 1 28 23 is_stmt 0 view .LVU6
+  42 0006 5370     		strb	r3, [r2, #1]
+  29:Src/alarm.c   ****     g_Alarm.hour = 0;
+  43              		.loc 1 29 5 is_stmt 1 view .LVU7
+  29:Src/alarm.c   ****     g_Alarm.hour = 0;
+  44              		.loc 1 29 24 is_stmt 0 view .LVU8
+  45 0008 9370     		strb	r3, [r2, #2]
+  30:Src/alarm.c   ****     g_Alarm.minute = 0;
+  46              		.loc 1 30 5 is_stmt 1 view .LVU9
+  30:Src/alarm.c   ****     g_Alarm.minute = 0;
+  47              		.loc 1 30 18 is_stmt 0 view .LVU10
+  48 000a D370     		strb	r3, [r2, #3]
+  31:Src/alarm.c   ****     alarmTimestamp = 0;
+  49              		.loc 1 31 5 is_stmt 1 view .LVU11
+  31:Src/alarm.c   ****     alarmTimestamp = 0;
+  50              		.loc 1 31 20 is_stmt 0 view .LVU12
+  51 000c 1371     		strb	r3, [r2, #4]
+  32:Src/alarm.c   ****     alarmBeepCount = 0;
+  52              		.loc 1 32 5 is_stmt 1 view .LVU13
+  32:Src/alarm.c   ****     alarmBeepCount = 0;
+  53              		.loc 1 32 20 is_stmt 0 view .LVU14
+  54 000e 034A     		ldr	r2, .L2+4
+  55 0010 1360     		str	r3, [r2]
+  33:Src/alarm.c   **** }
+  56              		.loc 1 33 5 is_stmt 1 view .LVU15
+  33:Src/alarm.c   **** }
+  57              		.loc 1 33 20 is_stmt 0 view .LVU16
+  58 0012 034A     		ldr	r2, .L2+8
+  59 0014 1370     		strb	r3, [r2]
+  60              		.loc 1 34 1 view .LVU17
+  61 0016 7047     		bx	lr
+  62              	.L3:
+  63              		.align	2
+  64              	.L2:
+  65 0018 00000000 		.word	g_Alarm
+  66 001c 00000000 		.word	alarmTimestamp
+  67 0020 00000000 		.word	alarmBeepCount
+  68              		.cfi_endproc
+ARM GAS  D:\Temp\ccce4kCj.s 			page 3
+
+
+  69              	.LFE37:
+  71              		.section	.text.Alarm_Start,"ax",%progbits
+  72              		.align	1
+  73              		.global	Alarm_Start
+  74              		.syntax unified
+  75              		.code	16
+  76              		.thumb_func
+  78              	Alarm_Start:
+  79              	.LFB38:
+  35:Src/alarm.c   **** 
+  36:Src/alarm.c   **** /**
+  37:Src/alarm.c   ****  * @brief  启动闹钟响铃
+  38:Src/alarm.c   ****  */
+  39:Src/alarm.c   **** void Alarm_Start(void) {
+  80              		.loc 1 39 24 is_stmt 1 view -0
+  81              		.cfi_startproc
+  82              		@ args = 0, pretend = 0, frame = 0
+  83              		@ frame_needed = 0, uses_anonymous_args = 0
+  40:Src/alarm.c   ****     g_Alarm.isAlarming = true;
+  84              		.loc 1 40 5 view .LVU19
+  85              		.loc 1 40 24 is_stmt 0 view .LVU20
+  86 0000 0122     		movs	r2, #1
+  39:Src/alarm.c   ****     g_Alarm.isAlarming = true;
+  87              		.loc 1 39 24 view .LVU21
+  88 0002 10B5     		push	{r4, lr}
+  89              	.LCFI0:
+  90              		.cfi_def_cfa_offset 8
+  91              		.cfi_offset 4, -8
+  92              		.cfi_offset 14, -4
+  93              		.loc 1 40 24 view .LVU22
+  94 0004 034B     		ldr	r3, .L5
+  41:Src/alarm.c   ****     g_Alarm.isAlarmed = true;
+  42:Src/alarm.c   ****     HAL_TIM_Base_Start_IT(&ALARM_CONTROL_TIMER_HANDLE);
+  95              		.loc 1 42 5 view .LVU23
+  96 0006 0448     		ldr	r0, .L5+4
+  40:Src/alarm.c   ****     g_Alarm.isAlarmed = true;
+  97              		.loc 1 40 24 view .LVU24
+  98 0008 9A70     		strb	r2, [r3, #2]
+  41:Src/alarm.c   ****     g_Alarm.isAlarmed = true;
+  99              		.loc 1 41 5 is_stmt 1 view .LVU25
+  41:Src/alarm.c   ****     g_Alarm.isAlarmed = true;
+ 100              		.loc 1 41 23 is_stmt 0 view .LVU26
+ 101 000a 5A70     		strb	r2, [r3, #1]
+ 102              		.loc 1 42 5 is_stmt 1 view .LVU27
+  43:Src/alarm.c   **** }
+ 103              		.loc 1 43 1 is_stmt 0 view .LVU28
+ 104              		@ sp needed
+  42:Src/alarm.c   **** }
+ 105              		.loc 1 42 5 view .LVU29
+ 106 000c FFF7FEFF 		bl	HAL_TIM_Base_Start_IT
+ 107              	.LVL0:
+ 108              		.loc 1 43 1 view .LVU30
+ 109 0010 10BD     		pop	{r4, pc}
+ 110              	.L6:
+ 111 0012 C046     		.align	2
+ 112              	.L5:
+ 113 0014 00000000 		.word	g_Alarm
+ARM GAS  D:\Temp\ccce4kCj.s 			page 4
+
+
+ 114 0018 00000000 		.word	htim17
+ 115              		.cfi_endproc
+ 116              	.LFE38:
+ 118              		.section	.text.Alarm_Stop,"ax",%progbits
+ 119              		.align	1
+ 120              		.global	Alarm_Stop
+ 121              		.syntax unified
+ 122              		.code	16
+ 123              		.thumb_func
+ 125              	Alarm_Stop:
+ 126              	.LFB39:
+  44:Src/alarm.c   **** 
+  45:Src/alarm.c   **** /**
+  46:Src/alarm.c   ****  * @brief  停止闹钟响铃
+  47:Src/alarm.c   ****  */
+  48:Src/alarm.c   **** void Alarm_Stop(void) {
+ 127              		.loc 1 48 23 is_stmt 1 view -0
+ 128              		.cfi_startproc
+ 129              		@ args = 0, pretend = 0, frame = 0
+ 130              		@ frame_needed = 0, uses_anonymous_args = 0
+  49:Src/alarm.c   ****     g_Alarm.isAlarming = false;
+ 131              		.loc 1 49 5 view .LVU32
+ 132              		.loc 1 49 24 is_stmt 0 view .LVU33
+ 133 0000 0022     		movs	r2, #0
+ 134 0002 064B     		ldr	r3, .L8
+  48:Src/alarm.c   ****     g_Alarm.isAlarming = false;
+ 135              		.loc 1 48 23 view .LVU34
+ 136 0004 10B5     		push	{r4, lr}
+ 137              	.LCFI1:
+ 138              		.cfi_def_cfa_offset 8
+ 139              		.cfi_offset 4, -8
+ 140              		.cfi_offset 14, -4
+  50:Src/alarm.c   ****     HAL_TIM_Base_Stop_IT(&ALARM_CONTROL_TIMER_HANDLE);
+ 141              		.loc 1 50 5 view .LVU35
+ 142 0006 0648     		ldr	r0, .L8+4
+  49:Src/alarm.c   ****     g_Alarm.isAlarming = false;
+ 143              		.loc 1 49 24 view .LVU36
+ 144 0008 9A70     		strb	r2, [r3, #2]
+ 145              		.loc 1 50 5 is_stmt 1 view .LVU37
+ 146 000a FFF7FEFF 		bl	HAL_TIM_Base_Stop_IT
+ 147              	.LVL1:
+  51:Src/alarm.c   ****     HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_SET);
+ 148              		.loc 1 51 5 view .LVU38
+  52:Src/alarm.c   **** }
+ 149              		.loc 1 52 1 is_stmt 0 view .LVU39
+ 150              		@ sp needed
+  51:Src/alarm.c   ****     HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_SET);
+ 151              		.loc 1 51 5 view .LVU40
+ 152 000e 9020     		movs	r0, #144
+ 153 0010 0122     		movs	r2, #1
+ 154 0012 4021     		movs	r1, #64
+ 155 0014 C005     		lsls	r0, r0, #23
+ 156 0016 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 157              	.LVL2:
+ 158              		.loc 1 52 1 view .LVU41
+ 159 001a 10BD     		pop	{r4, pc}
+ 160              	.L9:
+ARM GAS  D:\Temp\ccce4kCj.s 			page 5
+
+
+ 161              		.align	2
+ 162              	.L8:
+ 163 001c 00000000 		.word	g_Alarm
+ 164 0020 00000000 		.word	htim17
+ 165              		.cfi_endproc
+ 166              	.LFE39:
+ 168              		.section	.text.Alarm_TimerTick,"ax",%progbits
+ 169              		.align	1
+ 170              		.global	Alarm_TimerTick
+ 171              		.syntax unified
+ 172              		.code	16
+ 173              		.thumb_func
+ 175              	Alarm_TimerTick:
+ 176              	.LFB40:
+  53:Src/alarm.c   **** 
+  54:Src/alarm.c   **** /**
+  55:Src/alarm.c   ****  * @brief  闹钟定时器中断回调（响铃控制）
+  56:Src/alarm.c   ****  */
+  57:Src/alarm.c   **** void Alarm_TimerTick(void) {
+ 177              		.loc 1 57 28 is_stmt 1 view -0
+ 178              		.cfi_startproc
+ 179              		@ args = 0, pretend = 0, frame = 0
+ 180              		@ frame_needed = 0, uses_anonymous_args = 0
+  58:Src/alarm.c   ****     alarmTimestamp++;
+ 181              		.loc 1 58 5 view .LVU43
+  59:Src/alarm.c   **** 
+  60:Src/alarm.c   ****     if (HAL_GPIO_ReadPin(BUZZER_GPIO_PORT, BUZZER_PIN) == GPIO_PIN_RESET) {
+ 182              		.loc 1 60 9 is_stmt 0 view .LVU44
+ 183 0000 9020     		movs	r0, #144
+  57:Src/alarm.c   ****     alarmTimestamp++;
+ 184              		.loc 1 57 28 view .LVU45
+ 185 0002 70B5     		push	{r4, r5, r6, lr}
+ 186              	.LCFI2:
+ 187              		.cfi_def_cfa_offset 16
+ 188              		.cfi_offset 4, -16
+ 189              		.cfi_offset 5, -12
+ 190              		.cfi_offset 6, -8
+ 191              		.cfi_offset 14, -4
+  58:Src/alarm.c   ****     alarmTimestamp++;
+ 192              		.loc 1 58 19 view .LVU46
+ 193 0004 1A4C     		ldr	r4, .L14
+ 194              		.loc 1 60 9 view .LVU47
+ 195 0006 4021     		movs	r1, #64
+  58:Src/alarm.c   ****     alarmTimestamp++;
+ 196              		.loc 1 58 19 view .LVU48
+ 197 0008 2368     		ldr	r3, [r4]
+ 198              		.loc 1 60 9 view .LVU49
+ 199 000a C005     		lsls	r0, r0, #23
+  58:Src/alarm.c   ****     alarmTimestamp++;
+ 200              		.loc 1 58 19 view .LVU50
+ 201 000c 0133     		adds	r3, r3, #1
+ 202 000e 2360     		str	r3, [r4]
+ 203              		.loc 1 60 5 is_stmt 1 view .LVU51
+ 204              		.loc 1 60 9 is_stmt 0 view .LVU52
+ 205 0010 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 206              	.LVL3:
+  61:Src/alarm.c   ****         /* 蜂鸣器开启中，检查是否关闭 */
+ARM GAS  D:\Temp\ccce4kCj.s 			page 6
+
+
+  62:Src/alarm.c   ****         if (alarmTimestamp > ALARM_ON_TIME) {
+ 207              		.loc 1 62 12 view .LVU53
+ 208 0014 2368     		ldr	r3, [r4]
+  60:Src/alarm.c   ****         /* 蜂鸣器开启中，检查是否关闭 */
+ 209              		.loc 1 60 9 view .LVU54
+ 210 0016 051E     		subs	r5, r0, #0
+  60:Src/alarm.c   ****         /* 蜂鸣器开启中，检查是否关闭 */
+ 211              		.loc 1 60 8 discriminator 1 view .LVU55
+ 212 0018 0DD1     		bne	.L11
+ 213              		.loc 1 62 9 is_stmt 1 view .LVU56
+ 214              		.loc 1 62 12 is_stmt 0 view .LVU57
+ 215 001a 322B     		cmp	r3, #50
+ 216 001c 0AD9     		bls	.L10
+  63:Src/alarm.c   ****             HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_SET);
+ 217              		.loc 1 63 13 is_stmt 1 view .LVU58
+ 218 001e 9020     		movs	r0, #144
+ 219 0020 0122     		movs	r2, #1
+ 220 0022 4021     		movs	r1, #64
+ 221 0024 C005     		lsls	r0, r0, #23
+ 222 0026 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 223              	.LVL4:
+  64:Src/alarm.c   ****             alarmBeepCount++;
+ 224              		.loc 1 64 13 view .LVU59
+ 225              		.loc 1 64 27 is_stmt 0 view .LVU60
+ 226 002a 124A     		ldr	r2, .L14+4
+  65:Src/alarm.c   ****             alarmTimestamp = 0;
+ 227              		.loc 1 65 28 view .LVU61
+ 228 002c 2560     		str	r5, [r4]
+  64:Src/alarm.c   ****             alarmBeepCount++;
+ 229              		.loc 1 64 27 view .LVU62
+ 230 002e 1378     		ldrb	r3, [r2]
+ 231 0030 0133     		adds	r3, r3, #1
+ 232 0032 1370     		strb	r3, [r2]
+ 233              		.loc 1 65 13 is_stmt 1 view .LVU63
+ 234              	.L10:
+  66:Src/alarm.c   ****         }
+  67:Src/alarm.c   ****     } else {
+  68:Src/alarm.c   ****         /* 蜂鸣器关闭中 */
+  69:Src/alarm.c   ****         if (alarmBeepCount < ALARM_RING_COUNT) {
+  70:Src/alarm.c   ****             /* 继续响铃 */
+  71:Src/alarm.c   ****             if (alarmTimestamp > ALARM_OFF_TIME) {
+  72:Src/alarm.c   ****                 HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+  73:Src/alarm.c   ****                 alarmTimestamp = 0;
+  74:Src/alarm.c   ****             }
+  75:Src/alarm.c   ****         } else if (alarmTimestamp > ALARM_REST_TIME) {
+  76:Src/alarm.c   ****             /* 一组响铃结束，重置 */
+  77:Src/alarm.c   ****             HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+  78:Src/alarm.c   ****             alarmTimestamp = 0;
+  79:Src/alarm.c   ****             alarmBeepCount = 0;
+  80:Src/alarm.c   ****         }
+  81:Src/alarm.c   ****     }
+  82:Src/alarm.c   **** }
+ 235              		.loc 1 82 1 is_stmt 0 view .LVU64
+ 236              		@ sp needed
+ 237 0034 70BD     		pop	{r4, r5, r6, pc}
+ 238              	.L11:
+  69:Src/alarm.c   ****             /* 继续响铃 */
+ARM GAS  D:\Temp\ccce4kCj.s 			page 7
+
+
+ 239              		.loc 1 69 9 is_stmt 1 view .LVU65
+  69:Src/alarm.c   ****             /* 继续响铃 */
+ 240              		.loc 1 69 28 is_stmt 0 view .LVU66
+ 241 0036 0F4D     		ldr	r5, .L14+4
+  69:Src/alarm.c   ****             /* 继续响铃 */
+ 242              		.loc 1 69 12 view .LVU67
+ 243 0038 2A78     		ldrb	r2, [r5]
+ 244 003a 032A     		cmp	r2, #3
+ 245 003c 0AD8     		bhi	.L13
+  71:Src/alarm.c   ****                 HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+ 246              		.loc 1 71 13 is_stmt 1 view .LVU68
+  71:Src/alarm.c   ****                 HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+ 247              		.loc 1 71 16 is_stmt 0 view .LVU69
+ 248 003e 322B     		cmp	r3, #50
+ 249 0040 F8D9     		bls	.L10
+  72:Src/alarm.c   ****                 alarmTimestamp = 0;
+ 250              		.loc 1 72 17 is_stmt 1 view .LVU70
+ 251 0042 9020     		movs	r0, #144
+ 252 0044 0022     		movs	r2, #0
+ 253 0046 4021     		movs	r1, #64
+ 254 0048 C005     		lsls	r0, r0, #23
+ 255 004a FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 256              	.LVL5:
+  73:Src/alarm.c   ****             }
+ 257              		.loc 1 73 17 view .LVU71
+  73:Src/alarm.c   ****             }
+ 258              		.loc 1 73 32 is_stmt 0 view .LVU72
+ 259 004e 0023     		movs	r3, #0
+ 260 0050 2360     		str	r3, [r4]
+ 261 0052 EFE7     		b	.L10
+ 262              	.L13:
+  75:Src/alarm.c   ****             /* 一组响铃结束，重置 */
+ 263              		.loc 1 75 16 is_stmt 1 view .LVU73
+  75:Src/alarm.c   ****             /* 一组响铃结束，重置 */
+ 264              		.loc 1 75 19 is_stmt 0 view .LVU74
+ 265 0054 FA22     		movs	r2, #250
+ 266 0056 5200     		lsls	r2, r2, #1
+ 267 0058 9342     		cmp	r3, r2
+ 268 005a EBD9     		bls	.L10
+  77:Src/alarm.c   ****             alarmTimestamp = 0;
+ 269              		.loc 1 77 13 is_stmt 1 view .LVU75
+ 270 005c 9020     		movs	r0, #144
+ 271 005e 0022     		movs	r2, #0
+ 272 0060 4021     		movs	r1, #64
+ 273 0062 C005     		lsls	r0, r0, #23
+ 274 0064 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 275              	.LVL6:
+  78:Src/alarm.c   ****             alarmBeepCount = 0;
+ 276              		.loc 1 78 13 view .LVU76
+  78:Src/alarm.c   ****             alarmBeepCount = 0;
+ 277              		.loc 1 78 28 is_stmt 0 view .LVU77
+ 278 0068 0023     		movs	r3, #0
+ 279 006a 2360     		str	r3, [r4]
+  79:Src/alarm.c   ****         }
+ 280              		.loc 1 79 13 is_stmt 1 view .LVU78
+  79:Src/alarm.c   ****         }
+ 281              		.loc 1 79 28 is_stmt 0 view .LVU79
+ARM GAS  D:\Temp\ccce4kCj.s 			page 8
+
+
+ 282 006c 2B70     		strb	r3, [r5]
+ 283              		.loc 1 82 1 view .LVU80
+ 284 006e E1E7     		b	.L10
+ 285              	.L15:
+ 286              		.align	2
+ 287              	.L14:
+ 288 0070 00000000 		.word	alarmTimestamp
+ 289 0074 00000000 		.word	alarmBeepCount
+ 290              		.cfi_endproc
+ 291              	.LFE40:
+ 293              		.section	.text.Alarm_Check,"ax",%progbits
+ 294              		.align	1
+ 295              		.global	Alarm_Check
+ 296              		.syntax unified
+ 297              		.code	16
+ 298              		.thumb_func
+ 300              	Alarm_Check:
+ 301              	.LVL7:
+ 302              	.LFB41:
+  83:Src/alarm.c   **** 
+  84:Src/alarm.c   **** /**
+  85:Src/alarm.c   ****  * @brief  检查是否触发闹钟
+  86:Src/alarm.c   ****  * @param  time: 当前时间
+  87:Src/alarm.c   ****  */
+  88:Src/alarm.c   **** void Alarm_Check(DateTime *time) {
+ 303              		.loc 1 88 34 is_stmt 1 view -0
+ 304              		.cfi_startproc
+ 305              		@ args = 0, pretend = 0, frame = 0
+ 306              		@ frame_needed = 0, uses_anonymous_args = 0
+  89:Src/alarm.c   ****     if (g_Alarm.isEnabled && !g_Alarm.isAlarmed &&
+ 307              		.loc 1 89 5 view .LVU82
+  88:Src/alarm.c   ****     if (g_Alarm.isEnabled && !g_Alarm.isAlarmed &&
+ 308              		.loc 1 88 34 is_stmt 0 view .LVU83
+ 309 0000 70B5     		push	{r4, r5, r6, lr}
+ 310              	.LCFI3:
+ 311              		.cfi_def_cfa_offset 16
+ 312              		.cfi_offset 4, -16
+ 313              		.cfi_offset 5, -12
+ 314              		.cfi_offset 6, -8
+ 315              		.cfi_offset 14, -4
+  90:Src/alarm.c   ****         g_Alarm.hour == time->hours && g_Alarm.minute == time->minutes) {
+ 316              		.loc 1 90 16 view .LVU84
+ 317 0002 114C     		ldr	r4, .L29
+  88:Src/alarm.c   ****     if (g_Alarm.isEnabled && !g_Alarm.isAlarmed &&
+ 318              		.loc 1 88 34 view .LVU85
+ 319 0004 0500     		movs	r5, r0
+  89:Src/alarm.c   ****     if (g_Alarm.isEnabled && !g_Alarm.isAlarmed &&
+ 320              		.loc 1 89 8 view .LVU86
+ 321 0006 2178     		ldrb	r1, [r4]
+ 322              		.loc 1 90 16 view .LVU87
+ 323 0008 E378     		ldrb	r3, [r4, #3]
+ 324              		.loc 1 90 29 view .LVU88
+ 325 000a C278     		ldrb	r2, [r0, #3]
+  89:Src/alarm.c   ****     if (g_Alarm.isEnabled && !g_Alarm.isAlarmed &&
+ 326              		.loc 1 89 8 view .LVU89
+ 327 000c 0029     		cmp	r1, #0
+ 328 000e 12D0     		beq	.L17
+ARM GAS  D:\Temp\ccce4kCj.s 			page 9
+
+
+  89:Src/alarm.c   ****     if (g_Alarm.isEnabled && !g_Alarm.isAlarmed &&
+ 329              		.loc 1 89 27 discriminator 1 view .LVU90
+ 330 0010 6178     		ldrb	r1, [r4, #1]
+ 331 0012 0029     		cmp	r1, #0
+ 332 0014 0FD1     		bne	.L17
+  89:Src/alarm.c   ****     if (g_Alarm.isEnabled && !g_Alarm.isAlarmed &&
+ 333              		.loc 1 89 49 discriminator 2 view .LVU91
+ 334 0016 9A42     		cmp	r2, r3
+ 335 0018 07D0     		beq	.L18
+ 336              	.LVL8:
+ 337              	.L22:
+  91:Src/alarm.c   ****         Alarm_Start();
+  92:Src/alarm.c   ****     }
+  93:Src/alarm.c   **** 
+  94:Src/alarm.c   ****     /* 时间不匹配时重置已响铃标志 */
+  95:Src/alarm.c   ****     if (g_Alarm.hour != time->hours || g_Alarm.minute != time->minutes) {
+  96:Src/alarm.c   ****         if (g_Alarm.isAlarming) {
+ 338              		.loc 1 96 9 is_stmt 1 view .LVU92
+ 339              		.loc 1 96 12 is_stmt 0 view .LVU93
+ 340 001a A378     		ldrb	r3, [r4, #2]
+ 341 001c 002B     		cmp	r3, #0
+ 342 001e 01D0     		beq	.L20
+  97:Src/alarm.c   ****             Alarm_Stop();
+ 343              		.loc 1 97 13 is_stmt 1 view .LVU94
+ 344 0020 FFF7FEFF 		bl	Alarm_Stop
+ 345              	.LVL9:
+ 346              	.L20:
+  98:Src/alarm.c   ****         }
+  99:Src/alarm.c   ****         g_Alarm.isAlarmed = false;
+ 347              		.loc 1 99 9 view .LVU95
+ 348              		.loc 1 99 27 is_stmt 0 view .LVU96
+ 349 0024 0023     		movs	r3, #0
+ 350 0026 6370     		strb	r3, [r4, #1]
+ 100:Src/alarm.c   ****     }
+ 101:Src/alarm.c   **** }
+ 351              		.loc 1 101 1 view .LVU97
+ 352 0028 0DE0     		b	.L16
+ 353              	.LVL10:
+ 354              	.L18:
+  90:Src/alarm.c   ****         Alarm_Start();
+ 355              		.loc 1 90 37 view .LVU98
+ 356 002a 2279     		ldrb	r2, [r4, #4]
+ 357 002c 4378     		ldrb	r3, [r0, #1]
+ 358 002e 9A42     		cmp	r2, r3
+ 359 0030 F3D1     		bne	.L22
+  91:Src/alarm.c   ****     }
+ 360              		.loc 1 91 9 is_stmt 1 view .LVU99
+ 361 0032 FFF7FEFF 		bl	Alarm_Start
+ 362              	.LVL11:
+ 363              	.L17:
+  95:Src/alarm.c   ****         if (g_Alarm.isAlarming) {
+ 364              		.loc 1 95 5 view .LVU100
+  95:Src/alarm.c   ****         if (g_Alarm.isAlarming) {
+ 365              		.loc 1 95 8 is_stmt 0 view .LVU101
+ 366 0036 E278     		ldrb	r2, [r4, #3]
+ 367 0038 EB78     		ldrb	r3, [r5, #3]
+ 368 003a 9A42     		cmp	r2, r3
+ARM GAS  D:\Temp\ccce4kCj.s 			page 10
+
+
+ 369 003c EDD1     		bne	.L22
+  95:Src/alarm.c   ****         if (g_Alarm.isAlarming) {
+ 370              		.loc 1 95 37 discriminator 1 view .LVU102
+ 371 003e 2279     		ldrb	r2, [r4, #4]
+ 372 0040 6B78     		ldrb	r3, [r5, #1]
+ 373 0042 9A42     		cmp	r2, r3
+ 374 0044 E9D1     		bne	.L22
+ 375              	.L16:
+ 376              		.loc 1 101 1 view .LVU103
+ 377              		@ sp needed
+ 378              	.LVL12:
+ 379              		.loc 1 101 1 view .LVU104
+ 380 0046 70BD     		pop	{r4, r5, r6, pc}
+ 381              	.L30:
+ 382              		.align	2
+ 383              	.L29:
+ 384 0048 00000000 		.word	g_Alarm
+ 385              		.cfi_endproc
+ 386              	.LFE41:
+ 388              		.section	.text.Alarm_Set,"ax",%progbits
+ 389              		.align	1
+ 390              		.global	Alarm_Set
+ 391              		.syntax unified
+ 392              		.code	16
+ 393              		.thumb_func
+ 395              	Alarm_Set:
+ 396              	.LVL13:
+ 397              	.LFB42:
+ 102:Src/alarm.c   **** 
+ 103:Src/alarm.c   **** /**
+ 104:Src/alarm.c   ****  * @brief  设置闹钟
+ 105:Src/alarm.c   ****  * @param  hour: 小时
+ 106:Src/alarm.c   ****  * @param  minute: 分钟
+ 107:Src/alarm.c   ****  * @param  enable: 是否启用
+ 108:Src/alarm.c   ****  */
+ 109:Src/alarm.c   **** void Alarm_Set(uint8_t hour, uint8_t minute, bool enable) {
+ 398              		.loc 1 109 59 is_stmt 1 view -0
+ 399              		.cfi_startproc
+ 400              		@ args = 0, pretend = 0, frame = 0
+ 401              		@ frame_needed = 0, uses_anonymous_args = 0
+ 402              		@ link register save eliminated.
+ 110:Src/alarm.c   ****     g_Alarm.hour = hour;
+ 403              		.loc 1 110 5 view .LVU106
+ 404              		.loc 1 110 18 is_stmt 0 view .LVU107
+ 405 0000 024B     		ldr	r3, .L32
+ 111:Src/alarm.c   ****     g_Alarm.minute = minute;
+ 112:Src/alarm.c   ****     g_Alarm.isEnabled = enable;
+ 113:Src/alarm.c   **** }
+ 406              		.loc 1 113 1 view .LVU108
+ 407              		@ sp needed
+ 110:Src/alarm.c   ****     g_Alarm.hour = hour;
+ 408              		.loc 1 110 18 view .LVU109
+ 409 0002 D870     		strb	r0, [r3, #3]
+ 111:Src/alarm.c   ****     g_Alarm.minute = minute;
+ 410              		.loc 1 111 5 is_stmt 1 view .LVU110
+ 111:Src/alarm.c   ****     g_Alarm.minute = minute;
+ 411              		.loc 1 111 20 is_stmt 0 view .LVU111
+ARM GAS  D:\Temp\ccce4kCj.s 			page 11
+
+
+ 412 0004 1971     		strb	r1, [r3, #4]
+ 112:Src/alarm.c   **** }
+ 413              		.loc 1 112 5 is_stmt 1 view .LVU112
+ 112:Src/alarm.c   **** }
+ 414              		.loc 1 112 23 is_stmt 0 view .LVU113
+ 415 0006 1A70     		strb	r2, [r3]
+ 416              		.loc 1 113 1 view .LVU114
+ 417 0008 7047     		bx	lr
+ 418              	.L33:
+ 419 000a C046     		.align	2
+ 420              	.L32:
+ 421 000c 00000000 		.word	g_Alarm
+ 422              		.cfi_endproc
+ 423              	.LFE42:
+ 425              		.section	.text.Alarm_IsEnabled,"ax",%progbits
+ 426              		.align	1
+ 427              		.global	Alarm_IsEnabled
+ 428              		.syntax unified
+ 429              		.code	16
+ 430              		.thumb_func
+ 432              	Alarm_IsEnabled:
+ 433              	.LFB43:
+ 114:Src/alarm.c   **** 
+ 115:Src/alarm.c   **** /**
+ 116:Src/alarm.c   ****  * @brief  获取闹钟使能状态
+ 117:Src/alarm.c   ****  */
+ 118:Src/alarm.c   **** bool Alarm_IsEnabled(void) {
+ 434              		.loc 1 118 28 is_stmt 1 view -0
+ 435              		.cfi_startproc
+ 436              		@ args = 0, pretend = 0, frame = 0
+ 437              		@ frame_needed = 0, uses_anonymous_args = 0
+ 438              		@ link register save eliminated.
+ 119:Src/alarm.c   ****     return g_Alarm.isEnabled;
+ 439              		.loc 1 119 5 view .LVU116
+ 440              		.loc 1 119 19 is_stmt 0 view .LVU117
+ 441 0000 014B     		ldr	r3, .L35
+ 120:Src/alarm.c   **** }
+ 442              		.loc 1 120 1 view .LVU118
+ 443              		@ sp needed
+ 119:Src/alarm.c   ****     return g_Alarm.isEnabled;
+ 444              		.loc 1 119 19 discriminator 1 view .LVU119
+ 445 0002 1878     		ldrb	r0, [r3]
+ 446              		.loc 1 120 1 view .LVU120
+ 447 0004 7047     		bx	lr
+ 448              	.L36:
+ 449 0006 C046     		.align	2
+ 450              	.L35:
+ 451 0008 00000000 		.word	g_Alarm
+ 452              		.cfi_endproc
+ 453              	.LFE43:
+ 455              		.section	.text.Alarm_IsAlarming,"ax",%progbits
+ 456              		.align	1
+ 457              		.global	Alarm_IsAlarming
+ 458              		.syntax unified
+ 459              		.code	16
+ 460              		.thumb_func
+ 462              	Alarm_IsAlarming:
+ARM GAS  D:\Temp\ccce4kCj.s 			page 12
+
+
+ 463              	.LFB44:
+ 121:Src/alarm.c   **** 
+ 122:Src/alarm.c   **** /**
+ 123:Src/alarm.c   ****  * @brief  获取闹钟正在响铃状态
+ 124:Src/alarm.c   ****  */
+ 125:Src/alarm.c   **** bool Alarm_IsAlarming(void) {
+ 464              		.loc 1 125 29 is_stmt 1 view -0
+ 465              		.cfi_startproc
+ 466              		@ args = 0, pretend = 0, frame = 0
+ 467              		@ frame_needed = 0, uses_anonymous_args = 0
+ 468              		@ link register save eliminated.
+ 126:Src/alarm.c   ****     return g_Alarm.isAlarming;
+ 469              		.loc 1 126 5 view .LVU122
+ 470              		.loc 1 126 19 is_stmt 0 view .LVU123
+ 471 0000 014B     		ldr	r3, .L38
+ 127:Src/alarm.c   **** }
+ 472              		.loc 1 127 1 view .LVU124
+ 473              		@ sp needed
+ 126:Src/alarm.c   ****     return g_Alarm.isAlarming;
+ 474              		.loc 1 126 19 discriminator 1 view .LVU125
+ 475 0002 9878     		ldrb	r0, [r3, #2]
+ 476              		.loc 1 127 1 view .LVU126
+ 477 0004 7047     		bx	lr
+ 478              	.L39:
+ 479 0006 C046     		.align	2
+ 480              	.L38:
+ 481 0008 00000000 		.word	g_Alarm
+ 482              		.cfi_endproc
+ 483              	.LFE44:
+ 485              		.section	.text.Alarm_IsAlarmSet,"ax",%progbits
+ 486              		.align	1
+ 487              		.global	Alarm_IsAlarmSet
+ 488              		.syntax unified
+ 489              		.code	16
+ 490              		.thumb_func
+ 492              	Alarm_IsAlarmSet:
+ 493              	.LVL14:
+ 494              	.LFB45:
+ 128:Src/alarm.c   **** 
+ 129:Src/alarm.c   **** /**
+ 130:Src/alarm.c   ****  * @brief  检查闹钟是否设置在指定时间
+ 131:Src/alarm.c   ****  */
+ 132:Src/alarm.c   **** bool Alarm_IsAlarmSet(uint8_t hour, uint8_t minute) {
+ 495              		.loc 1 132 53 is_stmt 1 view -0
+ 496              		.cfi_startproc
+ 497              		@ args = 0, pretend = 0, frame = 0
+ 498              		@ frame_needed = 0, uses_anonymous_args = 0
+ 133:Src/alarm.c   ****     return (g_Alarm.hour == hour && g_Alarm.minute == minute);
+ 499              		.loc 1 133 5 view .LVU128
+ 132:Src/alarm.c   ****     return (g_Alarm.hour == hour && g_Alarm.minute == minute);
+ 500              		.loc 1 132 53 is_stmt 0 view .LVU129
+ 501 0000 10B5     		push	{r4, lr}
+ 502              	.LCFI4:
+ 503              		.cfi_def_cfa_offset 8
+ 504              		.cfi_offset 4, -8
+ 505              		.cfi_offset 14, -4
+ 506              		.loc 1 133 20 view .LVU130
+ARM GAS  D:\Temp\ccce4kCj.s 			page 13
+
+
+ 507 0002 054A     		ldr	r2, .L43
+ 508              		.loc 1 133 34 discriminator 4 view .LVU131
+ 509 0004 0023     		movs	r3, #0
+ 510              		.loc 1 133 34 view .LVU132
+ 511 0006 D478     		ldrb	r4, [r2, #3]
+ 512 0008 8442     		cmp	r4, r0
+ 513 000a 03D1     		bne	.L41
+ 514              		.loc 1 133 34 discriminator 1 view .LVU133
+ 515 000c 1379     		ldrb	r3, [r2, #4]
+ 516 000e 5B1A     		subs	r3, r3, r1
+ 517 0010 5A42     		rsbs	r2, r3, #0
+ 518 0012 5341     		adcs	r3, r3, r2
+ 519              	.L41:
+ 134:Src/alarm.c   **** }
+ 520              		.loc 1 134 1 view .LVU134
+ 521              		@ sp needed
+ 133:Src/alarm.c   ****     return (g_Alarm.hour == hour && g_Alarm.minute == minute);
+ 522              		.loc 1 133 34 discriminator 7 view .LVU135
+ 523 0014 1800     		movs	r0, r3
+ 524              	.LVL15:
+ 525              		.loc 1 134 1 view .LVU136
+ 526 0016 10BD     		pop	{r4, pc}
+ 527              	.L44:
+ 528              		.align	2
+ 529              	.L43:
+ 530 0018 00000000 		.word	g_Alarm
+ 531              		.cfi_endproc
+ 532              	.LFE45:
+ 534              		.section	.bss.alarmBeepCount,"aw",%nobits
+ 537              	alarmBeepCount:
+ 538 0000 00       		.space	1
+ 539              		.section	.bss.alarmTimestamp,"aw",%nobits
+ 540              		.align	2
+ 543              	alarmTimestamp:
+ 544 0000 00000000 		.space	4
+ 545              		.section	.bss.g_Alarm,"aw",%nobits
+ 548              	g_Alarm:
+ 549 0000 00000000 		.space	5
+ 549      00
+ 550              		.text
+ 551              	.Letext0:
+ 552              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 553              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 554              		.file 4 "Drivers/CMSIS/Device/ST/STM32F0xx/Include/stm32f030x6.h"
+ 555              		.file 5 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_def.h"
+ 556              		.file 6 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_gpio.h"
+ 557              		.file 7 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_dma.h"
+ 558              		.file 8 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim.h"
+ 559              		.file 9 "Lib/SD3077.h"
+ 560              		.file 10 "Inc/alarm.h"
+ 561              		.file 11 "Inc/tim.h"
+ARM GAS  D:\Temp\ccce4kCj.s 			page 14
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 alarm.c
+  D:\Temp\ccce4kCj.s:19     .text.Alarm_Init:00000000 $t
+  D:\Temp\ccce4kCj.s:25     .text.Alarm_Init:00000000 Alarm_Init
+  D:\Temp\ccce4kCj.s:65     .text.Alarm_Init:00000018 $d
+  D:\Temp\ccce4kCj.s:548    .bss.g_Alarm:00000000 g_Alarm
+  D:\Temp\ccce4kCj.s:543    .bss.alarmTimestamp:00000000 alarmTimestamp
+  D:\Temp\ccce4kCj.s:537    .bss.alarmBeepCount:00000000 alarmBeepCount
+  D:\Temp\ccce4kCj.s:72     .text.Alarm_Start:00000000 $t
+  D:\Temp\ccce4kCj.s:78     .text.Alarm_Start:00000000 Alarm_Start
+  D:\Temp\ccce4kCj.s:113    .text.Alarm_Start:00000014 $d
+  D:\Temp\ccce4kCj.s:119    .text.Alarm_Stop:00000000 $t
+  D:\Temp\ccce4kCj.s:125    .text.Alarm_Stop:00000000 Alarm_Stop
+  D:\Temp\ccce4kCj.s:163    .text.Alarm_Stop:0000001c $d
+  D:\Temp\ccce4kCj.s:169    .text.Alarm_TimerTick:00000000 $t
+  D:\Temp\ccce4kCj.s:175    .text.Alarm_TimerTick:00000000 Alarm_TimerTick
+  D:\Temp\ccce4kCj.s:288    .text.Alarm_TimerTick:00000070 $d
+  D:\Temp\ccce4kCj.s:294    .text.Alarm_Check:00000000 $t
+  D:\Temp\ccce4kCj.s:300    .text.Alarm_Check:00000000 Alarm_Check
+  D:\Temp\ccce4kCj.s:384    .text.Alarm_Check:00000048 $d
+  D:\Temp\ccce4kCj.s:389    .text.Alarm_Set:00000000 $t
+  D:\Temp\ccce4kCj.s:395    .text.Alarm_Set:00000000 Alarm_Set
+  D:\Temp\ccce4kCj.s:421    .text.Alarm_Set:0000000c $d
+  D:\Temp\ccce4kCj.s:426    .text.Alarm_IsEnabled:00000000 $t
+  D:\Temp\ccce4kCj.s:432    .text.Alarm_IsEnabled:00000000 Alarm_IsEnabled
+  D:\Temp\ccce4kCj.s:451    .text.Alarm_IsEnabled:00000008 $d
+  D:\Temp\ccce4kCj.s:456    .text.Alarm_IsAlarming:00000000 $t
+  D:\Temp\ccce4kCj.s:462    .text.Alarm_IsAlarming:00000000 Alarm_IsAlarming
+  D:\Temp\ccce4kCj.s:481    .text.Alarm_IsAlarming:00000008 $d
+  D:\Temp\ccce4kCj.s:486    .text.Alarm_IsAlarmSet:00000000 $t
+  D:\Temp\ccce4kCj.s:492    .text.Alarm_IsAlarmSet:00000000 Alarm_IsAlarmSet
+  D:\Temp\ccce4kCj.s:530    .text.Alarm_IsAlarmSet:00000018 $d
+  D:\Temp\ccce4kCj.s:538    .bss.alarmBeepCount:00000000 $d
+  D:\Temp\ccce4kCj.s:540    .bss.alarmTimestamp:00000000 $d
+  D:\Temp\ccce4kCj.s:549    .bss.g_Alarm:00000000 $d
+
+UNDEFINED SYMBOLS
+HAL_TIM_Base_Start_IT
+htim17
+HAL_TIM_Base_Stop_IT
+HAL_GPIO_WritePin
+HAL_GPIO_ReadPin

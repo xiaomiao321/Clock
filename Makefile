@@ -44,6 +44,12 @@ Src/i2c.c \
 Src/tim.c \
 Src/stm32f0xx_it.c \
 Src/stm32f0xx_hal_msp.c \
+Src/settings.c \
+Src/display.c \
+Src/temperature.c \
+Src/alarm.c \
+Src/ring.c \
+Src/app.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc_ex.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c.c \

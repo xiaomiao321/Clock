@@ -1,0 +1,706 @@
+ARM GAS  D:\Temp\ccxJDemV.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.arch armv6s-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"settings.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Src/settings.c"
+  18              		.section	.text.Settings_Get,"ax",%progbits
+  19              		.align	1
+  20              		.global	Settings_Get
+  21              		.syntax unified
+  22              		.code	16
+  23              		.thumb_func
+  25              	Settings_Get:
+  26              	.LFB37:
+   1:Src/settings.c **** /*
+   2:Src/settings.c ****  * @file           : settings.c
+   3:Src/settings.c ****  * @brief          : 系统设置管理源文件
+   4:Src/settings.c ****  */
+   5:Src/settings.c **** #include "settings.h"
+   6:Src/settings.c **** #include "TM1637.h"
+   7:Src/settings.c **** 
+   8:Src/settings.c **** /* 全局设置变量 */
+   9:Src/settings.c **** static SystemSettings g_Settings;
+  10:Src/settings.c **** 
+  11:Src/settings.c **** /**
+  12:Src/settings.c ****  * @brief  获取设置结构体指针
+  13:Src/settings.c ****  */
+  14:Src/settings.c **** SystemSettings* Settings_Get(void) {
+  27              		.loc 1 14 36 view -0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		@ link register save eliminated.
+  15:Src/settings.c ****     return &g_Settings;
+  32              		.loc 1 15 5 view .LVU1
+  33              		.loc 1 15 12 is_stmt 0 discriminator 1 view .LVU2
+  34 0000 0048     		ldr	r0, .L2
+  16:Src/settings.c **** }
+  35              		.loc 1 16 1 view .LVU3
+  36              		@ sp needed
+  37 0002 7047     		bx	lr
+  38              	.L3:
+  39              		.align	2
+  40              	.L2:
+  41 0004 00000000 		.word	g_Settings
+  42              		.cfi_endproc
+ARM GAS  D:\Temp\ccxJDemV.s 			page 2
+
+
+  43              	.LFE37:
+  45              		.section	.text.Settings_ReadBackup,"ax",%progbits
+  46              		.align	1
+  47              		.global	Settings_ReadBackup
+  48              		.syntax unified
+  49              		.code	16
+  50              		.thumb_func
+  52              	Settings_ReadBackup:
+  53              	.LFB38:
+  17:Src/settings.c **** 
+  18:Src/settings.c **** /**
+  19:Src/settings.c ****  * @brief  从 RTC 备份寄存器读取设置
+  20:Src/settings.c ****  */
+  21:Src/settings.c **** void Settings_ReadBackup(void) {
+  54              		.loc 1 21 32 is_stmt 1 view -0
+  55              		.cfi_startproc
+  56              		@ args = 0, pretend = 0, frame = 16
+  57              		@ frame_needed = 0, uses_anonymous_args = 0
+  22:Src/settings.c ****     uint8_t data[BAK_DATA_SIZE];
+  58              		.loc 1 22 5 view .LVU5
+  23:Src/settings.c ****     ReadBackData(0, data, BAK_DATA_SIZE);
+  59              		.loc 1 23 5 view .LVU6
+  21:Src/settings.c ****     uint8_t data[BAK_DATA_SIZE];
+  60              		.loc 1 21 32 is_stmt 0 view .LVU7
+  61 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
+  62              	.LCFI0:
+  63              		.cfi_def_cfa_offset 24
+  64              		.cfi_offset 0, -24
+  65              		.cfi_offset 1, -20
+  66              		.cfi_offset 2, -16
+  67              		.cfi_offset 3, -12
+  68              		.cfi_offset 4, -8
+  69              		.cfi_offset 14, -4
+  70              		.loc 1 23 5 view .LVU8
+  71 0002 0D22     		movs	r2, #13
+  72 0004 6946     		mov	r1, sp
+  73 0006 0020     		movs	r0, #0
+  74 0008 FFF7FEFF 		bl	ReadBackData
+  75              	.LVL0:
+  24:Src/settings.c **** 
+  25:Src/settings.c ****     g_Settings.isAlarmEnabled = data[BAK_ALARM_ENABLED_INDEX];
+  76              		.loc 1 25 5 is_stmt 1 view .LVU9
+  77              		.loc 1 25 37 is_stmt 0 view .LVU10
+  78 000c 6A46     		mov	r2, sp
+  79 000e 9278     		ldrb	r2, [r2, #2]
+  80              		.loc 1 25 31 view .LVU11
+  81 0010 124B     		ldr	r3, .L5
+  82              		.loc 1 25 37 view .LVU12
+  83 0012 511E     		subs	r1, r2, #1
+  84 0014 8A41     		sbcs	r2, r2, r1
+  85              		.loc 1 25 31 view .LVU13
+  86 0016 1A70     		strb	r2, [r3]
+  26:Src/settings.c ****     g_Settings.alarmHour = data[BAK_ALARM_HOUR_INDEX];
+  87              		.loc 1 26 5 is_stmt 1 view .LVU14
+  88              		.loc 1 26 26 is_stmt 0 view .LVU15
+  89 0018 6A46     		mov	r2, sp
+  90 001a D278     		ldrb	r2, [r2, #3]
+ARM GAS  D:\Temp\ccxJDemV.s 			page 3
+
+
+  91 001c 5A70     		strb	r2, [r3, #1]
+  27:Src/settings.c ****     g_Settings.alarmMin = data[BAK_ALARM_MINUTE_INDEX];
+  92              		.loc 1 27 5 is_stmt 1 view .LVU16
+  93              		.loc 1 27 25 is_stmt 0 view .LVU17
+  94 001e 6A46     		mov	r2, sp
+  95 0020 1279     		ldrb	r2, [r2, #4]
+  96 0022 9A70     		strb	r2, [r3, #2]
+  28:Src/settings.c ****     g_Settings.tempertureShowTime = data[BAK_TEMP_SHOW_TIME_INDEX];
+  97              		.loc 1 28 5 is_stmt 1 view .LVU18
+  98              		.loc 1 28 35 is_stmt 0 view .LVU19
+  99 0024 6A46     		mov	r2, sp
+ 100 0026 5279     		ldrb	r2, [r2, #5]
+ 101 0028 DA70     		strb	r2, [r3, #3]
+  29:Src/settings.c ****     g_Settings.tempertureHideTime = data[BAK_TEMP_HIDE_TIME_INDEX];
+ 102              		.loc 1 29 5 is_stmt 1 view .LVU20
+ 103              		.loc 1 29 35 is_stmt 0 view .LVU21
+ 104 002a 6A46     		mov	r2, sp
+ 105 002c 9279     		ldrb	r2, [r2, #6]
+ 106 002e 1A71     		strb	r2, [r3, #4]
+  30:Src/settings.c ****     g_Settings.isRingOnTimeEnabled = data[BAK_ROT_ENABLED_INDEX];
+ 107              		.loc 1 30 5 is_stmt 1 view .LVU22
+ 108              		.loc 1 30 42 is_stmt 0 view .LVU23
+ 109 0030 6A46     		mov	r2, sp
+ 110 0032 D279     		ldrb	r2, [r2, #7]
+ 111 0034 511E     		subs	r1, r2, #1
+ 112 0036 8A41     		sbcs	r2, r2, r1
+ 113              		.loc 1 30 36 view .LVU24
+ 114 0038 5A71     		strb	r2, [r3, #5]
+  31:Src/settings.c ****     g_Settings.ringOnTimeStart = data[BAK_ROT_START_INDEX];
+ 115              		.loc 1 31 5 is_stmt 1 view .LVU25
+ 116              		.loc 1 31 32 is_stmt 0 view .LVU26
+ 117 003a 6A46     		mov	r2, sp
+ 118 003c 127A     		ldrb	r2, [r2, #8]
+ 119 003e 9A71     		strb	r2, [r3, #6]
+  32:Src/settings.c ****     g_Settings.ringOnTimeStop = data[BAK_ROT_STOP_INDEX];
+ 120              		.loc 1 32 5 is_stmt 1 view .LVU27
+ 121              		.loc 1 32 31 is_stmt 0 view .LVU28
+ 122 0040 6A46     		mov	r2, sp
+ 123 0042 527A     		ldrb	r2, [r2, #9]
+ 124 0044 DA71     		strb	r2, [r3, #7]
+  33:Src/settings.c ****     g_Settings.savedBrightness = data[BAK_BRIGHTNESS_INDEX];
+ 125              		.loc 1 33 5 is_stmt 1 view .LVU29
+ 126              		.loc 1 33 32 is_stmt 0 view .LVU30
+ 127 0046 6A46     		mov	r2, sp
+ 128 0048 927A     		ldrb	r2, [r2, #10]
+ 129 004a 1A72     		strb	r2, [r3, #8]
+  34:Src/settings.c ****     g_Settings.strongBrightness = data[BAK_BRIGHTNESS_STRONG_INDEX];
+ 130              		.loc 1 34 5 is_stmt 1 view .LVU31
+ 131              		.loc 1 34 33 is_stmt 0 view .LVU32
+ 132 004c 6A46     		mov	r2, sp
+ 133 004e D27A     		ldrb	r2, [r2, #11]
+ 134 0050 5A72     		strb	r2, [r3, #9]
+  35:Src/settings.c ****     g_Settings.weakBrightness = data[BAK_BRIGHTNESS_WEAK_INDEX];
+ 135              		.loc 1 35 5 is_stmt 1 view .LVU33
+ 136              		.loc 1 35 31 is_stmt 0 view .LVU34
+ 137 0052 6A46     		mov	r2, sp
+ 138 0054 127B     		ldrb	r2, [r2, #12]
+ARM GAS  D:\Temp\ccxJDemV.s 			page 4
+
+
+ 139 0056 9A72     		strb	r2, [r3, #10]
+  36:Src/settings.c **** }
+ 140              		.loc 1 36 1 view .LVU35
+ 141 0058 05B0     		add	sp, sp, #20
+ 142              		@ sp needed
+ 143 005a 00BD     		pop	{pc}
+ 144              	.L6:
+ 145              		.align	2
+ 146              	.L5:
+ 147 005c 00000000 		.word	g_Settings
+ 148              		.cfi_endproc
+ 149              	.LFE38:
+ 151              		.section	.text.Settings_Save,"ax",%progbits
+ 152              		.align	1
+ 153              		.global	Settings_Save
+ 154              		.syntax unified
+ 155              		.code	16
+ 156              		.thumb_func
+ 158              	Settings_Save:
+ 159              	.LFB39:
+  37:Src/settings.c **** 
+  38:Src/settings.c **** /**
+  39:Src/settings.c ****  * @brief  保存所有设置到 RTC 备份寄存器
+  40:Src/settings.c ****  */
+  41:Src/settings.c **** void Settings_Save(void) {
+ 160              		.loc 1 41 26 is_stmt 1 view -0
+ 161              		.cfi_startproc
+ 162              		@ args = 0, pretend = 0, frame = 16
+ 163              		@ frame_needed = 0, uses_anonymous_args = 0
+  42:Src/settings.c ****     uint8_t data[BAK_DATA_SIZE] = {
+ 164              		.loc 1 42 5 view .LVU37
+  41:Src/settings.c ****     uint8_t data[BAK_DATA_SIZE] = {
+ 165              		.loc 1 41 26 is_stmt 0 view .LVU38
+ 166 0000 1FB5     		push	{r0, r1, r2, r3, r4, lr}
+ 167              	.LCFI1:
+ 168              		.cfi_def_cfa_offset 24
+ 169              		.cfi_offset 0, -24
+ 170              		.cfi_offset 1, -20
+ 171              		.cfi_offset 2, -16
+ 172              		.cfi_offset 3, -12
+ 173              		.cfi_offset 4, -8
+ 174              		.cfi_offset 14, -4
+ 175              		.loc 1 42 13 view .LVU39
+ 176 0002 6A46     		mov	r2, sp
+ 177 0004 6946     		mov	r1, sp
+ 178 0006 0F4B     		ldr	r3, .L8
+  43:Src/settings.c ****         POWER_DOWN_IND_DATA,          /* [0] 掉电标识 */
+  44:Src/settings.c ****         POWER_DOWN_IND_DATA,          /* [1] 掉电标识（冗余） */
+  45:Src/settings.c ****         g_Settings.isAlarmEnabled,    /* [2] 闹钟使能标志 */
+  46:Src/settings.c ****         g_Settings.alarmHour,         /* [3] 闹钟小时 */
+  47:Src/settings.c ****         g_Settings.alarmMin,          /* [4] 闹钟分钟 */
+  48:Src/settings.c ****         g_Settings.tempertureShowTime,/* [5] 温度显示时长 */
+  49:Src/settings.c ****         g_Settings.tempertureHideTime,/* [6] 温度隐藏时长 */
+  50:Src/settings.c ****         g_Settings.isRingOnTimeEnabled,/* [7] 整点报时使能标志 */
+  51:Src/settings.c ****         g_Settings.ringOnTimeStart,   /* [8] 整点报时开始时间 */
+  52:Src/settings.c ****         g_Settings.ringOnTimeStop,    /* [9] 整点报时结束时间 */
+  53:Src/settings.c ****         g_Settings.savedBrightness,   /* [10] 亮度设置 */
+ARM GAS  D:\Temp\ccxJDemV.s 			page 5
+
+
+  54:Src/settings.c ****         g_Settings.strongBrightness,  /* [11] 强光亮度 */
+  55:Src/settings.c ****         g_Settings.weakBrightness,    /* [12] 弱光亮度 */
+  56:Src/settings.c ****     };
+  57:Src/settings.c ****     WriteBackData(0, data, BAK_DATA_SIZE);
+ 179              		.loc 1 57 5 view .LVU40
+ 180 0008 0020     		movs	r0, #0
+  42:Src/settings.c ****         POWER_DOWN_IND_DATA,          /* [0] 掉电标识 */
+ 181              		.loc 1 42 13 view .LVU41
+ 182 000a 1380     		strh	r3, [r2]
+  45:Src/settings.c ****         g_Settings.alarmHour,         /* [3] 闹钟小时 */
+ 183              		.loc 1 45 19 view .LVU42
+ 184 000c 0E4B     		ldr	r3, .L8+4
+  42:Src/settings.c ****         POWER_DOWN_IND_DATA,          /* [0] 掉电标识 */
+ 185              		.loc 1 42 13 view .LVU43
+ 186 000e 1A78     		ldrb	r2, [r3]
+ 187 0010 8A70     		strb	r2, [r1, #2]
+ 188 0012 5A78     		ldrb	r2, [r3, #1]
+ 189 0014 CA70     		strb	r2, [r1, #3]
+ 190 0016 9A78     		ldrb	r2, [r3, #2]
+ 191 0018 0A71     		strb	r2, [r1, #4]
+ 192 001a DA78     		ldrb	r2, [r3, #3]
+ 193 001c 4A71     		strb	r2, [r1, #5]
+ 194 001e 1A79     		ldrb	r2, [r3, #4]
+ 195 0020 8A71     		strb	r2, [r1, #6]
+ 196 0022 5A79     		ldrb	r2, [r3, #5]
+ 197 0024 CA71     		strb	r2, [r1, #7]
+ 198 0026 9A79     		ldrb	r2, [r3, #6]
+ 199 0028 0A72     		strb	r2, [r1, #8]
+ 200 002a DA79     		ldrb	r2, [r3, #7]
+ 201 002c 4A72     		strb	r2, [r1, #9]
+ 202 002e 1A7A     		ldrb	r2, [r3, #8]
+ 203 0030 8A72     		strb	r2, [r1, #10]
+ 204 0032 5A7A     		ldrb	r2, [r3, #9]
+ 205 0034 CA72     		strb	r2, [r1, #11]
+ 206 0036 9B7A     		ldrb	r3, [r3, #10]
+ 207              		.loc 1 57 5 view .LVU44
+ 208 0038 0D22     		movs	r2, #13
+  42:Src/settings.c ****         POWER_DOWN_IND_DATA,          /* [0] 掉电标识 */
+ 209              		.loc 1 42 13 view .LVU45
+ 210 003a 0B73     		strb	r3, [r1, #12]
+ 211              		.loc 1 57 5 is_stmt 1 view .LVU46
+ 212 003c FFF7FEFF 		bl	WriteBackData
+ 213              	.LVL1:
+  58:Src/settings.c **** }
+ 214              		.loc 1 58 1 is_stmt 0 view .LVU47
+ 215 0040 05B0     		add	sp, sp, #20
+ 216              		@ sp needed
+ 217 0042 00BD     		pop	{pc}
+ 218              	.L9:
+ 219              		.align	2
+ 220              	.L8:
+ 221 0044 FAFAFFFF 		.word	-1286
+ 222 0048 00000000 		.word	g_Settings
+ 223              		.cfi_endproc
+ 224              	.LFE39:
+ 226              		.section	.text.Settings_ResetToDefault,"ax",%progbits
+ 227              		.align	1
+ARM GAS  D:\Temp\ccxJDemV.s 			page 6
+
+
+ 228              		.global	Settings_ResetToDefault
+ 229              		.syntax unified
+ 230              		.code	16
+ 231              		.thumb_func
+ 233              	Settings_ResetToDefault:
+ 234              	.LFB40:
+  59:Src/settings.c **** 
+  60:Src/settings.c **** /**
+  61:Src/settings.c ****  * @brief  重置所有设置为默认值
+  62:Src/settings.c ****  */
+  63:Src/settings.c **** void Settings_ResetToDefault(void) {
+ 235              		.loc 1 63 36 is_stmt 1 view -0
+ 236              		.cfi_startproc
+ 237              		@ args = 0, pretend = 0, frame = 0
+ 238              		@ frame_needed = 0, uses_anonymous_args = 0
+ 239              		@ link register save eliminated.
+  64:Src/settings.c ****     g_Settings.isAlarmEnabled = false;
+ 240              		.loc 1 64 5 view .LVU49
+ 241              		.loc 1 64 31 is_stmt 0 view .LVU50
+ 242 0000 0022     		movs	r2, #0
+  65:Src/settings.c ****     g_Settings.alarmHour = 0;
+  66:Src/settings.c ****     g_Settings.alarmMin = 0;
+  67:Src/settings.c ****     g_Settings.tempertureShowTime = 2;      /* 温度显示 2 秒 */
+  68:Src/settings.c ****     g_Settings.tempertureHideTime = 10;     /* 温度隐藏 10 秒 */
+  69:Src/settings.c ****     g_Settings.isRingOnTimeEnabled = false;
+  70:Src/settings.c ****     g_Settings.ringOnTimeStart = 8;         /* 8:00-20:00 */
+  71:Src/settings.c ****     g_Settings.ringOnTimeStop = 20;
+  72:Src/settings.c ****     g_Settings.savedBrightness = 8;         /* 默认手动最高亮度 */
+  73:Src/settings.c ****     g_Settings.strongBrightness = 8;
+  74:Src/settings.c ****     g_Settings.weakBrightness = 1;
+  75:Src/settings.c **** }
+ 243              		.loc 1 75 1 view .LVU51
+ 244              		@ sp needed
+  67:Src/settings.c ****     g_Settings.tempertureHideTime = 10;     /* 温度隐藏 10 秒 */
+ 245              		.loc 1 67 35 view .LVU52
+ 246 0002 0221     		movs	r1, #2
+  64:Src/settings.c ****     g_Settings.isAlarmEnabled = false;
+ 247              		.loc 1 64 31 view .LVU53
+ 248 0004 084B     		ldr	r3, .L11
+ 249 0006 1A70     		strb	r2, [r3]
+  65:Src/settings.c ****     g_Settings.alarmHour = 0;
+ 250              		.loc 1 65 5 is_stmt 1 view .LVU54
+  65:Src/settings.c ****     g_Settings.alarmHour = 0;
+ 251              		.loc 1 65 26 is_stmt 0 view .LVU55
+ 252 0008 5A70     		strb	r2, [r3, #1]
+  66:Src/settings.c ****     g_Settings.tempertureShowTime = 2;      /* 温度显示 2 秒 */
+ 253              		.loc 1 66 5 is_stmt 1 view .LVU56
+  66:Src/settings.c ****     g_Settings.tempertureShowTime = 2;      /* 温度显示 2 秒 */
+ 254              		.loc 1 66 25 is_stmt 0 view .LVU57
+ 255 000a 9A70     		strb	r2, [r3, #2]
+  67:Src/settings.c ****     g_Settings.tempertureHideTime = 10;     /* 温度隐藏 10 秒 */
+ 256              		.loc 1 67 5 is_stmt 1 view .LVU58
+  67:Src/settings.c ****     g_Settings.tempertureHideTime = 10;     /* 温度隐藏 10 秒 */
+ 257              		.loc 1 67 35 is_stmt 0 view .LVU59
+ 258 000c D970     		strb	r1, [r3, #3]
+  68:Src/settings.c ****     g_Settings.isRingOnTimeEnabled = false;
+ 259              		.loc 1 68 5 is_stmt 1 view .LVU60
+ARM GAS  D:\Temp\ccxJDemV.s 			page 7
+
+
+  69:Src/settings.c ****     g_Settings.ringOnTimeStart = 8;         /* 8:00-20:00 */
+ 260              		.loc 1 69 36 is_stmt 0 view .LVU61
+ 261 000e 5A71     		strb	r2, [r3, #5]
+  68:Src/settings.c ****     g_Settings.isRingOnTimeEnabled = false;
+ 262              		.loc 1 68 35 view .LVU62
+ 263 0010 0831     		adds	r1, r1, #8
+  70:Src/settings.c ****     g_Settings.ringOnTimeStop = 20;
+ 264              		.loc 1 70 32 view .LVU63
+ 265 0012 0832     		adds	r2, r2, #8
+  68:Src/settings.c ****     g_Settings.isRingOnTimeEnabled = false;
+ 266              		.loc 1 68 35 view .LVU64
+ 267 0014 1971     		strb	r1, [r3, #4]
+  69:Src/settings.c ****     g_Settings.ringOnTimeStart = 8;         /* 8:00-20:00 */
+ 268              		.loc 1 69 5 is_stmt 1 view .LVU65
+  70:Src/settings.c ****     g_Settings.ringOnTimeStop = 20;
+ 269              		.loc 1 70 5 view .LVU66
+  70:Src/settings.c ****     g_Settings.ringOnTimeStop = 20;
+ 270              		.loc 1 70 32 is_stmt 0 view .LVU67
+ 271 0016 9A71     		strb	r2, [r3, #6]
+  71:Src/settings.c ****     g_Settings.savedBrightness = 8;         /* 默认手动最高亮度 */
+ 272              		.loc 1 71 5 is_stmt 1 view .LVU68
+  71:Src/settings.c ****     g_Settings.savedBrightness = 8;         /* 默认手动最高亮度 */
+ 273              		.loc 1 71 31 is_stmt 0 view .LVU69
+ 274 0018 0A31     		adds	r1, r1, #10
+  72:Src/settings.c ****     g_Settings.strongBrightness = 8;
+ 275              		.loc 1 72 32 view .LVU70
+ 276 001a 1A72     		strb	r2, [r3, #8]
+  73:Src/settings.c ****     g_Settings.weakBrightness = 1;
+ 277              		.loc 1 73 33 view .LVU71
+ 278 001c 5A72     		strb	r2, [r3, #9]
+  74:Src/settings.c **** }
+ 279              		.loc 1 74 31 view .LVU72
+ 280 001e 073A     		subs	r2, r2, #7
+  71:Src/settings.c ****     g_Settings.savedBrightness = 8;         /* 默认手动最高亮度 */
+ 281              		.loc 1 71 31 view .LVU73
+ 282 0020 D971     		strb	r1, [r3, #7]
+  72:Src/settings.c ****     g_Settings.strongBrightness = 8;
+ 283              		.loc 1 72 5 is_stmt 1 view .LVU74
+  73:Src/settings.c ****     g_Settings.weakBrightness = 1;
+ 284              		.loc 1 73 5 view .LVU75
+  74:Src/settings.c **** }
+ 285              		.loc 1 74 5 view .LVU76
+  74:Src/settings.c **** }
+ 286              		.loc 1 74 31 is_stmt 0 view .LVU77
+ 287 0022 9A72     		strb	r2, [r3, #10]
+ 288              		.loc 1 75 1 view .LVU78
+ 289 0024 7047     		bx	lr
+ 290              	.L12:
+ 291 0026 C046     		.align	2
+ 292              	.L11:
+ 293 0028 00000000 		.word	g_Settings
+ 294              		.cfi_endproc
+ 295              	.LFE40:
+ 297              		.section	.text.Settings_Validate,"ax",%progbits
+ 298              		.align	1
+ 299              		.global	Settings_Validate
+ 300              		.syntax unified
+ARM GAS  D:\Temp\ccxJDemV.s 			page 8
+
+
+ 301              		.code	16
+ 302              		.thumb_func
+ 304              	Settings_Validate:
+ 305              	.LFB41:
+  76:Src/settings.c **** 
+  77:Src/settings.c **** /**
+  78:Src/settings.c ****  * @brief  验证设置数据是否合法
+  79:Src/settings.c ****  * @retval true-合法，false-非法
+  80:Src/settings.c ****  */
+  81:Src/settings.c **** bool Settings_Validate(void) {
+ 306              		.loc 1 81 30 is_stmt 1 view -0
+ 307              		.cfi_startproc
+ 308              		@ args = 0, pretend = 0, frame = 0
+ 309              		@ frame_needed = 0, uses_anonymous_args = 0
+ 310              		@ link register save eliminated.
+  82:Src/settings.c ****     if (g_Settings.alarmHour > 23 || g_Settings.alarmMin > 59) {
+ 311              		.loc 1 82 5 view .LVU80
+ 312              		.loc 1 82 19 is_stmt 0 view .LVU81
+ 313 0000 0E4B     		ldr	r3, .L21
+  83:Src/settings.c ****         return false;
+ 314              		.loc 1 83 16 view .LVU82
+ 315 0002 0020     		movs	r0, #0
+  82:Src/settings.c ****     if (g_Settings.alarmHour > 23 || g_Settings.alarmMin > 59) {
+ 316              		.loc 1 82 8 view .LVU83
+ 317 0004 5A78     		ldrb	r2, [r3, #1]
+ 318 0006 172A     		cmp	r2, #23
+ 319 0008 16D8     		bhi	.L14
+  82:Src/settings.c ****     if (g_Settings.alarmHour > 23 || g_Settings.alarmMin > 59) {
+ 320              		.loc 1 82 35 discriminator 1 view .LVU84
+ 321 000a 9A78     		ldrb	r2, [r3, #2]
+ 322 000c 3B2A     		cmp	r2, #59
+ 323 000e 13D8     		bhi	.L14
+  84:Src/settings.c ****     }
+  85:Src/settings.c ****     if (g_Settings.ringOnTimeStart > 23 || g_Settings.ringOnTimeStop > 23) {
+ 324              		.loc 1 85 5 is_stmt 1 view .LVU85
+ 325              		.loc 1 85 8 is_stmt 0 view .LVU86
+ 326 0010 9A79     		ldrb	r2, [r3, #6]
+ 327 0012 172A     		cmp	r2, #23
+ 328 0014 10D8     		bhi	.L14
+ 329              		.loc 1 85 41 discriminator 1 view .LVU87
+ 330 0016 DA79     		ldrb	r2, [r3, #7]
+ 331 0018 172A     		cmp	r2, #23
+ 332 001a 0DD8     		bhi	.L14
+ 333              	.LBB4:
+ 334              	.LBI4:
+  81:Src/settings.c ****     if (g_Settings.alarmHour > 23 || g_Settings.alarmMin > 59) {
+ 335              		.loc 1 81 6 is_stmt 1 view .LVU88
+ 336              	.LBB5:
+  86:Src/settings.c ****         return false;
+  87:Src/settings.c ****     }
+  88:Src/settings.c ****     if (g_Settings.savedBrightness > 8 || 
+ 337              		.loc 1 88 5 view .LVU89
+ 338              		.loc 1 88 8 is_stmt 0 view .LVU90
+ 339 001c 1A7A     		ldrb	r2, [r3, #8]
+ 340 001e 082A     		cmp	r2, #8
+ 341 0020 0AD8     		bhi	.L14
+ 342              		.loc 1 88 40 discriminator 1 view .LVU91
+ARM GAS  D:\Temp\ccxJDemV.s 			page 9
+
+
+ 343 0022 5A7A     		ldrb	r2, [r3, #9]
+ 344 0024 013A     		subs	r2, r2, #1
+ 345 0026 072A     		cmp	r2, #7
+ 346 0028 06D8     		bhi	.L14
+  89:Src/settings.c ****         g_Settings.strongBrightness > 8 || g_Settings.strongBrightness == 0 ||
+ 347              		.loc 1 89 77 discriminator 1 view .LVU92
+ 348 002a 0722     		movs	r2, #7
+ 349 002c 9B7A     		ldrb	r3, [r3, #10]
+ 350 002e 013B     		subs	r3, r3, #1
+ 351 0030 DBB2     		uxtb	r3, r3
+ 352 0032 9A42     		cmp	r2, r3
+ 353 0034 4041     		adcs	r0, r0, r0
+ 354 0036 C0B2     		uxtb	r0, r0
+ 355              	.L14:
+ 356              	.LBE5:
+ 357              	.LBE4:
+  90:Src/settings.c ****         g_Settings.weakBrightness > 8 || g_Settings.weakBrightness == 0) {
+  91:Src/settings.c ****         return false;
+  92:Src/settings.c ****     }
+  93:Src/settings.c ****     return true;
+  94:Src/settings.c **** }
+ 358              		.loc 1 94 1 view .LVU93
+ 359              		@ sp needed
+ 360 0038 7047     		bx	lr
+ 361              	.L22:
+ 362 003a C046     		.align	2
+ 363              	.L21:
+ 364 003c 00000000 		.word	g_Settings
+ 365              		.cfi_endproc
+ 366              	.LFE41:
+ 368              		.section	.text.Settings_Init,"ax",%progbits
+ 369              		.align	1
+ 370              		.global	Settings_Init
+ 371              		.syntax unified
+ 372              		.code	16
+ 373              		.thumb_func
+ 375              	Settings_Init:
+ 376              	.LFB42:
+  95:Src/settings.c **** 
+  96:Src/settings.c **** /**
+  97:Src/settings.c ****  * @brief  设置初始化
+  98:Src/settings.c ****  */
+  99:Src/settings.c **** void Settings_Init(void) {
+ 377              		.loc 1 99 26 is_stmt 1 view -0
+ 378              		.cfi_startproc
+ 379              		@ args = 0, pretend = 0, frame = 24
+ 380              		@ frame_needed = 0, uses_anonymous_args = 0
+ 100:Src/settings.c ****     uint8_t backupData[BAK_DATA_SIZE];
+ 381              		.loc 1 100 5 view .LVU95
+ 101:Src/settings.c ****     ReadBackData(BAK_POWER_DOWN_IND_INDEX, backupData, BAK_DATA_SIZE);
+ 382              		.loc 1 101 5 view .LVU96
+  99:Src/settings.c ****     uint8_t backupData[BAK_DATA_SIZE];
+ 383              		.loc 1 99 26 is_stmt 0 view .LVU97
+ 384 0000 7FB5     		push	{r0, r1, r2, r3, r4, r5, r6, lr}
+ 385              	.LCFI2:
+ 386              		.cfi_def_cfa_offset 32
+ 387              		.cfi_offset 0, -32
+ARM GAS  D:\Temp\ccxJDemV.s 			page 10
+
+
+ 388              		.cfi_offset 1, -28
+ 389              		.cfi_offset 2, -24
+ 390              		.cfi_offset 3, -20
+ 391              		.cfi_offset 4, -16
+ 392              		.cfi_offset 5, -12
+ 393              		.cfi_offset 6, -8
+ 394              		.cfi_offset 14, -4
+ 395              		.loc 1 101 5 view .LVU98
+ 396 0002 0D22     		movs	r2, #13
+ 397 0004 0020     		movs	r0, #0
+ 398 0006 02A9     		add	r1, sp, #8
+ 399 0008 FFF7FEFF 		bl	ReadBackData
+ 400              	.LVL2:
+ 102:Src/settings.c **** 
+ 103:Src/settings.c ****     /* 检查是否为首次上电 */
+ 104:Src/settings.c ****     if (backupData[0] != POWER_DOWN_IND_DATA &&
+ 401              		.loc 1 104 5 is_stmt 1 view .LVU99
+ 402              		.loc 1 104 8 is_stmt 0 view .LVU100
+ 403 000c 6B46     		mov	r3, sp
+ 404 000e 1B7A     		ldrb	r3, [r3, #8]
+ 405 0010 FA2B     		cmp	r3, #250
+ 406 0012 10D0     		beq	.L24
+ 407              		.loc 1 104 46 discriminator 1 view .LVU101
+ 408 0014 6B46     		mov	r3, sp
+ 409 0016 5B7A     		ldrb	r3, [r3, #9]
+ 410 0018 FA2B     		cmp	r3, #250
+ 411 001a 0CD0     		beq	.L24
+ 412              	.LBB6:
+ 105:Src/settings.c ****         backupData[1] != POWER_DOWN_IND_DATA) {
+ 106:Src/settings.c ****         /* 首次上电，重置设置并初始化 RTC 时间 */
+ 107:Src/settings.c ****         DateTime time = {0};
+ 413              		.loc 1 107 9 is_stmt 1 view .LVU102
+ 108:Src/settings.c ****         time.year = 15;
+ 414              		.loc 1 108 9 view .LVU103
+ 109:Src/settings.c ****         time.month = 1;
+ 415              		.loc 1 109 9 view .LVU104
+ 110:Src/settings.c ****         time.dayOfMonth = 1;
+ 416              		.loc 1 110 9 view .LVU105
+ 111:Src/settings.c ****         time.dayOfWeek = 1;
+ 417              		.loc 1 111 9 view .LVU106
+ 112:Src/settings.c ****         time.hours = 0;
+ 418              		.loc 1 112 9 view .LVU107
+ 113:Src/settings.c ****         time.minutes = 0;
+ 419              		.loc 1 113 9 view .LVU108
+ 114:Src/settings.c ****         time.ampm = HOUR24;
+ 420              		.loc 1 114 9 view .LVU109
+ 107:Src/settings.c ****         time.year = 15;
+ 421              		.loc 1 107 18 is_stmt 0 view .LVU110
+ 422 001c 8023     		movs	r3, #128
+ 423 001e 9B02     		lsls	r3, r3, #10
+ 424 0020 0093     		str	r3, [sp]
+ 111:Src/settings.c ****         time.hours = 0;
+ 425              		.loc 1 111 24 view .LVU111
+ 426 0022 094B     		ldr	r3, .L33
+ 115:Src/settings.c ****         time.seconds = 0;
+ 116:Src/settings.c ****         SetTime(&time);
+ 427              		.loc 1 116 9 view .LVU112
+ARM GAS  D:\Temp\ccxJDemV.s 			page 11
+
+
+ 428 0024 6846     		mov	r0, sp
+ 111:Src/settings.c ****         time.hours = 0;
+ 429              		.loc 1 111 24 view .LVU113
+ 430 0026 0193     		str	r3, [sp, #4]
+ 115:Src/settings.c ****         time.seconds = 0;
+ 431              		.loc 1 115 9 is_stmt 1 view .LVU114
+ 432              		.loc 1 116 9 view .LVU115
+ 433 0028 FFF7FEFF 		bl	SetTime
+ 434              	.LVL3:
+ 117:Src/settings.c **** 
+ 118:Src/settings.c ****         Settings_ResetToDefault();
+ 435              		.loc 1 118 9 view .LVU116
+ 436              	.L32:
+ 437              	.LBE6:
+ 119:Src/settings.c ****         Settings_Save();
+ 120:Src/settings.c ****     } else {
+ 121:Src/settings.c ****         Settings_ReadBackup();
+ 122:Src/settings.c **** 
+ 123:Src/settings.c ****         /* 验证数据合法性 */
+ 124:Src/settings.c ****         if (!Settings_Validate()) {
+ 125:Src/settings.c ****             Settings_ResetToDefault();
+ 438              		.loc 1 125 13 view .LVU117
+ 439 002c FFF7FEFF 		bl	Settings_ResetToDefault
+ 440              	.LVL4:
+ 126:Src/settings.c ****             Settings_Save();
+ 441              		.loc 1 126 13 view .LVU118
+ 442 0030 FFF7FEFF 		bl	Settings_Save
+ 443              	.LVL5:
+ 127:Src/settings.c ****         }
+ 128:Src/settings.c ****     }
+ 129:Src/settings.c **** }
+ 444              		.loc 1 129 1 is_stmt 0 view .LVU119
+ 445 0034 05E0     		b	.L23
+ 446              	.L24:
+ 121:Src/settings.c **** 
+ 447              		.loc 1 121 9 is_stmt 1 view .LVU120
+ 448 0036 FFF7FEFF 		bl	Settings_ReadBackup
+ 449              	.LVL6:
+ 124:Src/settings.c ****             Settings_ResetToDefault();
+ 450              		.loc 1 124 9 view .LVU121
+ 124:Src/settings.c ****             Settings_ResetToDefault();
+ 451              		.loc 1 124 14 is_stmt 0 view .LVU122
+ 452 003a FFF7FEFF 		bl	Settings_Validate
+ 453              	.LVL7:
+ 124:Src/settings.c ****             Settings_ResetToDefault();
+ 454              		.loc 1 124 12 discriminator 1 view .LVU123
+ 455 003e 0028     		cmp	r0, #0
+ 456 0040 F4D0     		beq	.L32
+ 457              	.L23:
+ 458              		.loc 1 129 1 view .LVU124
+ 459 0042 07B0     		add	sp, sp, #28
+ 460              		@ sp needed
+ 461 0044 00BD     		pop	{pc}
+ 462              	.L34:
+ 463 0046 C046     		.align	2
+ 464              	.L33:
+ 465 0048 0101010F 		.word	251724033
+ARM GAS  D:\Temp\ccxJDemV.s 			page 12
+
+
+ 466              		.cfi_endproc
+ 467              	.LFE42:
+ 469              		.section	.bss.g_Settings,"aw",%nobits
+ 472              	g_Settings:
+ 473 0000 00000000 		.space	11
+ 473      00000000 
+ 473      000000
+ 474              		.text
+ 475              	.Letext0:
+ 476              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 477              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 478              		.file 4 "Lib/SD3077.h"
+ 479              		.file 5 "Inc/settings.h"
+ARM GAS  D:\Temp\ccxJDemV.s 			page 13
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 settings.c
+  D:\Temp\ccxJDemV.s:19     .text.Settings_Get:00000000 $t
+  D:\Temp\ccxJDemV.s:25     .text.Settings_Get:00000000 Settings_Get
+  D:\Temp\ccxJDemV.s:41     .text.Settings_Get:00000004 $d
+  D:\Temp\ccxJDemV.s:472    .bss.g_Settings:00000000 g_Settings
+  D:\Temp\ccxJDemV.s:46     .text.Settings_ReadBackup:00000000 $t
+  D:\Temp\ccxJDemV.s:52     .text.Settings_ReadBackup:00000000 Settings_ReadBackup
+  D:\Temp\ccxJDemV.s:147    .text.Settings_ReadBackup:0000005c $d
+  D:\Temp\ccxJDemV.s:152    .text.Settings_Save:00000000 $t
+  D:\Temp\ccxJDemV.s:158    .text.Settings_Save:00000000 Settings_Save
+  D:\Temp\ccxJDemV.s:221    .text.Settings_Save:00000044 $d
+  D:\Temp\ccxJDemV.s:227    .text.Settings_ResetToDefault:00000000 $t
+  D:\Temp\ccxJDemV.s:233    .text.Settings_ResetToDefault:00000000 Settings_ResetToDefault
+  D:\Temp\ccxJDemV.s:293    .text.Settings_ResetToDefault:00000028 $d
+  D:\Temp\ccxJDemV.s:298    .text.Settings_Validate:00000000 $t
+  D:\Temp\ccxJDemV.s:304    .text.Settings_Validate:00000000 Settings_Validate
+  D:\Temp\ccxJDemV.s:364    .text.Settings_Validate:0000003c $d
+  D:\Temp\ccxJDemV.s:369    .text.Settings_Init:00000000 $t
+  D:\Temp\ccxJDemV.s:375    .text.Settings_Init:00000000 Settings_Init
+  D:\Temp\ccxJDemV.s:465    .text.Settings_Init:00000048 $d
+  D:\Temp\ccxJDemV.s:473    .bss.g_Settings:00000000 $d
+
+UNDEFINED SYMBOLS
+ReadBackData
+WriteBackData
+SetTime

@@ -1,0 +1,560 @@
+ARM GAS  D:\Temp\cci5YUea.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.arch armv6s-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"temperature.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Src/temperature.c"
+  18              		.section	.text.Temperature_Init,"ax",%progbits
+  19              		.align	1
+  20              		.global	Temperature_Init
+  21              		.syntax unified
+  22              		.code	16
+  23              		.thumb_func
+  25              	Temperature_Init:
+  26              	.LFB37:
+   1:Src/temperature.c **** /*
+   2:Src/temperature.c ****  * @file           : temperature.c
+   3:Src/temperature.c ****  * @brief          : 温度检测模块源文件
+   4:Src/temperature.c ****  *                   NTC 温度传感器 ADC 值转换为温度
+   5:Src/temperature.c ****  */
+   6:Src/temperature.c **** #include "temperature.h"
+   7:Src/temperature.c **** 
+   8:Src/temperature.c **** /* 温度映射表：ADC 值到温度值 (0-125℃) */
+   9:Src/temperature.c **** static const uint16_t tempertureMap[] = {
+  10:Src/temperature.c ****     1054, 1091, 1128, 1165, 1203, 1242, 1280, 1320, 1359, 1399, 1439, 1479,
+  11:Src/temperature.c ****     1520, 1560, 1601, 1642, 1683, 1724, 1765, 1805, 1846, 1887, 1927, 1968,
+  12:Src/temperature.c ****     2008, 2048, 2087, 2126, 2165, 2204, 2242, 2280, 2318, 2355, 2391, 2427,
+  13:Src/temperature.c ****     2463, 2498, 2533, 2567, 2601, 2634, 2667, 2699, 2730, 2761, 2791, 2821,
+  14:Src/temperature.c ****     2850, 2879, 2907, 2935, 2962, 2988, 3014, 3040, 3064, 3089, 3113, 3136,
+  15:Src/temperature.c ****     3158, 3181, 3202, 3224, 3244, 3264, 3284, 3303, 3322, 3341, 3359, 3376,
+  16:Src/temperature.c ****     3393, 3410, 3426, 3442, 3457, 3472, 3487, 3501, 3515, 3529, 3542, 3555,
+  17:Src/temperature.c ****     3568, 3580, 3592, 3603, 3615, 3626, 3637, 3647, 3657, 3667, 3677, 3687,
+  18:Src/temperature.c ****     3696, 3705, 3714, 3722, 3730, 3739, 3747, 3754, 3762, 3769, 3776, 3783,
+  19:Src/temperature.c ****     3790, 3797, 3803, 3809, 3815, 3821, 3827, 3833, 3839, 3844, 3849, 3854,
+  20:Src/temperature.c ****     3859, 3864, 3869, 3874, 3878, 3883,
+  21:Src/temperature.c **** };
+  22:Src/temperature.c **** 
+  23:Src/temperature.c **** /* 温度缓存 */
+  24:Src/temperature.c **** static uint16_t tempBuffer[TEMP_BUFFER_SIZE + 1];
+  25:Src/temperature.c **** static uint8_t tempBuffered = 0;
+  26:Src/temperature.c **** static uint8_t currentTemp = 25;
+  27:Src/temperature.c **** 
+  28:Src/temperature.c **** /**
+  29:Src/temperature.c ****  * @brief  温度模块初始化
+  30:Src/temperature.c ****  */
+  31:Src/temperature.c **** void Temperature_Init(void) {
+  27              		.loc 1 31 29 view -0
+ARM GAS  D:\Temp\cci5YUea.s 			page 2
+
+
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  32:Src/temperature.c ****     tempBuffered = 0;
+  31              		.loc 1 32 5 view .LVU1
+  32              		.loc 1 32 18 is_stmt 0 view .LVU2
+  33 0000 0021     		movs	r1, #0
+  33:Src/temperature.c ****     currentTemp = 25;
+  34              		.loc 1 33 17 view .LVU3
+  35 0002 1922     		movs	r2, #25
+  31:Src/temperature.c ****     tempBuffered = 0;
+  36              		.loc 1 31 29 view .LVU4
+  37 0004 10B5     		push	{r4, lr}
+  38              	.LCFI0:
+  39              		.cfi_def_cfa_offset 8
+  40              		.cfi_offset 4, -8
+  41              		.cfi_offset 14, -4
+  32:Src/temperature.c ****     tempBuffered = 0;
+  42              		.loc 1 32 18 view .LVU5
+  43 0006 044B     		ldr	r3, .L2
+  44              	.LBB2:
+  34:Src/temperature.c ****     for (uint8_t i = 0; i <= TEMP_BUFFER_SIZE; i++) {
+  35:Src/temperature.c ****         tempBuffer[i] = 0;
+  45              		.loc 1 35 23 view .LVU6
+  46 0008 0448     		ldr	r0, .L2+4
+  47              	.LBE2:
+  32:Src/temperature.c ****     currentTemp = 25;
+  48              		.loc 1 32 18 view .LVU7
+  49 000a 1970     		strb	r1, [r3]
+  33:Src/temperature.c ****     for (uint8_t i = 0; i <= TEMP_BUFFER_SIZE; i++) {
+  50              		.loc 1 33 5 is_stmt 1 view .LVU8
+  33:Src/temperature.c ****     for (uint8_t i = 0; i <= TEMP_BUFFER_SIZE; i++) {
+  51              		.loc 1 33 17 is_stmt 0 view .LVU9
+  52 000c 044B     		ldr	r3, .L2+8
+  36:Src/temperature.c ****     }
+  37:Src/temperature.c **** }
+  53              		.loc 1 37 1 view .LVU10
+  54              		@ sp needed
+  33:Src/temperature.c ****     for (uint8_t i = 0; i <= TEMP_BUFFER_SIZE; i++) {
+  55              		.loc 1 33 17 view .LVU11
+  56 000e 1A70     		strb	r2, [r3]
+  34:Src/temperature.c ****         tempBuffer[i] = 0;
+  57              		.loc 1 34 5 is_stmt 1 view .LVU12
+  58              	.LBB3:
+  34:Src/temperature.c ****         tempBuffer[i] = 0;
+  59              		.loc 1 34 10 view .LVU13
+  60              	.LVL0:
+  34:Src/temperature.c ****         tempBuffer[i] = 0;
+  61              		.loc 1 34 27 discriminator 1 view .LVU14
+  35:Src/temperature.c ****     }
+  62              		.loc 1 35 23 is_stmt 0 view .LVU15
+  63 0010 073A     		subs	r2, r2, #7
+  64 0012 FFF7FEFF 		bl	memset
+  65              	.LVL1:
+  35:Src/temperature.c ****     }
+  66              		.loc 1 35 23 view .LVU16
+  67              	.LBE3:
+ARM GAS  D:\Temp\cci5YUea.s 			page 3
+
+
+  68              		.loc 1 37 1 view .LVU17
+  69 0016 10BD     		pop	{r4, pc}
+  70              	.L3:
+  71              		.align	2
+  72              	.L2:
+  73 0018 00000000 		.word	tempBuffered
+  74 001c 00000000 		.word	tempBuffer
+  75 0020 00000000 		.word	currentTemp
+  76              		.cfi_endproc
+  77              	.LFE37:
+  79              		.section	.text.Temperature_Update,"ax",%progbits
+  80              		.align	1
+  81              		.global	Temperature_Update
+  82              		.syntax unified
+  83              		.code	16
+  84              		.thumb_func
+  86              	Temperature_Update:
+  87              	.LVL2:
+  88              	.LFB38:
+  38:Src/temperature.c **** 
+  39:Src/temperature.c **** /**
+  40:Src/temperature.c ****  * @brief  更新温度值（基于 ADC 采样值）
+  41:Src/temperature.c ****  * @param  adcValue: ADC 采样值
+  42:Src/temperature.c ****  */
+  43:Src/temperature.c **** void Temperature_Update(uint32_t adcValue) {
+  89              		.loc 1 43 44 is_stmt 1 view -0
+  90              		.cfi_startproc
+  91              		@ args = 0, pretend = 0, frame = 0
+  92              		@ frame_needed = 0, uses_anonymous_args = 0
+  44:Src/temperature.c ****     uint32_t avgValue;
+  93              		.loc 1 44 5 view .LVU19
+  45:Src/temperature.c **** 
+  46:Src/temperature.c ****     if (tempBuffered < TEMP_BUFFER_SIZE) {
+  94              		.loc 1 46 5 view .LVU20
+  43:Src/temperature.c ****     uint32_t avgValue;
+  95              		.loc 1 43 44 is_stmt 0 view .LVU21
+  96 0000 30B5     		push	{r4, r5, lr}
+  97              	.LCFI1:
+  98              		.cfi_def_cfa_offset 12
+  99              		.cfi_offset 4, -12
+ 100              		.cfi_offset 5, -8
+ 101              		.cfi_offset 14, -4
+ 102              		.loc 1 46 22 view .LVU22
+ 103 0002 124C     		ldr	r4, .L12
+ 104 0004 124B     		ldr	r3, .L12+4
+ 105 0006 2278     		ldrb	r2, [r4]
+  47:Src/temperature.c ****         tempBuffer[tempBuffered++] = (uint16_t)adcValue;
+ 106              		.loc 1 47 38 view .LVU23
+ 107 0008 81B2     		uxth	r1, r0
+  46:Src/temperature.c ****         tempBuffer[tempBuffered++] = (uint16_t)adcValue;
+ 108              		.loc 1 46 8 view .LVU24
+ 109 000a 072A     		cmp	r2, #7
+ 110 000c 11D8     		bhi	.L5
+ 111              		.loc 1 47 9 is_stmt 1 view .LVU25
+ 112              		.loc 1 47 32 is_stmt 0 view .LVU26
+ 113 000e 551C     		adds	r5, r2, #1
+ 114              		.loc 1 47 36 view .LVU27
+ARM GAS  D:\Temp\cci5YUea.s 			page 4
+
+
+ 115 0010 5200     		lsls	r2, r2, #1
+ 116              		.loc 1 47 32 view .LVU28
+ 117 0012 2570     		strb	r5, [r4]
+ 118              		.loc 1 47 36 view .LVU29
+ 119 0014 9952     		strh	r1, [r3, r2]
+  48:Src/temperature.c ****         avgValue = adcValue;
+ 120              		.loc 1 48 9 is_stmt 1 view .LVU30
+ 121              	.LVL3:
+ 122              	.L6:
+  49:Src/temperature.c ****     } else {
+  50:Src/temperature.c ****         tempBuffer[TEMP_BUFFER_SIZE] = (uint16_t)adcValue;
+  51:Src/temperature.c ****         avgValue = 0;
+  52:Src/temperature.c ****         /* 滑动窗口平均滤波 */
+  53:Src/temperature.c ****         for (uint8_t i = 0; i < TEMP_BUFFER_SIZE; i++) {
+  54:Src/temperature.c ****             tempBuffer[i] = tempBuffer[i + 1];
+  55:Src/temperature.c ****             avgValue += tempBuffer[i];
+  56:Src/temperature.c ****         }
+  57:Src/temperature.c ****         avgValue = avgValue / TEMP_BUFFER_SIZE;
+  58:Src/temperature.c ****     }
+  59:Src/temperature.c **** 
+  60:Src/temperature.c ****     /* 查表法获取温度值 */
+  61:Src/temperature.c ****     for (uint8_t i = 0; i < TEMP_MAP_SIZE; i++) {
+ 123              		.loc 1 61 5 view .LVU31
+ 124              	.LBB4:
+ 125              		.loc 1 61 10 view .LVU32
+ 126              		.loc 1 61 27 discriminator 1 view .LVU33
+ 127              		.loc 1 61 18 is_stmt 0 view .LVU34
+ 128 0016 0023     		movs	r3, #0
+ 129 0018 0E4A     		ldr	r2, .L12+8
+ 130              	.LVL4:
+ 131              	.L9:
+  62:Src/temperature.c ****         if (avgValue <= tempertureMap[i]) {
+ 132              		.loc 1 62 9 is_stmt 1 view .LVU35
+ 133              		.loc 1 62 38 is_stmt 0 view .LVU36
+ 134 001a 1188     		ldrh	r1, [r2]
+ 135              		.loc 1 62 12 view .LVU37
+ 136 001c 8142     		cmp	r1, r0
+ 137 001e 05D2     		bcs	.L8
+  61:Src/temperature.c ****         if (avgValue <= tempertureMap[i]) {
+ 138              		.loc 1 61 45 is_stmt 1 discriminator 2 view .LVU38
+ 139 0020 0133     		adds	r3, r3, #1
+ 140              	.LVL5:
+  61:Src/temperature.c ****         if (avgValue <= tempertureMap[i]) {
+ 141              		.loc 1 61 45 is_stmt 0 discriminator 2 view .LVU39
+ 142 0022 DBB2     		uxtb	r3, r3
+ 143              	.LVL6:
+  61:Src/temperature.c ****         if (avgValue <= tempertureMap[i]) {
+ 144              		.loc 1 61 27 is_stmt 1 discriminator 1 view .LVU40
+ 145 0024 0232     		adds	r2, r2, #2
+ 146 0026 7E2B     		cmp	r3, #126
+ 147 0028 F7D1     		bne	.L9
+ 148 002a 0023     		movs	r3, #0
+ 149              	.LVL7:
+ 150              	.L8:
+  61:Src/temperature.c ****         if (avgValue <= tempertureMap[i]) {
+ 151              		.loc 1 61 27 is_stmt 0 discriminator 1 view .LVU41
+ 152              	.LBE4:
+ARM GAS  D:\Temp\cci5YUea.s 			page 5
+
+
+  63:Src/temperature.c ****             currentTemp = i;
+  64:Src/temperature.c ****             return;
+  65:Src/temperature.c ****         }
+  66:Src/temperature.c ****     }
+  67:Src/temperature.c ****     currentTemp = 0;
+  68:Src/temperature.c **** }
+ 153              		.loc 1 68 1 view .LVU42
+ 154              		@ sp needed
+ 155              	.LBB5:
+  63:Src/temperature.c ****             currentTemp = i;
+ 156              		.loc 1 63 25 view .LVU43
+ 157 002c 0A4A     		ldr	r2, .L12+12
+ 158 002e 1370     		strb	r3, [r2]
+ 159              	.LBE5:
+ 160              		.loc 1 68 1 view .LVU44
+ 161 0030 30BD     		pop	{r4, r5, pc}
+ 162              	.LVL8:
+ 163              	.L5:
+  50:Src/temperature.c ****         avgValue = 0;
+ 164              		.loc 1 50 9 is_stmt 1 view .LVU45
+  50:Src/temperature.c ****         avgValue = 0;
+ 165              		.loc 1 50 38 is_stmt 0 view .LVU46
+ 166 0032 0822     		movs	r2, #8
+  51:Src/temperature.c ****         /* 滑动窗口平均滤波 */
+ 167              		.loc 1 51 18 view .LVU47
+ 168 0034 0020     		movs	r0, #0
+ 169              	.LVL9:
+  50:Src/temperature.c ****         avgValue = 0;
+ 170              		.loc 1 50 38 view .LVU48
+ 171 0036 1982     		strh	r1, [r3, #16]
+  51:Src/temperature.c ****         /* 滑动窗口平均滤波 */
+ 172              		.loc 1 51 9 is_stmt 1 view .LVU49
+ 173              	.LVL10:
+  53:Src/temperature.c ****             tempBuffer[i] = tempBuffer[i + 1];
+ 174              		.loc 1 53 9 view .LVU50
+ 175              	.LBB6:
+  53:Src/temperature.c ****             tempBuffer[i] = tempBuffer[i + 1];
+ 176              		.loc 1 53 14 view .LVU51
+  53:Src/temperature.c ****             tempBuffer[i] = tempBuffer[i + 1];
+ 177              		.loc 1 53 31 discriminator 1 view .LVU52
+ 178              	.L7:
+  54:Src/temperature.c ****             avgValue += tempBuffer[i];
+ 179              		.loc 1 54 13 view .LVU53
+  54:Src/temperature.c ****             avgValue += tempBuffer[i];
+ 180              		.loc 1 54 39 is_stmt 0 view .LVU54
+ 181 0038 5988     		ldrh	r1, [r3, #2]
+  53:Src/temperature.c ****             tempBuffer[i] = tempBuffer[i + 1];
+ 182              		.loc 1 53 31 discriminator 1 view .LVU55
+ 183 003a 013A     		subs	r2, r2, #1
+ 184              	.LVL11:
+  53:Src/temperature.c ****             tempBuffer[i] = tempBuffer[i + 1];
+ 185              		.loc 1 53 31 discriminator 1 view .LVU56
+ 186 003c D2B2     		uxtb	r2, r2
+ 187              	.LVL12:
+  54:Src/temperature.c ****             avgValue += tempBuffer[i];
+ 188              		.loc 1 54 27 view .LVU57
+ 189 003e 1980     		strh	r1, [r3]
+ARM GAS  D:\Temp\cci5YUea.s 			page 6
+
+
+  55:Src/temperature.c ****         }
+ 190              		.loc 1 55 13 is_stmt 1 view .LVU58
+  55:Src/temperature.c ****         }
+ 191              		.loc 1 55 22 is_stmt 0 view .LVU59
+ 192 0040 4018     		adds	r0, r0, r1
+ 193              	.LVL13:
+  53:Src/temperature.c ****             tempBuffer[i] = tempBuffer[i + 1];
+ 194              		.loc 1 53 52 is_stmt 1 discriminator 3 view .LVU60
+  53:Src/temperature.c ****             tempBuffer[i] = tempBuffer[i + 1];
+ 195              		.loc 1 53 31 discriminator 1 view .LVU61
+ 196 0042 0233     		adds	r3, r3, #2
+ 197 0044 002A     		cmp	r2, #0
+ 198 0046 F7D1     		bne	.L7
+ 199              	.LBE6:
+  57:Src/temperature.c ****     }
+ 200              		.loc 1 57 9 view .LVU62
+  57:Src/temperature.c ****     }
+ 201              		.loc 1 57 18 is_stmt 0 view .LVU63
+ 202 0048 C008     		lsrs	r0, r0, #3
+ 203              	.LVL14:
+  57:Src/temperature.c ****     }
+ 204              		.loc 1 57 18 view .LVU64
+ 205 004a E4E7     		b	.L6
+ 206              	.L13:
+ 207              		.align	2
+ 208              	.L12:
+ 209 004c 00000000 		.word	tempBuffered
+ 210 0050 00000000 		.word	tempBuffer
+ 211 0054 00000000 		.word	tempertureMap
+ 212 0058 00000000 		.word	currentTemp
+ 213              		.cfi_endproc
+ 214              	.LFE38:
+ 216              		.section	.text.Temperature_Get,"ax",%progbits
+ 217              		.align	1
+ 218              		.global	Temperature_Get
+ 219              		.syntax unified
+ 220              		.code	16
+ 221              		.thumb_func
+ 223              	Temperature_Get:
+ 224              	.LFB39:
+  69:Src/temperature.c **** 
+  70:Src/temperature.c **** /**
+  71:Src/temperature.c ****  * @brief  获取当前温度值
+  72:Src/temperature.c ****  * @retval 温度值 (0-99℃)
+  73:Src/temperature.c ****  */
+  74:Src/temperature.c **** uint8_t Temperature_Get(void) {
+ 225              		.loc 1 74 31 is_stmt 1 view -0
+ 226              		.cfi_startproc
+ 227              		@ args = 0, pretend = 0, frame = 0
+ 228              		@ frame_needed = 0, uses_anonymous_args = 0
+ 229              		@ link register save eliminated.
+  75:Src/temperature.c ****     if (currentTemp > 99) {
+ 230              		.loc 1 75 5 view .LVU66
+ 231              		.loc 1 75 21 is_stmt 0 view .LVU67
+ 232 0000 034B     		ldr	r3, .L16
+ 233              		.loc 1 75 8 view .LVU68
+ 234 0002 1B78     		ldrb	r3, [r3]
+ARM GAS  D:\Temp\cci5YUea.s 			page 7
+
+
+ 235 0004 181C     		adds	r0, r3, #0
+ 236 0006 632B     		cmp	r3, #99
+ 237 0008 00D9     		bls	.L15
+ 238 000a 6320     		movs	r0, #99
+ 239              	.L15:
+  76:Src/temperature.c ****         return 99;
+  77:Src/temperature.c ****     }
+  78:Src/temperature.c ****     return currentTemp;
+  79:Src/temperature.c **** }
+ 240              		.loc 1 79 1 view .LVU69
+ 241              		@ sp needed
+ 242 000c C0B2     		uxtb	r0, r0
+ 243 000e 7047     		bx	lr
+ 244              	.L17:
+ 245              		.align	2
+ 246              	.L16:
+ 247 0010 00000000 		.word	currentTemp
+ 248              		.cfi_endproc
+ 249              	.LFE39:
+ 251              		.section	.data.currentTemp,"aw"
+ 254              	currentTemp:
+ 255 0000 19       		.byte	25
+ 256              		.section	.bss.tempBuffered,"aw",%nobits
+ 259              	tempBuffered:
+ 260 0000 00       		.space	1
+ 261              		.section	.bss.tempBuffer,"aw",%nobits
+ 262              		.align	1
+ 265              	tempBuffer:
+ 266 0000 00000000 		.space	18
+ 266      00000000 
+ 266      00000000 
+ 266      00000000 
+ 266      0000
+ 267              		.section	.rodata.tempertureMap,"a"
+ 268              		.align	1
+ 271              	tempertureMap:
+ 272 0000 1E04     		.short	1054
+ 273 0002 4304     		.short	1091
+ 274 0004 6804     		.short	1128
+ 275 0006 8D04     		.short	1165
+ 276 0008 B304     		.short	1203
+ 277 000a DA04     		.short	1242
+ 278 000c 0005     		.short	1280
+ 279 000e 2805     		.short	1320
+ 280 0010 4F05     		.short	1359
+ 281 0012 7705     		.short	1399
+ 282 0014 9F05     		.short	1439
+ 283 0016 C705     		.short	1479
+ 284 0018 F005     		.short	1520
+ 285 001a 1806     		.short	1560
+ 286 001c 4106     		.short	1601
+ 287 001e 6A06     		.short	1642
+ 288 0020 9306     		.short	1683
+ 289 0022 BC06     		.short	1724
+ 290 0024 E506     		.short	1765
+ 291 0026 0D07     		.short	1805
+ 292 0028 3607     		.short	1846
+ARM GAS  D:\Temp\cci5YUea.s 			page 8
+
+
+ 293 002a 5F07     		.short	1887
+ 294 002c 8707     		.short	1927
+ 295 002e B007     		.short	1968
+ 296 0030 D807     		.short	2008
+ 297 0032 0008     		.short	2048
+ 298 0034 2708     		.short	2087
+ 299 0036 4E08     		.short	2126
+ 300 0038 7508     		.short	2165
+ 301 003a 9C08     		.short	2204
+ 302 003c C208     		.short	2242
+ 303 003e E808     		.short	2280
+ 304 0040 0E09     		.short	2318
+ 305 0042 3309     		.short	2355
+ 306 0044 5709     		.short	2391
+ 307 0046 7B09     		.short	2427
+ 308 0048 9F09     		.short	2463
+ 309 004a C209     		.short	2498
+ 310 004c E509     		.short	2533
+ 311 004e 070A     		.short	2567
+ 312 0050 290A     		.short	2601
+ 313 0052 4A0A     		.short	2634
+ 314 0054 6B0A     		.short	2667
+ 315 0056 8B0A     		.short	2699
+ 316 0058 AA0A     		.short	2730
+ 317 005a C90A     		.short	2761
+ 318 005c E70A     		.short	2791
+ 319 005e 050B     		.short	2821
+ 320 0060 220B     		.short	2850
+ 321 0062 3F0B     		.short	2879
+ 322 0064 5B0B     		.short	2907
+ 323 0066 770B     		.short	2935
+ 324 0068 920B     		.short	2962
+ 325 006a AC0B     		.short	2988
+ 326 006c C60B     		.short	3014
+ 327 006e E00B     		.short	3040
+ 328 0070 F80B     		.short	3064
+ 329 0072 110C     		.short	3089
+ 330 0074 290C     		.short	3113
+ 331 0076 400C     		.short	3136
+ 332 0078 560C     		.short	3158
+ 333 007a 6D0C     		.short	3181
+ 334 007c 820C     		.short	3202
+ 335 007e 980C     		.short	3224
+ 336 0080 AC0C     		.short	3244
+ 337 0082 C00C     		.short	3264
+ 338 0084 D40C     		.short	3284
+ 339 0086 E70C     		.short	3303
+ 340 0088 FA0C     		.short	3322
+ 341 008a 0D0D     		.short	3341
+ 342 008c 1F0D     		.short	3359
+ 343 008e 300D     		.short	3376
+ 344 0090 410D     		.short	3393
+ 345 0092 520D     		.short	3410
+ 346 0094 620D     		.short	3426
+ 347 0096 720D     		.short	3442
+ 348 0098 810D     		.short	3457
+ 349 009a 900D     		.short	3472
+ARM GAS  D:\Temp\cci5YUea.s 			page 9
+
+
+ 350 009c 9F0D     		.short	3487
+ 351 009e AD0D     		.short	3501
+ 352 00a0 BB0D     		.short	3515
+ 353 00a2 C90D     		.short	3529
+ 354 00a4 D60D     		.short	3542
+ 355 00a6 E30D     		.short	3555
+ 356 00a8 F00D     		.short	3568
+ 357 00aa FC0D     		.short	3580
+ 358 00ac 080E     		.short	3592
+ 359 00ae 130E     		.short	3603
+ 360 00b0 1F0E     		.short	3615
+ 361 00b2 2A0E     		.short	3626
+ 362 00b4 350E     		.short	3637
+ 363 00b6 3F0E     		.short	3647
+ 364 00b8 490E     		.short	3657
+ 365 00ba 530E     		.short	3667
+ 366 00bc 5D0E     		.short	3677
+ 367 00be 670E     		.short	3687
+ 368 00c0 700E     		.short	3696
+ 369 00c2 790E     		.short	3705
+ 370 00c4 820E     		.short	3714
+ 371 00c6 8A0E     		.short	3722
+ 372 00c8 920E     		.short	3730
+ 373 00ca 9B0E     		.short	3739
+ 374 00cc A30E     		.short	3747
+ 375 00ce AA0E     		.short	3754
+ 376 00d0 B20E     		.short	3762
+ 377 00d2 B90E     		.short	3769
+ 378 00d4 C00E     		.short	3776
+ 379 00d6 C70E     		.short	3783
+ 380 00d8 CE0E     		.short	3790
+ 381 00da D50E     		.short	3797
+ 382 00dc DB0E     		.short	3803
+ 383 00de E10E     		.short	3809
+ 384 00e0 E70E     		.short	3815
+ 385 00e2 ED0E     		.short	3821
+ 386 00e4 F30E     		.short	3827
+ 387 00e6 F90E     		.short	3833
+ 388 00e8 FF0E     		.short	3839
+ 389 00ea 040F     		.short	3844
+ 390 00ec 090F     		.short	3849
+ 391 00ee 0E0F     		.short	3854
+ 392 00f0 130F     		.short	3859
+ 393 00f2 180F     		.short	3864
+ 394 00f4 1D0F     		.short	3869
+ 395 00f6 220F     		.short	3874
+ 396 00f8 260F     		.short	3878
+ 397 00fa 2B0F     		.short	3883
+ 398              		.text
+ 399              	.Letext0:
+ 400              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 401              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 402              		.file 4 "<built-in>"
+ARM GAS  D:\Temp\cci5YUea.s 			page 10
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 temperature.c
+  D:\Temp\cci5YUea.s:19     .text.Temperature_Init:00000000 $t
+  D:\Temp\cci5YUea.s:25     .text.Temperature_Init:00000000 Temperature_Init
+  D:\Temp\cci5YUea.s:73     .text.Temperature_Init:00000018 $d
+  D:\Temp\cci5YUea.s:259    .bss.tempBuffered:00000000 tempBuffered
+  D:\Temp\cci5YUea.s:265    .bss.tempBuffer:00000000 tempBuffer
+  D:\Temp\cci5YUea.s:254    .data.currentTemp:00000000 currentTemp
+  D:\Temp\cci5YUea.s:80     .text.Temperature_Update:00000000 $t
+  D:\Temp\cci5YUea.s:86     .text.Temperature_Update:00000000 Temperature_Update
+  D:\Temp\cci5YUea.s:209    .text.Temperature_Update:0000004c $d
+  D:\Temp\cci5YUea.s:271    .rodata.tempertureMap:00000000 tempertureMap
+  D:\Temp\cci5YUea.s:217    .text.Temperature_Get:00000000 $t
+  D:\Temp\cci5YUea.s:223    .text.Temperature_Get:00000000 Temperature_Get
+  D:\Temp\cci5YUea.s:247    .text.Temperature_Get:00000010 $d
+  D:\Temp\cci5YUea.s:260    .bss.tempBuffered:00000000 $d
+  D:\Temp\cci5YUea.s:262    .bss.tempBuffer:00000000 $d
+  D:\Temp\cci5YUea.s:268    .rodata.tempertureMap:00000000 $d
+
+UNDEFINED SYMBOLS
+memset

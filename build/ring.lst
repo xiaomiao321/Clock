@@ -1,0 +1,934 @@
+ARM GAS  D:\Temp\ccgotjUv.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.arch armv6s-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"ring.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Src/ring.c"
+  18              		.section	.text.IsInTimeRange,"ax",%progbits
+  19              		.align	1
+  20              		.syntax unified
+  21              		.code	16
+  22              		.thumb_func
+  24              	IsInTimeRange:
+  25              	.LVL0:
+  26              	.LFB39:
+   1:Src/ring.c    **** /*
+   2:Src/ring.c    ****  * @file           : ring.c
+   3:Src/ring.c    ****  * @brief          : 整点报时模块源文件
+   4:Src/ring.c    ****  * @note           新逻辑：从每小时的 59 分 55 秒开始，每秒响一次短音（100ms�
+   5:Src/ring.c    ****  *                   一直到下个小时 00 分 00 秒，共 6 次
+   6:Src/ring.c    ****  *                   最后一次（00:00）响长音（1000ms）
+   7:Src/ring.c    ****  */
+   8:Src/ring.c    **** #include "ring.h"
+   9:Src/ring.c    **** #include "gpio.h"
+  10:Src/ring.c    **** #include "alarm.h"
+  11:Src/ring.c    **** 
+  12:Src/ring.c    **** /* 蜂鸣器 GPIO 定义 */
+  13:Src/ring.c    **** #define BUZZER_GPIO_PORT    BUZZER_GPIO_Port
+  14:Src/ring.c    **** #define BUZZER_PIN          BUZZER_Pin
+  15:Src/ring.c    **** 
+  16:Src/ring.c    **** /* 全局整点报时状态 */
+  17:Src/ring.c    **** static RingState g_Ring = {0};
+  18:Src/ring.c    **** 
+  19:Src/ring.c    **** /**
+  20:Src/ring.c    ****  * @brief  整点报时模块初始化
+  21:Src/ring.c    ****  */
+  22:Src/ring.c    **** void Ring_Init(void) {
+  23:Src/ring.c    ****     g_Ring.isEnabled = false;
+  24:Src/ring.c    ****     g_Ring.startTime = 8;
+  25:Src/ring.c    ****     g_Ring.stopTime = 20;
+  26:Src/ring.c    ****     g_Ring.isChiming = false;
+  27:Src/ring.c    ****     g_Ring.lastChimeSecond = 0xFF;
+  28:Src/ring.c    ****     g_Ring.lastHour = 0;
+  29:Src/ring.c    ****     g_Ring.ringStartTime = 0;
+  30:Src/ring.c    **** }
+  31:Src/ring.c    **** 
+  32:Src/ring.c    **** /**
+ARM GAS  D:\Temp\ccgotjUv.s 			page 2
+
+
+  33:Src/ring.c    ****  * @brief  设置上次报时的小时
+  34:Src/ring.c    ****  */
+  35:Src/ring.c    **** void Ring_SetStartTime(uint8_t hour) {
+  36:Src/ring.c    ****     g_Ring.lastHour = hour;
+  37:Src/ring.c    **** }
+  38:Src/ring.c    **** 
+  39:Src/ring.c    **** /**
+  40:Src/ring.c    ****  * @brief  检查是否在报时时间范围内
+  41:Src/ring.c    ****  * @param  hour: 要检查的小时
+  42:Src/ring.c    ****  * @retval true-在范围内，false-不在范围内
+  43:Src/ring.c    ****  */
+  44:Src/ring.c    **** static bool IsInTimeRange(uint8_t hour) {
+  27              		.loc 1 44 41 view -0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  45:Src/ring.c    ****     if (g_Ring.startTime <= g_Ring.stopTime) {
+  31              		.loc 1 45 5 view .LVU1
+  44:Src/ring.c    ****     if (g_Ring.startTime <= g_Ring.stopTime) {
+  32              		.loc 1 44 41 is_stmt 0 view .LVU2
+  33 0000 10B5     		push	{r4, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 4, -8
+  37              		.cfi_offset 14, -4
+  38              		.loc 1 45 15 view .LVU3
+  39 0002 094A     		ldr	r2, .L9
+  44:Src/ring.c    ****     if (g_Ring.startTime <= g_Ring.stopTime) {
+  40              		.loc 1 44 41 view .LVU4
+  41 0004 0300     		movs	r3, r0
+  42              		.loc 1 45 15 view .LVU5
+  43 0006 5478     		ldrb	r4, [r2, #1]
+  44              		.loc 1 45 35 view .LVU6
+  45 0008 9178     		ldrb	r1, [r2, #2]
+  46 000a 0120     		movs	r0, #1
+  47              	.LVL1:
+  48              		.loc 1 45 8 view .LVU7
+  49 000c 8C42     		cmp	r4, r1
+  50 000e 06D8     		bhi	.L2
+  46:Src/ring.c    ****         /* 正常时间段（如 8:00-20:00） */
+  47:Src/ring.c    ****         return (hour >= g_Ring.startTime && hour <= g_Ring.stopTime);
+  51              		.loc 1 47 9 is_stmt 1 view .LVU8
+  52 0010 0022     		movs	r2, #0
+  53              		.loc 1 47 42 is_stmt 0 view .LVU9
+  54 0012 9C42     		cmp	r4, r3
+  55 0014 01D8     		bhi	.L5
+  56              	.L8:
+  48:Src/ring.c    ****     } else {
+  49:Src/ring.c    ****         /* 跨天时间段（如 22:00-6:00） */
+  50:Src/ring.c    ****         return (hour >= g_Ring.startTime || hour <= g_Ring.stopTime);
+  57              		.loc 1 50 42 discriminator 2 view .LVU10
+  58 0016 9942     		cmp	r1, r3
+  59 0018 5241     		adcs	r2, r2, r2
+  60              	.L5:
+  51:Src/ring.c    ****     }
+  52:Src/ring.c    **** }
+  61              		.loc 1 52 1 view .LVU11
+ARM GAS  D:\Temp\ccgotjUv.s 			page 3
+
+
+  62              		@ sp needed
+  50:Src/ring.c    ****     }
+  63              		.loc 1 50 42 discriminator 6 view .LVU12
+  64 001a 1040     		ands	r0, r2
+  65              		.loc 1 52 1 view .LVU13
+  66 001c 10BD     		pop	{r4, pc}
+  67              	.L2:
+  50:Src/ring.c    ****     }
+  68              		.loc 1 50 9 is_stmt 1 view .LVU14
+  50:Src/ring.c    ****     }
+  69              		.loc 1 50 42 is_stmt 0 discriminator 3 view .LVU15
+  70 001e 0200     		movs	r2, r0
+  50:Src/ring.c    ****     }
+  71              		.loc 1 50 42 view .LVU16
+  72 0020 9C42     		cmp	r4, r3
+  73 0022 FAD9     		bls	.L5
+  50:Src/ring.c    ****     }
+  74              		.loc 1 50 42 discriminator 2 view .LVU17
+  75 0024 0022     		movs	r2, #0
+  76 0026 F6E7     		b	.L8
+  77              	.L10:
+  78              		.align	2
+  79              	.L9:
+  80 0028 00000000 		.word	g_Ring
+  81              		.cfi_endproc
+  82              	.LFE39:
+  84              		.section	.text.Ring_Init,"ax",%progbits
+  85              		.align	1
+  86              		.global	Ring_Init
+  87              		.syntax unified
+  88              		.code	16
+  89              		.thumb_func
+  91              	Ring_Init:
+  92              	.LFB37:
+  22:Src/ring.c    ****     g_Ring.isEnabled = false;
+  93              		.loc 1 22 22 is_stmt 1 view -0
+  94              		.cfi_startproc
+  95              		@ args = 0, pretend = 0, frame = 0
+  96              		@ frame_needed = 0, uses_anonymous_args = 0
+  97              		@ link register save eliminated.
+  23:Src/ring.c    ****     g_Ring.startTime = 8;
+  98              		.loc 1 23 5 view .LVU19
+  24:Src/ring.c    ****     g_Ring.stopTime = 20;
+  99              		.loc 1 24 5 view .LVU20
+  25:Src/ring.c    ****     g_Ring.isChiming = false;
+ 100              		.loc 1 25 5 view .LVU21
+  26:Src/ring.c    ****     g_Ring.lastChimeSecond = 0xFF;
+ 101              		.loc 1 26 5 view .LVU22
+  27:Src/ring.c    ****     g_Ring.lastHour = 0;
+ 102              		.loc 1 27 5 view .LVU23
+  28:Src/ring.c    ****     g_Ring.ringStartTime = 0;
+ 103              		.loc 1 28 5 view .LVU24
+  23:Src/ring.c    ****     g_Ring.startTime = 8;
+ 104              		.loc 1 23 22 is_stmt 0 view .LVU25
+ 105 0000 034B     		ldr	r3, .L12
+ 106 0002 044A     		ldr	r2, .L12+4
+  30:Src/ring.c    **** 
+ARM GAS  D:\Temp\ccgotjUv.s 			page 4
+
+
+ 107              		.loc 1 30 1 view .LVU26
+ 108              		@ sp needed
+  23:Src/ring.c    ****     g_Ring.startTime = 8;
+ 109              		.loc 1 23 22 view .LVU27
+ 110 0004 1A60     		str	r2, [r3]
+  27:Src/ring.c    ****     g_Ring.lastHour = 0;
+ 111              		.loc 1 27 28 view .LVU28
+ 112 0006 FF22     		movs	r2, #255
+ 113 0008 9A80     		strh	r2, [r3, #4]
+  29:Src/ring.c    **** }
+ 114              		.loc 1 29 5 is_stmt 1 view .LVU29
+  29:Src/ring.c    **** }
+ 115              		.loc 1 29 26 is_stmt 0 view .LVU30
+ 116 000a 0022     		movs	r2, #0
+ 117 000c 9A60     		str	r2, [r3, #8]
+  30:Src/ring.c    **** 
+ 118              		.loc 1 30 1 view .LVU31
+ 119 000e 7047     		bx	lr
+ 120              	.L13:
+ 121              		.align	2
+ 122              	.L12:
+ 123 0010 00000000 		.word	g_Ring
+ 124 0014 00081400 		.word	1312768
+ 125              		.cfi_endproc
+ 126              	.LFE37:
+ 128              		.section	.text.Ring_SetStartTime,"ax",%progbits
+ 129              		.align	1
+ 130              		.global	Ring_SetStartTime
+ 131              		.syntax unified
+ 132              		.code	16
+ 133              		.thumb_func
+ 135              	Ring_SetStartTime:
+ 136              	.LVL2:
+ 137              	.LFB38:
+  35:Src/ring.c    ****     g_Ring.lastHour = hour;
+ 138              		.loc 1 35 38 is_stmt 1 view -0
+ 139              		.cfi_startproc
+ 140              		@ args = 0, pretend = 0, frame = 0
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+ 142              		@ link register save eliminated.
+  36:Src/ring.c    **** }
+ 143              		.loc 1 36 5 view .LVU33
+  36:Src/ring.c    **** }
+ 144              		.loc 1 36 21 is_stmt 0 view .LVU34
+ 145 0000 014B     		ldr	r3, .L15
+  37:Src/ring.c    **** 
+ 146              		.loc 1 37 1 view .LVU35
+ 147              		@ sp needed
+  36:Src/ring.c    **** }
+ 148              		.loc 1 36 21 view .LVU36
+ 149 0002 5871     		strb	r0, [r3, #5]
+  37:Src/ring.c    **** 
+ 150              		.loc 1 37 1 view .LVU37
+ 151 0004 7047     		bx	lr
+ 152              	.L16:
+ 153 0006 C046     		.align	2
+ 154              	.L15:
+ARM GAS  D:\Temp\ccgotjUv.s 			page 5
+
+
+ 155 0008 00000000 		.word	g_Ring
+ 156              		.cfi_endproc
+ 157              	.LFE38:
+ 159              		.global	__aeabi_uidivmod
+ 160              		.global	__aeabi_idivmod
+ 161              		.section	.text.Ring_Check,"ax",%progbits
+ 162              		.align	1
+ 163              		.global	Ring_Check
+ 164              		.syntax unified
+ 165              		.code	16
+ 166              		.thumb_func
+ 168              	Ring_Check:
+ 169              	.LVL3:
+ 170              	.LFB40:
+  53:Src/ring.c    **** 
+  54:Src/ring.c    **** /**
+  55:Src/ring.c    ****  * @brief  检查并触发整点报时
+  56:Src/ring.c    ****  * @param  time: 当前时间
+  57:Src/ring.c    ****  */
+  58:Src/ring.c    **** void Ring_Check(DateTime *time) {
+ 171              		.loc 1 58 33 is_stmt 1 view -0
+ 172              		.cfi_startproc
+ 173              		@ args = 0, pretend = 0, frame = 0
+ 174              		@ frame_needed = 0, uses_anonymous_args = 0
+  59:Src/ring.c    ****     if (!g_Ring.isEnabled) {
+ 175              		.loc 1 59 5 view .LVU39
+  58:Src/ring.c    ****     if (!g_Ring.isEnabled) {
+ 176              		.loc 1 58 33 is_stmt 0 view .LVU40
+ 177 0000 70B5     		push	{r4, r5, r6, lr}
+ 178              	.LCFI1:
+ 179              		.cfi_def_cfa_offset 16
+ 180              		.cfi_offset 4, -16
+ 181              		.cfi_offset 5, -12
+ 182              		.cfi_offset 6, -8
+ 183              		.cfi_offset 14, -4
+ 184              		.loc 1 59 16 view .LVU41
+ 185 0002 2F4C     		ldr	r4, .L40
+  58:Src/ring.c    ****     if (!g_Ring.isEnabled) {
+ 186              		.loc 1 58 33 view .LVU42
+ 187 0004 0500     		movs	r5, r0
+ 188              		.loc 1 59 8 view .LVU43
+ 189 0006 2378     		ldrb	r3, [r4]
+ 190 0008 002B     		cmp	r3, #0
+ 191 000a 2CD0     		beq	.L17
+  60:Src/ring.c    ****         return;
+  61:Src/ring.c    ****     }
+  62:Src/ring.c    **** 
+  63:Src/ring.c    ****     /* 整点报时逻辑：59 分 55 秒到 00 分 00 秒，共 6 次 */
+  64:Src/ring.c    ****     if (time->minutes == 59 && time->seconds >= 55) {
+ 192              		.loc 1 64 5 is_stmt 1 view .LVU44
+ 193              		.loc 1 64 13 is_stmt 0 view .LVU45
+ 194 000c 4378     		ldrb	r3, [r0, #1]
+ 195              		.loc 1 64 36 discriminator 1 view .LVU46
+ 196 000e 0678     		ldrb	r6, [r0]
+ 197              		.loc 1 64 8 view .LVU47
+ 198 0010 3B2B     		cmp	r3, #59
+ 199 0012 29D1     		bne	.L20
+ARM GAS  D:\Temp\ccgotjUv.s 			page 6
+
+
+ 200              		.loc 1 64 29 discriminator 1 view .LVU48
+ 201 0014 362E     		cmp	r6, #54
+ 202 0016 4ED9     		bls	.L21
+ 203              	.LBB2:
+  65:Src/ring.c    ****         /* 倒计时阶段：55 秒~59 秒（短音） */
+  66:Src/ring.c    ****         uint8_t nextHour = (time->hours + 1) % 24;
+ 204              		.loc 1 66 9 is_stmt 1 view .LVU49
+ 205              		.loc 1 66 33 is_stmt 0 view .LVU50
+ 206 0018 C078     		ldrb	r0, [r0, #3]
+ 207              	.LVL4:
+ 208              		.loc 1 66 46 view .LVU51
+ 209 001a 1821     		movs	r1, #24
+ 210              		.loc 1 66 41 view .LVU52
+ 211 001c 0130     		adds	r0, r0, #1
+ 212              		.loc 1 66 46 view .LVU53
+ 213 001e FFF7FEFF 		bl	__aeabi_idivmod
+ 214              	.LVL5:
+ 215              		.loc 1 66 17 view .LVU54
+ 216 0022 CEB2     		uxtb	r6, r1
+ 217              	.LVL6:
+  67:Src/ring.c    **** 
+  68:Src/ring.c    ****         /* 检查下一个小时是否在报时范围内 */
+  69:Src/ring.c    ****         if (!IsInTimeRange(nextHour)) {
+ 218              		.loc 1 69 9 is_stmt 1 view .LVU55
+ 219              		.loc 1 69 14 is_stmt 0 view .LVU56
+ 220 0024 3000     		movs	r0, r6
+ 221 0026 FFF7FEFF 		bl	IsInTimeRange
+ 222              	.LVL7:
+ 223              		.loc 1 69 12 discriminator 1 view .LVU57
+ 224 002a 0028     		cmp	r0, #0
+ 225 002c 1BD0     		beq	.L17
+  70:Src/ring.c    ****             return;
+  71:Src/ring.c    ****         }
+  72:Src/ring.c    **** 
+  73:Src/ring.c    ****         /* 避免与闹钟冲突 */
+  74:Src/ring.c    ****         if (Alarm_IsEnabled() && Alarm_IsAlarmSet(nextHour, 0)) {
+ 226              		.loc 1 74 9 is_stmt 1 view .LVU58
+ 227              		.loc 1 74 13 is_stmt 0 view .LVU59
+ 228 002e FFF7FEFF 		bl	Alarm_IsEnabled
+ 229              	.LVL8:
+ 230              		.loc 1 74 12 discriminator 1 view .LVU60
+ 231 0032 0028     		cmp	r0, #0
+ 232 0034 11D1     		bne	.L23
+ 233              	.L25:
+  75:Src/ring.c    ****             return;
+  76:Src/ring.c    ****         }
+  77:Src/ring.c    **** 
+  78:Src/ring.c    ****         if (g_Ring.lastChimeSecond != time->seconds) {
+ 234              		.loc 1 78 9 is_stmt 1 view .LVU61
+ 235              		.loc 1 78 12 is_stmt 0 view .LVU62
+ 236 0036 2279     		ldrb	r2, [r4, #4]
+ 237 0038 2B78     		ldrb	r3, [r5]
+ 238 003a 9A42     		cmp	r2, r3
+ 239 003c 13D0     		beq	.L17
+  79:Src/ring.c    ****             /* 短音：100ms */
+  80:Src/ring.c    ****             g_Ring.ringStartTime = HAL_GetTick();
+ 240              		.loc 1 80 13 is_stmt 1 view .LVU63
+ARM GAS  D:\Temp\ccgotjUv.s 			page 7
+
+
+ 241              		.loc 1 80 36 is_stmt 0 view .LVU64
+ 242 003e FFF7FEFF 		bl	HAL_GetTick
+ 243              	.LVL9:
+ 244              		.loc 1 80 34 discriminator 1 view .LVU65
+ 245 0042 A060     		str	r0, [r4, #8]
+  81:Src/ring.c    ****             HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+ 246              		.loc 1 81 13 is_stmt 1 view .LVU66
+ 247 0044 9020     		movs	r0, #144
+ 248 0046 0022     		movs	r2, #0
+ 249 0048 4021     		movs	r1, #64
+ 250 004a C005     		lsls	r0, r0, #23
+ 251 004c FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 252              	.LVL10:
+  82:Src/ring.c    ****             g_Ring.isChiming = true;
+ 253              		.loc 1 82 13 view .LVU67
+ 254              		.loc 1 82 30 is_stmt 0 view .LVU68
+ 255 0050 0123     		movs	r3, #1
+ 256 0052 E370     		strb	r3, [r4, #3]
+  83:Src/ring.c    ****             g_Ring.lastChimeSecond = time->seconds;
+ 257              		.loc 1 83 13 is_stmt 1 view .LVU69
+ 258              		.loc 1 83 36 is_stmt 0 view .LVU70
+ 259 0054 2B78     		ldrb	r3, [r5]
+ 260              	.LVL11:
+ 261              	.L39:
+ 262              		.loc 1 83 36 view .LVU71
+ 263              	.LBE2:
+  84:Src/ring.c    ****         }
+  85:Src/ring.c    ****     } else if (time->minutes == 0 && time->seconds == 0) {
+  86:Src/ring.c    ****         /* 整点：00 分 00 秒（长音） */
+  87:Src/ring.c    ****         if (!IsInTimeRange(time->hours)) {
+  88:Src/ring.c    ****             return;
+  89:Src/ring.c    ****         }
+  90:Src/ring.c    **** 
+  91:Src/ring.c    ****         /* 避免与闹钟冲突 */
+  92:Src/ring.c    ****         if (Alarm_IsEnabled() && Alarm_IsAlarmSet(time->hours, 0)) {
+  93:Src/ring.c    ****             return;
+  94:Src/ring.c    ****         }
+  95:Src/ring.c    **** 
+  96:Src/ring.c    ****         if (g_Ring.lastChimeSecond != 0) {
+  97:Src/ring.c    ****             /* 长音：1000ms */
+  98:Src/ring.c    ****             g_Ring.ringStartTime = HAL_GetTick();
+  99:Src/ring.c    ****             HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+ 100:Src/ring.c    ****             g_Ring.isChiming = true;
+ 101:Src/ring.c    ****             g_Ring.lastChimeSecond = 0;
+ 102:Src/ring.c    ****             g_Ring.lastHour = time->hours;
+ 103:Src/ring.c    ****         }
+ 104:Src/ring.c    ****     } else {
+ 105:Src/ring.c    ****         /* 其他时间，重置秒数标记 */
+ 106:Src/ring.c    ****         if (time->seconds > 0) {
+ 107:Src/ring.c    ****             g_Ring.lastChimeSecond = 0xFF;
+ 264              		.loc 1 107 36 view .LVU72
+ 265 0056 2371     		strb	r3, [r4, #4]
+ 266 0058 05E0     		b	.L17
+ 267              	.LVL12:
+ 268              	.L23:
+ 269              	.LBB3:
+  74:Src/ring.c    ****             return;
+ARM GAS  D:\Temp\ccgotjUv.s 			page 8
+
+
+ 270              		.loc 1 74 34 discriminator 1 view .LVU73
+ 271 005a 0021     		movs	r1, #0
+ 272 005c 3000     		movs	r0, r6
+ 273 005e FFF7FEFF 		bl	Alarm_IsAlarmSet
+ 274              	.LVL13:
+  74:Src/ring.c    ****             return;
+ 275              		.loc 1 74 31 discriminator 1 view .LVU74
+ 276 0062 0028     		cmp	r0, #0
+ 277 0064 E7D0     		beq	.L25
+ 278              	.LVL14:
+ 279              	.L17:
+  74:Src/ring.c    ****             return;
+ 280              		.loc 1 74 31 discriminator 1 view .LVU75
+ 281              	.LBE3:
+ 108:Src/ring.c    ****         }
+ 109:Src/ring.c    ****     }
+ 110:Src/ring.c    **** }
+ 282              		.loc 1 110 1 view .LVU76
+ 283              		@ sp needed
+ 284              	.LVL15:
+ 285              		.loc 1 110 1 view .LVU77
+ 286 0066 70BD     		pop	{r4, r5, r6, pc}
+ 287              	.LVL16:
+ 288              	.L20:
+  85:Src/ring.c    ****         /* 整点：00 分 00 秒（长音） */
+ 289              		.loc 1 85 12 is_stmt 1 view .LVU78
+  85:Src/ring.c    ****         /* 整点：00 分 00 秒（长音） */
+ 290              		.loc 1 85 15 is_stmt 0 view .LVU79
+ 291 0068 002B     		cmp	r3, #0
+ 292 006a 24D1     		bne	.L21
+  85:Src/ring.c    ****         /* 整点：00 分 00 秒（长音） */
+ 293              		.loc 1 85 35 discriminator 1 view .LVU80
+ 294 006c 002E     		cmp	r6, #0
+ 295 006e 24D1     		bne	.L26
+  87:Src/ring.c    ****             return;
+ 296              		.loc 1 87 9 is_stmt 1 view .LVU81
+  87:Src/ring.c    ****             return;
+ 297              		.loc 1 87 14 is_stmt 0 view .LVU82
+ 298 0070 C078     		ldrb	r0, [r0, #3]
+ 299              	.LVL17:
+  87:Src/ring.c    ****             return;
+ 300              		.loc 1 87 14 view .LVU83
+ 301 0072 FFF7FEFF 		bl	IsInTimeRange
+ 302              	.LVL18:
+  87:Src/ring.c    ****             return;
+ 303              		.loc 1 87 12 discriminator 1 view .LVU84
+ 304 0076 0028     		cmp	r0, #0
+ 305 0078 F5D0     		beq	.L17
+  92:Src/ring.c    ****             return;
+ 306              		.loc 1 92 9 is_stmt 1 view .LVU85
+  92:Src/ring.c    ****             return;
+ 307              		.loc 1 92 13 is_stmt 0 view .LVU86
+ 308 007a FFF7FEFF 		bl	Alarm_IsEnabled
+ 309              	.LVL19:
+  92:Src/ring.c    ****             return;
+ 310              		.loc 1 92 12 discriminator 1 view .LVU87
+ 311 007e 0028     		cmp	r0, #0
+ARM GAS  D:\Temp\ccgotjUv.s 			page 9
+
+
+ 312 0080 12D1     		bne	.L27
+ 313              	.L29:
+  96:Src/ring.c    ****             /* 长音：1000ms */
+ 314              		.loc 1 96 9 is_stmt 1 view .LVU88
+  96:Src/ring.c    ****             /* 长音：1000ms */
+ 315              		.loc 1 96 12 is_stmt 0 view .LVU89
+ 316 0082 2379     		ldrb	r3, [r4, #4]
+ 317 0084 002B     		cmp	r3, #0
+ 318 0086 EED0     		beq	.L17
+  98:Src/ring.c    ****             HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+ 319              		.loc 1 98 13 is_stmt 1 view .LVU90
+  98:Src/ring.c    ****             HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+ 320              		.loc 1 98 36 is_stmt 0 view .LVU91
+ 321 0088 FFF7FEFF 		bl	HAL_GetTick
+ 322              	.LVL20:
+  98:Src/ring.c    ****             HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_RESET);
+ 323              		.loc 1 98 34 discriminator 1 view .LVU92
+ 324 008c A060     		str	r0, [r4, #8]
+  99:Src/ring.c    ****             g_Ring.isChiming = true;
+ 325              		.loc 1 99 13 is_stmt 1 view .LVU93
+ 326 008e 9020     		movs	r0, #144
+ 327 0090 0022     		movs	r2, #0
+ 328 0092 4021     		movs	r1, #64
+ 329 0094 C005     		lsls	r0, r0, #23
+ 330 0096 FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 331              	.LVL21:
+ 100:Src/ring.c    ****             g_Ring.lastChimeSecond = 0;
+ 332              		.loc 1 100 13 view .LVU94
+ 100:Src/ring.c    ****             g_Ring.lastChimeSecond = 0;
+ 333              		.loc 1 100 30 is_stmt 0 view .LVU95
+ 334 009a 0123     		movs	r3, #1
+ 335 009c E370     		strb	r3, [r4, #3]
+ 101:Src/ring.c    ****             g_Ring.lastHour = time->hours;
+ 336              		.loc 1 101 13 is_stmt 1 view .LVU96
+ 101:Src/ring.c    ****             g_Ring.lastHour = time->hours;
+ 337              		.loc 1 101 36 is_stmt 0 view .LVU97
+ 338 009e 0023     		movs	r3, #0
+ 339 00a0 2371     		strb	r3, [r4, #4]
+ 102:Src/ring.c    ****         }
+ 340              		.loc 1 102 13 is_stmt 1 view .LVU98
+ 102:Src/ring.c    ****         }
+ 341              		.loc 1 102 29 is_stmt 0 view .LVU99
+ 342 00a2 EB78     		ldrb	r3, [r5, #3]
+ 343 00a4 6371     		strb	r3, [r4, #5]
+ 344 00a6 DEE7     		b	.L17
+ 345              	.L27:
+  92:Src/ring.c    ****             return;
+ 346              		.loc 1 92 34 discriminator 1 view .LVU100
+ 347 00a8 3100     		movs	r1, r6
+ 348 00aa E878     		ldrb	r0, [r5, #3]
+ 349 00ac FFF7FEFF 		bl	Alarm_IsAlarmSet
+ 350              	.LVL22:
+  92:Src/ring.c    ****             return;
+ 351              		.loc 1 92 31 discriminator 1 view .LVU101
+ 352 00b0 0028     		cmp	r0, #0
+ 353 00b2 E6D0     		beq	.L29
+ 354 00b4 D7E7     		b	.L17
+ARM GAS  D:\Temp\ccgotjUv.s 			page 10
+
+
+ 355              	.LVL23:
+ 356              	.L21:
+ 106:Src/ring.c    ****             g_Ring.lastChimeSecond = 0xFF;
+ 357              		.loc 1 106 9 is_stmt 1 view .LVU102
+ 106:Src/ring.c    ****             g_Ring.lastChimeSecond = 0xFF;
+ 358              		.loc 1 106 12 is_stmt 0 view .LVU103
+ 359 00b6 002E     		cmp	r6, #0
+ 360 00b8 D5D0     		beq	.L17
+ 361              	.L26:
+ 107:Src/ring.c    ****         }
+ 362              		.loc 1 107 13 is_stmt 1 view .LVU104
+ 107:Src/ring.c    ****         }
+ 363              		.loc 1 107 36 is_stmt 0 view .LVU105
+ 364 00ba FF23     		movs	r3, #255
+ 365 00bc CBE7     		b	.L39
+ 366              	.L41:
+ 367 00be C046     		.align	2
+ 368              	.L40:
+ 369 00c0 00000000 		.word	g_Ring
+ 370              		.cfi_endproc
+ 371              	.LFE40:
+ 373              		.section	.text.Ring_Update,"ax",%progbits
+ 374              		.align	1
+ 375              		.global	Ring_Update
+ 376              		.syntax unified
+ 377              		.code	16
+ 378              		.thumb_func
+ 380              	Ring_Update:
+ 381              	.LFB41:
+ 111:Src/ring.c    **** 
+ 112:Src/ring.c    **** /**
+ 113:Src/ring.c    ****  * @brief  更新整点报时状态（蜂鸣器控制）
+ 114:Src/ring.c    ****  */
+ 115:Src/ring.c    **** void Ring_Update(void) {
+ 382              		.loc 1 115 24 is_stmt 1 view -0
+ 383              		.cfi_startproc
+ 384              		@ args = 0, pretend = 0, frame = 8
+ 385              		@ frame_needed = 0, uses_anonymous_args = 0
+ 116:Src/ring.c    ****     if (!g_Ring.isChiming) {
+ 386              		.loc 1 116 5 view .LVU107
+ 115:Src/ring.c    ****     if (!g_Ring.isChiming) {
+ 387              		.loc 1 115 24 is_stmt 0 view .LVU108
+ 388 0000 37B5     		push	{r0, r1, r2, r4, r5, lr}
+ 389              	.LCFI2:
+ 390              		.cfi_def_cfa_offset 24
+ 391              		.cfi_offset 0, -24
+ 392              		.cfi_offset 1, -20
+ 393              		.cfi_offset 2, -16
+ 394              		.cfi_offset 4, -12
+ 395              		.cfi_offset 5, -8
+ 396              		.cfi_offset 14, -4
+ 397              		.loc 1 116 16 view .LVU109
+ 398 0002 154D     		ldr	r5, .L50
+ 399              		.loc 1 116 8 view .LVU110
+ 400 0004 EB78     		ldrb	r3, [r5, #3]
+ 401 0006 002B     		cmp	r3, #0
+ 402 0008 25D0     		beq	.L42
+ARM GAS  D:\Temp\ccgotjUv.s 			page 11
+
+
+ 117:Src/ring.c    ****         return;
+ 118:Src/ring.c    ****     }
+ 119:Src/ring.c    **** 
+ 120:Src/ring.c    ****     if (HAL_GPIO_ReadPin(BUZZER_GPIO_PORT, BUZZER_PIN) == GPIO_PIN_RESET) {
+ 403              		.loc 1 120 5 is_stmt 1 view .LVU111
+ 404              		.loc 1 120 9 is_stmt 0 view .LVU112
+ 405 000a 9020     		movs	r0, #144
+ 406 000c 4021     		movs	r1, #64
+ 407 000e C005     		lsls	r0, r0, #23
+ 408 0010 FFF7FEFF 		bl	HAL_GPIO_ReadPin
+ 409              	.LVL24:
+ 410              		.loc 1 120 8 discriminator 1 view .LVU113
+ 411 0014 0028     		cmp	r0, #0
+ 412 0016 1ED1     		bne	.L42
+ 413              	.LBB4:
+ 121:Src/ring.c    ****         uint32_t chimeDuration;
+ 414              		.loc 1 121 9 is_stmt 1 view .LVU114
+ 122:Src/ring.c    ****         DateTime time;
+ 415              		.loc 1 122 9 view .LVU115
+ 123:Src/ring.c    ****         TimeNow(&time);
+ 416              		.loc 1 123 9 view .LVU116
+ 417 0018 6846     		mov	r0, sp
+ 418 001a FFF7FEFF 		bl	TimeNow
+ 419              	.LVL25:
+ 124:Src/ring.c    **** 
+ 125:Src/ring.c    ****         /* 判断是短音还是长音 */
+ 126:Src/ring.c    ****         if (time.minutes == 0 && time.seconds == 0) {
+ 420              		.loc 1 126 9 view .LVU117
+ 421              		.loc 1 126 31 is_stmt 0 discriminator 1 view .LVU118
+ 422 001e 6B46     		mov	r3, sp
+ 423 0020 5C78     		ldrb	r4, [r3, #1]
+ 424 0022 1B78     		ldrb	r3, [r3]
+ 425 0024 1C43     		orrs	r4, r3
+ 127:Src/ring.c    ****             chimeDuration = RING_ON_TIME_LONG;    /* 整点长音 */
+ 426              		.loc 1 127 27 view .LVU119
+ 427 0026 631E     		subs	r3, r4, #1
+ 428 0028 9C41     		sbcs	r4, r4, r3
+ 429 002a 0C4B     		ldr	r3, .L50+4
+ 430 002c 6442     		rsbs	r4, r4, #0
+ 431 002e 1C40     		ands	r4, r3
+ 432 0030 FA23     		movs	r3, #250
+ 433 0032 9B00     		lsls	r3, r3, #2
+ 434 0034 E418     		adds	r4, r4, r3
+ 435              	.LVL26:
+ 128:Src/ring.c    ****         } else {
+ 129:Src/ring.c    ****             chimeDuration = RING_ON_TIME_SHORT;   /* 倒计时短音 */
+ 130:Src/ring.c    ****         }
+ 131:Src/ring.c    **** 
+ 132:Src/ring.c    ****         uint32_t now = HAL_GetTick();
+ 436              		.loc 1 132 9 is_stmt 1 view .LVU120
+ 437              		.loc 1 132 24 is_stmt 0 view .LVU121
+ 438 0036 FFF7FEFF 		bl	HAL_GetTick
+ 439              	.LVL27:
+ 133:Src/ring.c    ****         if (now < g_Ring.ringStartTime || 
+ 440              		.loc 1 133 9 is_stmt 1 view .LVU122
+ 441              		.loc 1 133 25 is_stmt 0 view .LVU123
+ 442 003a AB68     		ldr	r3, [r5, #8]
+ARM GAS  D:\Temp\ccgotjUv.s 			page 12
+
+
+ 443              		.loc 1 133 12 view .LVU124
+ 444 003c 8342     		cmp	r3, r0
+ 445 003e 02D8     		bhi	.L47
+ 134:Src/ring.c    ****             (now - g_Ring.ringStartTime >= chimeDuration)) {
+ 446              		.loc 1 134 18 view .LVU125
+ 447 0040 C01A     		subs	r0, r0, r3
+ 448              	.LVL28:
+ 133:Src/ring.c    ****         if (now < g_Ring.ringStartTime || 
+ 449              		.loc 1 133 40 discriminator 1 view .LVU126
+ 450 0042 A042     		cmp	r0, r4
+ 451 0044 07D3     		bcc	.L42
+ 452              	.L47:
+ 135:Src/ring.c    ****             HAL_GPIO_WritePin(BUZZER_GPIO_PORT, BUZZER_PIN, GPIO_PIN_SET);
+ 453              		.loc 1 135 13 is_stmt 1 view .LVU127
+ 454 0046 9020     		movs	r0, #144
+ 455 0048 0122     		movs	r2, #1
+ 456 004a 4021     		movs	r1, #64
+ 457 004c C005     		lsls	r0, r0, #23
+ 458 004e FFF7FEFF 		bl	HAL_GPIO_WritePin
+ 459              	.LVL29:
+ 136:Src/ring.c    ****             g_Ring.isChiming = false;
+ 460              		.loc 1 136 13 view .LVU128
+ 461              		.loc 1 136 30 is_stmt 0 view .LVU129
+ 462 0052 0023     		movs	r3, #0
+ 463 0054 EB70     		strb	r3, [r5, #3]
+ 464              	.LVL30:
+ 465              	.L42:
+ 466              		.loc 1 136 30 view .LVU130
+ 467              	.LBE4:
+ 137:Src/ring.c    ****         }
+ 138:Src/ring.c    ****     }
+ 139:Src/ring.c    **** }
+ 468              		.loc 1 139 1 view .LVU131
+ 469              		@ sp needed
+ 470 0056 37BD     		pop	{r0, r1, r2, r4, r5, pc}
+ 471              	.L51:
+ 472              		.align	2
+ 473              	.L50:
+ 474 0058 00000000 		.word	g_Ring
+ 475 005c 7CFCFFFF 		.word	-900
+ 476              		.cfi_endproc
+ 477              	.LFE41:
+ 479              		.section	.text.Ring_Set,"ax",%progbits
+ 480              		.align	1
+ 481              		.global	Ring_Set
+ 482              		.syntax unified
+ 483              		.code	16
+ 484              		.thumb_func
+ 486              	Ring_Set:
+ 487              	.LVL31:
+ 488              	.LFB42:
+ 140:Src/ring.c    **** 
+ 141:Src/ring.c    **** /**
+ 142:Src/ring.c    ****  * @brief  设置整点报时
+ 143:Src/ring.c    ****  * @param  start: 开始时间
+ 144:Src/ring.c    ****  * @param  stop: 结束时间
+ 145:Src/ring.c    ****  * @param  enable: 是否启用
+ARM GAS  D:\Temp\ccgotjUv.s 			page 13
+
+
+ 146:Src/ring.c    ****  */
+ 147:Src/ring.c    **** void Ring_Set(uint8_t start, uint8_t stop, bool enable) {
+ 489              		.loc 1 147 57 is_stmt 1 view -0
+ 490              		.cfi_startproc
+ 491              		@ args = 0, pretend = 0, frame = 0
+ 492              		@ frame_needed = 0, uses_anonymous_args = 0
+ 493              		@ link register save eliminated.
+ 148:Src/ring.c    ****     g_Ring.startTime = start;
+ 494              		.loc 1 148 5 view .LVU133
+ 495              		.loc 1 148 22 is_stmt 0 view .LVU134
+ 496 0000 024B     		ldr	r3, .L53
+ 149:Src/ring.c    ****     g_Ring.stopTime = stop;
+ 150:Src/ring.c    ****     g_Ring.isEnabled = enable;
+ 151:Src/ring.c    **** }
+ 497              		.loc 1 151 1 view .LVU135
+ 498              		@ sp needed
+ 148:Src/ring.c    ****     g_Ring.startTime = start;
+ 499              		.loc 1 148 22 view .LVU136
+ 500 0002 5870     		strb	r0, [r3, #1]
+ 149:Src/ring.c    ****     g_Ring.stopTime = stop;
+ 501              		.loc 1 149 5 is_stmt 1 view .LVU137
+ 149:Src/ring.c    ****     g_Ring.stopTime = stop;
+ 502              		.loc 1 149 21 is_stmt 0 view .LVU138
+ 503 0004 9970     		strb	r1, [r3, #2]
+ 150:Src/ring.c    **** }
+ 504              		.loc 1 150 5 is_stmt 1 view .LVU139
+ 150:Src/ring.c    **** }
+ 505              		.loc 1 150 22 is_stmt 0 view .LVU140
+ 506 0006 1A70     		strb	r2, [r3]
+ 507              		.loc 1 151 1 view .LVU141
+ 508 0008 7047     		bx	lr
+ 509              	.L54:
+ 510 000a C046     		.align	2
+ 511              	.L53:
+ 512 000c 00000000 		.word	g_Ring
+ 513              		.cfi_endproc
+ 514              	.LFE42:
+ 516              		.section	.text.Ring_IsEnabled,"ax",%progbits
+ 517              		.align	1
+ 518              		.global	Ring_IsEnabled
+ 519              		.syntax unified
+ 520              		.code	16
+ 521              		.thumb_func
+ 523              	Ring_IsEnabled:
+ 524              	.LFB43:
+ 152:Src/ring.c    **** 
+ 153:Src/ring.c    **** /**
+ 154:Src/ring.c    ****  * @brief  获取整点报时使能状态
+ 155:Src/ring.c    ****  */
+ 156:Src/ring.c    **** bool Ring_IsEnabled(void) {
+ 525              		.loc 1 156 27 is_stmt 1 view -0
+ 526              		.cfi_startproc
+ 527              		@ args = 0, pretend = 0, frame = 0
+ 528              		@ frame_needed = 0, uses_anonymous_args = 0
+ 529              		@ link register save eliminated.
+ 157:Src/ring.c    ****     return g_Ring.isEnabled;
+ 530              		.loc 1 157 5 view .LVU143
+ARM GAS  D:\Temp\ccgotjUv.s 			page 14
+
+
+ 531              		.loc 1 157 18 is_stmt 0 view .LVU144
+ 532 0000 014B     		ldr	r3, .L56
+ 158:Src/ring.c    **** }
+ 533              		.loc 1 158 1 view .LVU145
+ 534              		@ sp needed
+ 157:Src/ring.c    ****     return g_Ring.isEnabled;
+ 535              		.loc 1 157 18 discriminator 1 view .LVU146
+ 536 0002 1878     		ldrb	r0, [r3]
+ 537              		.loc 1 158 1 view .LVU147
+ 538 0004 7047     		bx	lr
+ 539              	.L57:
+ 540 0006 C046     		.align	2
+ 541              	.L56:
+ 542 0008 00000000 		.word	g_Ring
+ 543              		.cfi_endproc
+ 544              	.LFE43:
+ 546              		.section	.text.Ring_IsChiming,"ax",%progbits
+ 547              		.align	1
+ 548              		.global	Ring_IsChiming
+ 549              		.syntax unified
+ 550              		.code	16
+ 551              		.thumb_func
+ 553              	Ring_IsChiming:
+ 554              	.LFB44:
+ 159:Src/ring.c    **** 
+ 160:Src/ring.c    **** /**
+ 161:Src/ring.c    ****  * @brief  获取正在报时状态
+ 162:Src/ring.c    ****  */
+ 163:Src/ring.c    **** bool Ring_IsChiming(void) {
+ 555              		.loc 1 163 27 is_stmt 1 view -0
+ 556              		.cfi_startproc
+ 557              		@ args = 0, pretend = 0, frame = 0
+ 558              		@ frame_needed = 0, uses_anonymous_args = 0
+ 559              		@ link register save eliminated.
+ 164:Src/ring.c    ****     return g_Ring.isChiming;
+ 560              		.loc 1 164 5 view .LVU149
+ 561              		.loc 1 164 18 is_stmt 0 view .LVU150
+ 562 0000 014B     		ldr	r3, .L59
+ 165:Src/ring.c    **** }
+ 563              		.loc 1 165 1 view .LVU151
+ 564              		@ sp needed
+ 164:Src/ring.c    ****     return g_Ring.isChiming;
+ 565              		.loc 1 164 18 discriminator 1 view .LVU152
+ 566 0002 D878     		ldrb	r0, [r3, #3]
+ 567              		.loc 1 165 1 view .LVU153
+ 568 0004 7047     		bx	lr
+ 569              	.L60:
+ 570 0006 C046     		.align	2
+ 571              	.L59:
+ 572 0008 00000000 		.word	g_Ring
+ 573              		.cfi_endproc
+ 574              	.LFE44:
+ 576              		.section	.text.Ring_GetStartTime,"ax",%progbits
+ 577              		.align	1
+ 578              		.global	Ring_GetStartTime
+ 579              		.syntax unified
+ 580              		.code	16
+ARM GAS  D:\Temp\ccgotjUv.s 			page 15
+
+
+ 581              		.thumb_func
+ 583              	Ring_GetStartTime:
+ 584              	.LFB45:
+ 166:Src/ring.c    **** 
+ 167:Src/ring.c    **** /**
+ 168:Src/ring.c    ****  * @brief  获取报时开始时间戳
+ 169:Src/ring.c    ****  */
+ 170:Src/ring.c    **** uint32_t Ring_GetStartTime(void) {
+ 585              		.loc 1 170 34 is_stmt 1 view -0
+ 586              		.cfi_startproc
+ 587              		@ args = 0, pretend = 0, frame = 0
+ 588              		@ frame_needed = 0, uses_anonymous_args = 0
+ 589              		@ link register save eliminated.
+ 171:Src/ring.c    ****     return g_Ring.ringStartTime;
+ 590              		.loc 1 171 5 view .LVU155
+ 591              		.loc 1 171 18 is_stmt 0 view .LVU156
+ 592 0000 014B     		ldr	r3, .L62
+ 172:Src/ring.c    **** }
+ 593              		.loc 1 172 1 view .LVU157
+ 594              		@ sp needed
+ 171:Src/ring.c    ****     return g_Ring.ringStartTime;
+ 595              		.loc 1 171 18 discriminator 1 view .LVU158
+ 596 0002 9868     		ldr	r0, [r3, #8]
+ 597              		.loc 1 172 1 view .LVU159
+ 598 0004 7047     		bx	lr
+ 599              	.L63:
+ 600 0006 C046     		.align	2
+ 601              	.L62:
+ 602 0008 00000000 		.word	g_Ring
+ 603              		.cfi_endproc
+ 604              	.LFE45:
+ 606              		.section	.bss.g_Ring,"aw",%nobits
+ 607              		.align	2
+ 610              	g_Ring:
+ 611 0000 00000000 		.space	12
+ 611      00000000 
+ 611      00000000 
+ 612              		.text
+ 613              	.Letext0:
+ 614              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 615              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 616              		.file 4 "Drivers/CMSIS/Device/ST/STM32F0xx/Include/stm32f030x6.h"
+ 617              		.file 5 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_gpio.h"
+ 618              		.file 6 "Lib/SD3077.h"
+ 619              		.file 7 "Inc/ring.h"
+ 620              		.file 8 "Inc/alarm.h"
+ 621              		.file 9 "Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal.h"
+ARM GAS  D:\Temp\ccgotjUv.s 			page 16
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 ring.c
+  D:\Temp\ccgotjUv.s:19     .text.IsInTimeRange:00000000 $t
+  D:\Temp\ccgotjUv.s:24     .text.IsInTimeRange:00000000 IsInTimeRange
+  D:\Temp\ccgotjUv.s:80     .text.IsInTimeRange:00000028 $d
+  D:\Temp\ccgotjUv.s:610    .bss.g_Ring:00000000 g_Ring
+  D:\Temp\ccgotjUv.s:85     .text.Ring_Init:00000000 $t
+  D:\Temp\ccgotjUv.s:91     .text.Ring_Init:00000000 Ring_Init
+  D:\Temp\ccgotjUv.s:123    .text.Ring_Init:00000010 $d
+  D:\Temp\ccgotjUv.s:129    .text.Ring_SetStartTime:00000000 $t
+  D:\Temp\ccgotjUv.s:135    .text.Ring_SetStartTime:00000000 Ring_SetStartTime
+  D:\Temp\ccgotjUv.s:155    .text.Ring_SetStartTime:00000008 $d
+  D:\Temp\ccgotjUv.s:162    .text.Ring_Check:00000000 $t
+  D:\Temp\ccgotjUv.s:168    .text.Ring_Check:00000000 Ring_Check
+  D:\Temp\ccgotjUv.s:369    .text.Ring_Check:000000c0 $d
+  D:\Temp\ccgotjUv.s:374    .text.Ring_Update:00000000 $t
+  D:\Temp\ccgotjUv.s:380    .text.Ring_Update:00000000 Ring_Update
+  D:\Temp\ccgotjUv.s:474    .text.Ring_Update:00000058 $d
+  D:\Temp\ccgotjUv.s:480    .text.Ring_Set:00000000 $t
+  D:\Temp\ccgotjUv.s:486    .text.Ring_Set:00000000 Ring_Set
+  D:\Temp\ccgotjUv.s:512    .text.Ring_Set:0000000c $d
+  D:\Temp\ccgotjUv.s:517    .text.Ring_IsEnabled:00000000 $t
+  D:\Temp\ccgotjUv.s:523    .text.Ring_IsEnabled:00000000 Ring_IsEnabled
+  D:\Temp\ccgotjUv.s:542    .text.Ring_IsEnabled:00000008 $d
+  D:\Temp\ccgotjUv.s:547    .text.Ring_IsChiming:00000000 $t
+  D:\Temp\ccgotjUv.s:553    .text.Ring_IsChiming:00000000 Ring_IsChiming
+  D:\Temp\ccgotjUv.s:572    .text.Ring_IsChiming:00000008 $d
+  D:\Temp\ccgotjUv.s:577    .text.Ring_GetStartTime:00000000 $t
+  D:\Temp\ccgotjUv.s:583    .text.Ring_GetStartTime:00000000 Ring_GetStartTime
+  D:\Temp\ccgotjUv.s:602    .text.Ring_GetStartTime:00000008 $d
+  D:\Temp\ccgotjUv.s:607    .bss.g_Ring:00000000 $d
+
+UNDEFINED SYMBOLS
+__aeabi_uidivmod
+__aeabi_idivmod
+Alarm_IsEnabled
+HAL_GetTick
+HAL_GPIO_WritePin
+Alarm_IsAlarmSet
+HAL_GPIO_ReadPin
+TimeNow

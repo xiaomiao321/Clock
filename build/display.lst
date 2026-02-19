@@ -1,0 +1,1819 @@
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.arch armv6s-m
+   3              		.fpu softvfp
+   4              		.eabi_attribute 20, 1
+   5              		.eabi_attribute 21, 1
+   6              		.eabi_attribute 23, 3
+   7              		.eabi_attribute 24, 1
+   8              		.eabi_attribute 25, 1
+   9              		.eabi_attribute 26, 1
+  10              		.eabi_attribute 30, 4
+  11              		.eabi_attribute 34, 0
+  12              		.eabi_attribute 18, 4
+  13              		.file	"display.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.file 1 "Src/display.c"
+  18              		.section	.text.Display_Init,"ax",%progbits
+  19              		.align	1
+  20              		.global	Display_Init
+  21              		.syntax unified
+  22              		.code	16
+  23              		.thumb_func
+  25              	Display_Init:
+  26              	.LFB37:
+   1:Src/display.c **** /*
+   2:Src/display.c ****  * @file           : display.c
+   3:Src/display.c ****  * @brief          : 显示控制模块源文件
+   4:Src/display.c ****  */
+   5:Src/display.c **** #include "display.h"
+   6:Src/display.c **** #include "TM1637.h"
+   7:Src/display.c **** #include "settings.h"
+   8:Src/display.c **** 
+   9:Src/display.c **** /* 全局显示状态 */
+  10:Src/display.c **** static DisplayMode g_CurrentMode = MODE_SHOW_TIME;
+  11:Src/display.c **** static bool g_BlinkControl = false;
+  12:Src/display.c **** 
+  13:Src/display.c **** /**
+  14:Src/display.c ****  * @brief  显示初始化
+  15:Src/display.c ****  */
+  16:Src/display.c **** void Display_Init(void) {
+  27              		.loc 1 16 25 view -0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  17:Src/display.c ****     TM1637Init();
+  31              		.loc 1 17 5 view .LVU1
+  16:Src/display.c ****     TM1637Init();
+  32              		.loc 1 16 25 is_stmt 0 view .LVU2
+  33 0000 10B5     		push	{r4, lr}
+  34              	.LCFI0:
+  35              		.cfi_def_cfa_offset 8
+  36              		.cfi_offset 4, -8
+  37              		.cfi_offset 14, -4
+  38              		.loc 1 17 5 view .LVU3
+  39 0002 FFF7FEFF 		bl	TM1637Init
+  40              	.LVL0:
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 2
+
+
+  18:Src/display.c ****     SystemSettings *settings = Settings_Get();
+  41              		.loc 1 18 5 is_stmt 1 view .LVU4
+  42              		.loc 1 18 32 is_stmt 0 view .LVU5
+  43 0006 FFF7FEFF 		bl	Settings_Get
+  44              	.LVL1:
+  19:Src/display.c ****     uint8_t brightness = settings->savedBrightness != 0 ? 
+  45              		.loc 1 19 5 is_stmt 1 view .LVU6
+  46              		.loc 1 19 34 is_stmt 0 view .LVU7
+  47 000a 007A     		ldrb	r0, [r0, #8]
+  48              	.LVL2:
+  49              		.loc 1 19 13 view .LVU8
+  50 000c 0028     		cmp	r0, #0
+  51 000e 00D1     		bne	.L2
+  52              		.loc 1 19 13 discriminator 2 view .LVU9
+  53 0010 0830     		adds	r0, r0, #8
+  54              	.L2:
+  55              	.LVL3:
+  20:Src/display.c ****                          settings->savedBrightness : STRONG_BRIGHTNESS_VALUE;
+  21:Src/display.c ****     TM1637SetBrightness(brightness);
+  56              		.loc 1 21 5 is_stmt 1 view .LVU10
+  57 0012 FFF7FEFF 		bl	TM1637SetBrightness
+  58              	.LVL4:
+  22:Src/display.c **** }
+  59              		.loc 1 22 1 is_stmt 0 view .LVU11
+  60              		@ sp needed
+  61 0016 10BD     		pop	{r4, pc}
+  62              		.cfi_endproc
+  63              	.LFE37:
+  65              		.section	.text.Display_ShowTime,"ax",%progbits
+  66              		.align	1
+  67              		.global	Display_ShowTime
+  68              		.syntax unified
+  69              		.code	16
+  70              		.thumb_func
+  72              	Display_ShowTime:
+  73              	.LVL5:
+  74              	.LFB38:
+  23:Src/display.c **** 
+  24:Src/display.c **** /**
+  25:Src/display.c ****  * @brief  显示时间（时:分）
+  26:Src/display.c ****  * @param  time: 当前时间
+  27:Src/display.c ****  * @param  blink: 是否闪烁
+  28:Src/display.c ****  */
+  29:Src/display.c **** void Display_ShowTime(DateTime *time, bool blink) {
+  75              		.loc 1 29 51 is_stmt 1 view -0
+  76              		.cfi_startproc
+  77              		@ args = 0, pretend = 0, frame = 0
+  78              		@ frame_needed = 0, uses_anonymous_args = 0
+  30:Src/display.c ****     uint16_t number = time->hours * 100 + time->minutes;
+  79              		.loc 1 30 5 view .LVU13
+  80              		.loc 1 30 41 is_stmt 0 view .LVU14
+  81 0000 6423     		movs	r3, #100
+  29:Src/display.c ****     uint16_t number = time->hours * 100 + time->minutes;
+  82              		.loc 1 29 51 view .LVU15
+  83 0002 10B5     		push	{r4, lr}
+  84              	.LCFI1:
+  85              		.cfi_def_cfa_offset 8
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 3
+
+
+  86              		.cfi_offset 4, -8
+  87              		.cfi_offset 14, -4
+  88              		.loc 1 30 41 view .LVU16
+  89 0004 C278     		ldrb	r2, [r0, #3]
+  29:Src/display.c ****     uint16_t number = time->hours * 100 + time->minutes;
+  90              		.loc 1 29 51 view .LVU17
+  91 0006 0C00     		movs	r4, r1
+  92              		.loc 1 30 41 view .LVU18
+  93 0008 5A43     		muls	r2, r3
+  94              		.loc 1 30 47 view .LVU19
+  95 000a 4178     		ldrb	r1, [r0, #1]
+  96              	.LVL6:
+  97              		.loc 1 30 14 view .LVU20
+  98 000c 8918     		adds	r1, r1, r2
+  99              	.LVL7:
+  31:Src/display.c ****     uint8_t colon = blink ? 2 : 0xFF;
+ 100              		.loc 1 31 5 is_stmt 1 view .LVU21
+ 101              		.loc 1 31 13 is_stmt 0 discriminator 2 view .LVU22
+ 102 000e FF22     		movs	r2, #255
+ 103              		.loc 1 31 13 view .LVU23
+ 104 0010 002C     		cmp	r4, #0
+ 105 0012 00D0     		beq	.L4
+ 106              		.loc 1 31 13 discriminator 1 view .LVU24
+ 107 0014 FD3A     		subs	r2, r2, #253
+ 108              	.L4:
+ 109              	.LVL8:
+  32:Src/display.c ****     TM1637ShowNumberRight(3, number, colon, 1);
+ 110              		.loc 1 32 5 is_stmt 1 view .LVU25
+ 111 0016 0123     		movs	r3, #1
+  33:Src/display.c **** }
+ 112              		.loc 1 33 1 is_stmt 0 view .LVU26
+ 113              		@ sp needed
+  32:Src/display.c ****     TM1637ShowNumberRight(3, number, colon, 1);
+ 114              		.loc 1 32 5 view .LVU27
+ 115 0018 0320     		movs	r0, #3
+ 116              	.LVL9:
+  32:Src/display.c ****     TM1637ShowNumberRight(3, number, colon, 1);
+ 117              		.loc 1 32 5 view .LVU28
+ 118 001a FFF7FEFF 		bl	TM1637ShowNumberRight
+ 119              	.LVL10:
+ 120              	.LVL11:
+ 121              		.loc 1 33 1 view .LVU29
+ 122 001e 10BD     		pop	{r4, pc}
+ 123              		.cfi_endproc
+ 124              	.LFE38:
+ 126              		.global	__aeabi_uidiv
+ 127              		.global	__aeabi_uidivmod
+ 128              		.section	.text.Display_ShowSecond,"ax",%progbits
+ 129              		.align	1
+ 130              		.global	Display_ShowSecond
+ 131              		.syntax unified
+ 132              		.code	16
+ 133              		.thumb_func
+ 135              	Display_ShowSecond:
+ 136              	.LVL12:
+ 137              	.LFB39:
+  34:Src/display.c **** 
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 4
+
+
+  35:Src/display.c **** /**
+  36:Src/display.c ****  * @brief  显示秒数
+  37:Src/display.c ****  * @param  time: 当前时间
+  38:Src/display.c ****  */
+  39:Src/display.c **** void Display_ShowSecond(DateTime *time) {
+ 138              		.loc 1 39 41 is_stmt 1 view -0
+ 139              		.cfi_startproc
+ 140              		@ args = 0, pretend = 0, frame = 0
+ 141              		@ frame_needed = 0, uses_anonymous_args = 0
+  40:Src/display.c ****     TM1637SetChar(0, ' ', false);
+ 142              		.loc 1 40 5 view .LVU31
+ 143 0000 0022     		movs	r2, #0
+  39:Src/display.c ****     TM1637SetChar(0, ' ', false);
+ 144              		.loc 1 39 41 is_stmt 0 view .LVU32
+ 145 0002 10B5     		push	{r4, lr}
+ 146              	.LCFI2:
+ 147              		.cfi_def_cfa_offset 8
+ 148              		.cfi_offset 4, -8
+ 149              		.cfi_offset 14, -4
+ 150              		.loc 1 40 5 view .LVU33
+ 151 0004 2021     		movs	r1, #32
+  41:Src/display.c ****     TM1637SetChar(1, ' ', true);
+  42:Src/display.c ****     TM1637SetChar(2, time->seconds / 10 + '0', false);
+  43:Src/display.c ****     TM1637SetChar(3, time->seconds % 10 + '0', false);
+  44:Src/display.c **** }
+ 152              		.loc 1 44 1 view .LVU34
+ 153              		@ sp needed
+  39:Src/display.c ****     TM1637SetChar(0, ' ', false);
+ 154              		.loc 1 39 41 view .LVU35
+ 155 0006 0400     		movs	r4, r0
+  40:Src/display.c ****     TM1637SetChar(1, ' ', true);
+ 156              		.loc 1 40 5 view .LVU36
+ 157 0008 1000     		movs	r0, r2
+ 158              	.LVL13:
+  40:Src/display.c ****     TM1637SetChar(1, ' ', true);
+ 159              		.loc 1 40 5 view .LVU37
+ 160 000a FFF7FEFF 		bl	TM1637SetChar
+ 161              	.LVL14:
+  41:Src/display.c ****     TM1637SetChar(1, ' ', true);
+ 162              		.loc 1 41 5 is_stmt 1 view .LVU38
+ 163 000e 0122     		movs	r2, #1
+ 164 0010 2021     		movs	r1, #32
+ 165 0012 1000     		movs	r0, r2
+ 166 0014 FFF7FEFF 		bl	TM1637SetChar
+ 167              	.LVL15:
+  42:Src/display.c ****     TM1637SetChar(3, time->seconds % 10 + '0', false);
+ 168              		.loc 1 42 5 view .LVU39
+ 169 0018 2078     		ldrb	r0, [r4]
+ 170 001a 0A21     		movs	r1, #10
+ 171 001c FFF7FEFF 		bl	__aeabi_uidiv
+ 172              	.LVL16:
+ 173 0020 3030     		adds	r0, r0, #48
+ 174 0022 0022     		movs	r2, #0
+ 175 0024 C1B2     		uxtb	r1, r0
+ 176 0026 0220     		movs	r0, #2
+ 177 0028 FFF7FEFF 		bl	TM1637SetChar
+ 178              	.LVL17:
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 5
+
+
+  43:Src/display.c **** }
+ 179              		.loc 1 43 5 view .LVU40
+ 180 002c 2078     		ldrb	r0, [r4]
+ 181 002e 0A21     		movs	r1, #10
+ 182 0030 FFF7FEFF 		bl	__aeabi_uidivmod
+ 183              	.LVL18:
+ 184 0034 3031     		adds	r1, r1, #48
+ 185 0036 0022     		movs	r2, #0
+ 186 0038 0320     		movs	r0, #3
+ 187 003a C9B2     		uxtb	r1, r1
+ 188 003c FFF7FEFF 		bl	TM1637SetChar
+ 189              	.LVL19:
+ 190              	.LVL20:
+ 191              		.loc 1 44 1 is_stmt 0 view .LVU41
+ 192 0040 10BD     		pop	{r4, pc}
+ 193              		.cfi_endproc
+ 194              	.LFE39:
+ 196              		.global	__aeabi_idiv
+ 197              		.global	__aeabi_idivmod
+ 198              		.section	.text.Display_ShowTemperature,"ax",%progbits
+ 199              		.align	1
+ 200              		.global	Display_ShowTemperature
+ 201              		.syntax unified
+ 202              		.code	16
+ 203              		.thumb_func
+ 205              	Display_ShowTemperature:
+ 206              	.LVL21:
+ 207              	.LFB40:
+  45:Src/display.c **** 
+  46:Src/display.c **** /**
+  47:Src/display.c ****  * @brief  显示温度
+  48:Src/display.c ****  * @param  temp: 温度值
+  49:Src/display.c ****  */
+  50:Src/display.c **** void Display_ShowTemperature(uint8_t temp) {
+ 208              		.loc 1 50 44 is_stmt 1 view -0
+ 209              		.cfi_startproc
+ 210              		@ args = 0, pretend = 0, frame = 0
+ 211              		@ frame_needed = 0, uses_anonymous_args = 0
+  51:Src/display.c ****     if (temp > 99) {
+ 212              		.loc 1 51 5 view .LVU43
+  50:Src/display.c ****     if (temp > 99) {
+ 213              		.loc 1 50 44 is_stmt 0 view .LVU44
+ 214 0000 10B5     		push	{r4, lr}
+ 215              	.LCFI3:
+ 216              		.cfi_def_cfa_offset 8
+ 217              		.cfi_offset 4, -8
+ 218              		.cfi_offset 14, -4
+ 219              		.loc 1 51 8 view .LVU45
+ 220 0002 041C     		adds	r4, r0, #0
+ 221 0004 6328     		cmp	r0, #99
+ 222 0006 00D9     		bls	.L9
+ 223 0008 6324     		movs	r4, #99
+ 224              	.L9:
+  52:Src/display.c ****         temp = 99;
+  53:Src/display.c ****     }
+  54:Src/display.c ****     TM1637SetChar(0, ' ', false);
+  55:Src/display.c ****     TM1637SetChar(1, temp / 10 + '0', false);
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 6
+
+
+  56:Src/display.c ****     TM1637SetChar(2, temp % 10 + '0', false);
+  57:Src/display.c ****     TM1637SetChar(3, 'C', false);
+  58:Src/display.c **** }
+ 225              		.loc 1 58 1 view .LVU46
+ 226              		@ sp needed
+  54:Src/display.c ****     TM1637SetChar(1, temp / 10 + '0', false);
+ 227              		.loc 1 54 5 view .LVU47
+ 228 000a 0022     		movs	r2, #0
+  51:Src/display.c ****         temp = 99;
+ 229              		.loc 1 51 8 view .LVU48
+ 230 000c E4B2     		uxtb	r4, r4
+ 231              	.LVL22:
+  54:Src/display.c ****     TM1637SetChar(1, temp / 10 + '0', false);
+ 232              		.loc 1 54 5 is_stmt 1 view .LVU49
+ 233 000e 1000     		movs	r0, r2
+ 234 0010 2021     		movs	r1, #32
+ 235 0012 FFF7FEFF 		bl	TM1637SetChar
+ 236              	.LVL23:
+  55:Src/display.c ****     TM1637SetChar(2, temp % 10 + '0', false);
+ 237              		.loc 1 55 5 view .LVU50
+ 238 0016 0A21     		movs	r1, #10
+ 239 0018 2000     		movs	r0, r4
+ 240 001a FFF7FEFF 		bl	__aeabi_uidiv
+ 241              	.LVL24:
+ 242 001e 3030     		adds	r0, r0, #48
+ 243 0020 0022     		movs	r2, #0
+ 244 0022 C1B2     		uxtb	r1, r0
+ 245 0024 0120     		movs	r0, #1
+ 246 0026 FFF7FEFF 		bl	TM1637SetChar
+ 247              	.LVL25:
+  56:Src/display.c ****     TM1637SetChar(3, 'C', false);
+ 248              		.loc 1 56 5 view .LVU51
+ 249 002a 2000     		movs	r0, r4
+ 250 002c 0A21     		movs	r1, #10
+ 251 002e FFF7FEFF 		bl	__aeabi_uidivmod
+ 252              	.LVL26:
+ 253 0032 3031     		adds	r1, r1, #48
+ 254 0034 0022     		movs	r2, #0
+ 255 0036 0220     		movs	r0, #2
+ 256 0038 C9B2     		uxtb	r1, r1
+ 257 003a FFF7FEFF 		bl	TM1637SetChar
+ 258              	.LVL27:
+  57:Src/display.c **** }
+ 259              		.loc 1 57 5 view .LVU52
+ 260 003e 0022     		movs	r2, #0
+ 261 0040 4321     		movs	r1, #67
+ 262 0042 0320     		movs	r0, #3
+ 263 0044 FFF7FEFF 		bl	TM1637SetChar
+ 264              	.LVL28:
+ 265              		.loc 1 58 1 is_stmt 0 view .LVU53
+ 266 0048 10BD     		pop	{r4, pc}
+ 267              		.cfi_endproc
+ 268              	.LFE40:
+ 270              		.section	.text.Display_ShowSettings,"ax",%progbits
+ 271              		.align	1
+ 272              		.global	Display_ShowSettings
+ 273              		.syntax unified
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 7
+
+
+ 274              		.code	16
+ 275              		.thumb_func
+ 277              	Display_ShowSettings:
+ 278              	.LVL29:
+ 279              	.LFB41:
+  59:Src/display.c **** 
+  60:Src/display.c **** /**
+  61:Src/display.c ****  * @brief  显示设置界面
+  62:Src/display.c ****  * @param  mode: 当前设置模式
+  63:Src/display.c ****  * @param  time: 当前时间
+  64:Src/display.c ****  * @param  blink: 是否闪烁
+  65:Src/display.c ****  */
+  66:Src/display.c **** void Display_ShowSettings(DisplayMode mode, DateTime *time, bool blink) {
+ 280              		.loc 1 66 73 is_stmt 1 view -0
+ 281              		.cfi_startproc
+ 282              		@ args = 0, pretend = 0, frame = 16
+ 283              		@ frame_needed = 0, uses_anonymous_args = 0
+  67:Src/display.c ****     SystemSettings *settings = Settings_Get();
+ 284              		.loc 1 67 5 view .LVU55
+  66:Src/display.c ****     SystemSettings *settings = Settings_Get();
+ 285              		.loc 1 66 73 is_stmt 0 view .LVU56
+ 286 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 287              	.LCFI4:
+ 288              		.cfi_def_cfa_offset 20
+ 289              		.cfi_offset 4, -20
+ 290              		.cfi_offset 5, -16
+ 291              		.cfi_offset 6, -12
+ 292              		.cfi_offset 7, -8
+ 293              		.cfi_offset 14, -4
+ 294 0002 85B0     		sub	sp, sp, #20
+ 295              	.LCFI5:
+ 296              		.cfi_def_cfa_offset 40
+  66:Src/display.c ****     SystemSettings *settings = Settings_Get();
+ 297              		.loc 1 66 73 view .LVU57
+ 298 0004 0400     		movs	r4, r0
+ 299 0006 0391     		str	r1, [sp, #12]
+ 300 0008 0292     		str	r2, [sp, #8]
+ 301              		.loc 1 67 32 view .LVU58
+ 302 000a FFF7FEFF 		bl	Settings_Get
+ 303              	.LVL30:
+ 304              		.loc 1 67 32 view .LVU59
+ 305 000e 0190     		str	r0, [sp, #4]
+ 306              	.LVL31:
+  68:Src/display.c ****     char disp[5] = {0};
+ 307              		.loc 1 68 5 is_stmt 1 view .LVU60
+  69:Src/display.c **** 
+  70:Src/display.c ****     switch (mode) {
+ 308              		.loc 1 70 5 view .LVU61
+ 309 0010 E01E     		subs	r0, r4, #3
+ 310              	.LVL32:
+ 311              		.loc 1 70 5 is_stmt 0 view .LVU62
+ 312 0012 0C28     		cmp	r0, #12
+ 313 0014 00D9     		bls	.LCB217
+ 314 0016 08E1     		b	.L28	@long jump
+ 315              	.LCB217:
+ 316 0018 FFF7FEFF 		bl	__gnu_thumb1_case_uhi
+ 317              	.L13:
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 8
+
+
+ 318 001c 0D00     		.2byte	(.L25-.L13)/2
+ 319 001e 2F00     		.2byte	(.L24-.L13)/2
+ 320 0020 5800     		.2byte	(.L23-.L13)/2
+ 321 0022 6400     		.2byte	(.L22-.L13)/2
+ 322 0024 7A00     		.2byte	(.L21-.L13)/2
+ 323 0026 8E00     		.2byte	(.L20-.L13)/2
+ 324 0028 A200     		.2byte	(.L19-.L13)/2
+ 325 002a B500     		.2byte	(.L18-.L13)/2
+ 326 002c C200     		.2byte	(.L17-.L13)/2
+ 327 002e CC00     		.2byte	(.L16-.L13)/2
+ 328 0030 D600     		.2byte	(.L15-.L13)/2
+ 329 0032 E100     		.2byte	(.L14-.L13)/2
+ 330 0034 F400     		.2byte	(.L12-.L13)/2
+ 331              		.p2align 1
+ 332              	.L25:
+  71:Src/display.c ****     case MODE_SET_HOUR:
+  72:Src/display.c ****         disp[0] = blink ? ' ' : (time->hours / 10 + '0');
+ 333              		.loc 1 72 9 is_stmt 1 view .LVU63
+ 334              		.loc 1 72 17 is_stmt 0 discriminator 4 view .LVU64
+ 335 0036 2026     		movs	r6, #32
+ 336              		.loc 1 72 17 view .LVU65
+ 337 0038 029B     		ldr	r3, [sp, #8]
+  73:Src/display.c ****         disp[1] = blink ? ' ' : (time->hours % 10 + '0');
+ 338              		.loc 1 73 17 discriminator 1 view .LVU66
+ 339 003a 3700     		movs	r7, r6
+  72:Src/display.c ****         disp[1] = blink ? ' ' : (time->hours % 10 + '0');
+ 340              		.loc 1 72 17 view .LVU67
+ 341 003c 002B     		cmp	r3, #0
+ 342 003e 0DD1     		bne	.L54
+  72:Src/display.c ****         disp[1] = blink ? ' ' : (time->hours % 10 + '0');
+ 343              		.loc 1 72 38 discriminator 2 view .LVU68
+ 344 0040 039B     		ldr	r3, [sp, #12]
+  72:Src/display.c ****         disp[1] = blink ? ' ' : (time->hours % 10 + '0');
+ 345              		.loc 1 72 51 discriminator 2 view .LVU69
+ 346 0042 0A21     		movs	r1, #10
+  72:Src/display.c ****         disp[1] = blink ? ' ' : (time->hours % 10 + '0');
+ 347              		.loc 1 72 38 discriminator 2 view .LVU70
+ 348 0044 DC78     		ldrb	r4, [r3, #3]
+ 349              	.LVL33:
+  72:Src/display.c ****         disp[1] = blink ? ' ' : (time->hours % 10 + '0');
+ 350              		.loc 1 72 51 discriminator 2 view .LVU71
+ 351 0046 2000     		movs	r0, r4
+ 352              	.LVL34:
+  72:Src/display.c ****         disp[1] = blink ? ' ' : (time->hours % 10 + '0');
+ 353              		.loc 1 72 51 discriminator 2 view .LVU72
+ 354 0048 FFF7FEFF 		bl	__aeabi_uidiv
+ 355              	.LVL35:
+  72:Src/display.c ****         disp[1] = blink ? ' ' : (time->hours % 10 + '0');
+ 356              		.loc 1 72 17 discriminator 2 view .LVU73
+ 357 004c 3030     		adds	r0, r0, #48
+ 358              		.loc 1 73 51 discriminator 2 view .LVU74
+ 359 004e 0A21     		movs	r1, #10
+  72:Src/display.c ****         disp[1] = blink ? ' ' : (time->hours % 10 + '0');
+ 360              		.loc 1 72 17 discriminator 2 view .LVU75
+ 361 0050 C6B2     		uxtb	r6, r0
+ 362              	.LVL36:
+ 363              		.loc 1 73 9 is_stmt 1 view .LVU76
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 9
+
+
+ 364              		.loc 1 73 51 is_stmt 0 discriminator 2 view .LVU77
+ 365 0052 2000     		movs	r0, r4
+ 366 0054 FFF7FEFF 		bl	__aeabi_uidivmod
+ 367              	.LVL37:
+ 368              		.loc 1 73 17 discriminator 2 view .LVU78
+ 369 0058 3031     		adds	r1, r1, #48
+ 370 005a CFB2     		uxtb	r7, r1
+ 371              	.LVL38:
+  74:Src/display.c ****         disp[2] = time->minutes / 10 + '0';
+ 372              		.loc 1 74 9 is_stmt 1 view .LVU79
+ 373              	.L54:
+  75:Src/display.c ****         disp[3] = time->minutes % 10 + '0';
+  76:Src/display.c ****         break;
+  77:Src/display.c **** 
+  78:Src/display.c ****     case MODE_SET_MINUTE:
+  79:Src/display.c ****         disp[0] = time->hours / 10 + '0';
+  80:Src/display.c ****         disp[1] = time->hours % 10 + '0';
+  81:Src/display.c ****         disp[2] = blink ? ' ' : time->minutes / 10 + '0';
+ 374              		.loc 1 81 37 is_stmt 0 discriminator 2 view .LVU80
+ 375 005c 039B     		ldr	r3, [sp, #12]
+ 376 005e 5C78     		ldrb	r4, [r3, #1]
+ 377              	.L46:
+  82:Src/display.c ****         disp[3] = blink ? ' ' : time->minutes % 10 + '0';
+  83:Src/display.c ****         break;
+  84:Src/display.c **** 
+  85:Src/display.c ****     case MODE_SET_ALARM_ENABLE:
+  86:Src/display.c ****         disp[0] = 'A';
+  87:Src/display.c ****         disp[1] = 'L';
+  88:Src/display.c ****         disp[2] = blink ? ' ' : 'o';
+  89:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isAlarmEnabled ? 'n' : 'F');
+  90:Src/display.c ****         break;
+  91:Src/display.c **** 
+  92:Src/display.c ****     case MODE_SET_ALARM_HOUR:
+  93:Src/display.c ****         disp[0] = blink ? ' ' : (settings->alarmHour / 10 + '0');
+  94:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+  95:Src/display.c ****         disp[2] = settings->alarmMin / 10 + '0';
+ 378              		.loc 1 95 43 view .LVU81
+ 379 0060 0A21     		movs	r1, #10
+ 380 0062 2000     		movs	r0, r4
+ 381 0064 FFF7FEFF 		bl	__aeabi_uidiv
+ 382              	.LVL39:
+ 383 0068 3030     		adds	r0, r0, #48
+  96:Src/display.c ****         disp[3] = settings->alarmMin % 10 + '0';
+ 384              		.loc 1 96 43 view .LVU82
+ 385 006a 0A21     		movs	r1, #10
+  95:Src/display.c ****         disp[3] = settings->alarmMin % 10 + '0';
+ 386              		.loc 1 95 43 view .LVU83
+ 387 006c C5B2     		uxtb	r5, r0
+ 388              	.LVL40:
+ 389              		.loc 1 96 9 is_stmt 1 view .LVU84
+ 390              		.loc 1 96 43 is_stmt 0 view .LVU85
+ 391 006e 2000     		movs	r0, r4
+ 392 0070 FFF7FEFF 		bl	__aeabi_uidivmod
+ 393              	.LVL41:
+ 394 0074 3031     		adds	r1, r1, #48
+ 395 0076 CCB2     		uxtb	r4, r1
+ 396              	.LVL42:
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 10
+
+
+  97:Src/display.c ****         break;
+ 397              		.loc 1 97 9 is_stmt 1 view .LVU86
+ 398 0078 12E0     		b	.L11
+ 399              	.LVL43:
+ 400              	.L24:
+  79:Src/display.c ****         disp[1] = time->hours % 10 + '0';
+ 401              		.loc 1 79 9 view .LVU87
+  79:Src/display.c ****         disp[1] = time->hours % 10 + '0';
+ 402              		.loc 1 79 23 is_stmt 0 view .LVU88
+ 403 007a 039B     		ldr	r3, [sp, #12]
+  79:Src/display.c ****         disp[1] = time->hours % 10 + '0';
+ 404              		.loc 1 79 36 view .LVU89
+ 405 007c 0A21     		movs	r1, #10
+  79:Src/display.c ****         disp[1] = time->hours % 10 + '0';
+ 406              		.loc 1 79 23 view .LVU90
+ 407 007e DC78     		ldrb	r4, [r3, #3]
+  79:Src/display.c ****         disp[1] = time->hours % 10 + '0';
+ 408              		.loc 1 79 36 view .LVU91
+ 409 0080 2000     		movs	r0, r4
+ 410 0082 FFF7FEFF 		bl	__aeabi_uidiv
+ 411              	.LVL44:
+ 412 0086 3030     		adds	r0, r0, #48
+  80:Src/display.c ****         disp[2] = blink ? ' ' : time->minutes / 10 + '0';
+ 413              		.loc 1 80 36 view .LVU92
+ 414 0088 0A21     		movs	r1, #10
+  79:Src/display.c ****         disp[1] = time->hours % 10 + '0';
+ 415              		.loc 1 79 36 view .LVU93
+ 416 008a C6B2     		uxtb	r6, r0
+ 417              	.LVL45:
+  80:Src/display.c ****         disp[2] = blink ? ' ' : time->minutes / 10 + '0';
+ 418              		.loc 1 80 9 is_stmt 1 view .LVU94
+  80:Src/display.c ****         disp[2] = blink ? ' ' : time->minutes / 10 + '0';
+ 419              		.loc 1 80 36 is_stmt 0 view .LVU95
+ 420 008c 2000     		movs	r0, r4
+ 421 008e FFF7FEFF 		bl	__aeabi_uidivmod
+ 422              	.LVL46:
+  82:Src/display.c ****         break;
+ 423              		.loc 1 82 17 discriminator 1 view .LVU96
+ 424 0092 2024     		movs	r4, #32
+  81:Src/display.c ****         disp[3] = blink ? ' ' : time->minutes % 10 + '0';
+ 425              		.loc 1 81 17 view .LVU97
+ 426 0094 029B     		ldr	r3, [sp, #8]
+  80:Src/display.c ****         disp[2] = blink ? ' ' : time->minutes / 10 + '0';
+ 427              		.loc 1 80 36 view .LVU98
+ 428 0096 3031     		adds	r1, r1, #48
+  81:Src/display.c ****         disp[3] = blink ? ' ' : time->minutes % 10 + '0';
+ 429              		.loc 1 81 17 discriminator 4 view .LVU99
+ 430 0098 2500     		movs	r5, r4
+  80:Src/display.c ****         disp[2] = blink ? ' ' : time->minutes / 10 + '0';
+ 431              		.loc 1 80 36 view .LVU100
+ 432 009a CFB2     		uxtb	r7, r1
+ 433              	.LVL47:
+  81:Src/display.c ****         disp[3] = blink ? ' ' : time->minutes % 10 + '0';
+ 434              		.loc 1 81 9 is_stmt 1 view .LVU101
+  81:Src/display.c ****         disp[3] = blink ? ' ' : time->minutes % 10 + '0';
+ 435              		.loc 1 81 17 is_stmt 0 view .LVU102
+ 436 009c 002B     		cmp	r3, #0
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 11
+
+
+ 437 009e DDD0     		beq	.L54
+ 438              	.LVL48:
+ 439              	.L11:
+  98:Src/display.c **** 
+  99:Src/display.c ****     case MODE_SET_ALARM_MINUTE:
+ 100:Src/display.c ****         disp[0] = settings->alarmHour / 10 + '0';
+ 101:Src/display.c ****         disp[1] = settings->alarmHour % 10 + '0';
+ 102:Src/display.c ****         disp[2] = blink ? ' ' : settings->alarmMin / 10 + '0';
+ 103:Src/display.c ****         disp[3] = blink ? ' ' : settings->alarmMin % 10 + '0';
+ 104:Src/display.c ****         break;
+ 105:Src/display.c **** 
+ 106:Src/display.c ****     case MODE_SET_TEMP_SHOW:
+ 107:Src/display.c ****         disp[0] = 'T';
+ 108:Src/display.c ****         disp[1] = 'S';
+ 109:Src/display.c ****         disp[2] = blink ? ' ' : settings->tempertureShowTime / 10 + '0';
+ 110:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 111:Src/display.c ****         break;
+ 112:Src/display.c **** 
+ 113:Src/display.c ****     case MODE_SET_TEMP_HIDE:
+ 114:Src/display.c ****         disp[0] = 'T';
+ 115:Src/display.c ****         disp[1] = 'H';
+ 116:Src/display.c ****         disp[2] = blink ? ' ' : settings->tempertureHideTime / 10 + '0';
+ 117:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ 118:Src/display.c ****         break;
+ 119:Src/display.c **** 
+ 120:Src/display.c ****     case MODE_SET_BRIGHTNESS:
+ 121:Src/display.c ****         disp[0] = 'b';
+ 122:Src/display.c ****         disp[1] = 'r';
+ 123:Src/display.c ****         if (settings->savedBrightness) {
+ 124:Src/display.c ****             disp[2] = blink ? ' ' : '0';
+ 125:Src/display.c ****             disp[3] = blink ? ' ' : (settings->savedBrightness + '0');
+ 126:Src/display.c ****         } else {
+ 127:Src/display.c ****             disp[2] = 'A';
+ 128:Src/display.c ****             disp[3] = 'U';
+ 129:Src/display.c ****         }
+ 130:Src/display.c ****         break;
+ 131:Src/display.c **** 
+ 132:Src/display.c ****     case MODE_SET_BRIGHTNESS_STRONG:
+ 133:Src/display.c ****         disp[0] = 'b';
+ 134:Src/display.c ****         disp[1] = '1';
+ 135:Src/display.c ****         disp[2] = blink ? ' ' : '0';
+ 136:Src/display.c ****         disp[3] = blink ? ' ' : (settings->strongBrightness + '0');
+ 137:Src/display.c ****         break;
+ 138:Src/display.c **** 
+ 139:Src/display.c ****     case MODE_SET_BRIGHTNESS_WEAK:
+ 140:Src/display.c ****         disp[0] = 'b';
+ 141:Src/display.c ****         disp[1] = '2';
+ 142:Src/display.c ****         disp[2] = blink ? ' ' : '0';
+ 143:Src/display.c ****         disp[3] = blink ? ' ' : (settings->weakBrightness + '0');
+ 144:Src/display.c ****         break;
+ 145:Src/display.c **** 
+ 146:Src/display.c ****     case MODE_SET_ROT_ENABLE:
+ 147:Src/display.c ****         disp[0] = 'r';
+ 148:Src/display.c ****         disp[1] = 'o';
+ 149:Src/display.c ****         disp[2] = blink ? ' ' : 'o';
+ 150:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isRingOnTimeEnabled ? 'n' : 'F');
+ 151:Src/display.c ****         break;
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 12
+
+
+ 152:Src/display.c **** 
+ 153:Src/display.c ****     case MODE_SET_ROT_START:
+ 154:Src/display.c ****         disp[0] = 'r';
+ 155:Src/display.c ****         disp[1] = 'S';
+ 156:Src/display.c ****         disp[2] = blink ? ' ' : settings->ringOnTimeStart / 10 + '0';
+ 157:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 158:Src/display.c ****         break;
+ 159:Src/display.c **** 
+ 160:Src/display.c ****     case MODE_SET_ROT_STOP:
+ 161:Src/display.c ****         disp[0] = 'r';
+ 162:Src/display.c ****         disp[1] = 'e';
+ 163:Src/display.c ****         disp[2] = blink ? ' ' : settings->ringOnTimeStop / 10 + '0';
+ 164:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 165:Src/display.c ****         break;
+ 166:Src/display.c **** 
+ 167:Src/display.c ****     default:
+ 168:Src/display.c ****         break;
+ 169:Src/display.c ****     }
+ 170:Src/display.c **** 
+ 171:Src/display.c ****     TM1637SetChar(0, disp[0], false);
+ 440              		.loc 1 171 5 is_stmt 1 view .LVU103
+ 441 00a0 0022     		movs	r2, #0
+ 442 00a2 3100     		movs	r1, r6
+ 443 00a4 1000     		movs	r0, r2
+ 444 00a6 FFF7FEFF 		bl	TM1637SetChar
+ 445              	.LVL49:
+ 172:Src/display.c ****     TM1637SetChar(1, disp[1], true);
+ 446              		.loc 1 172 5 view .LVU104
+ 447 00aa 0122     		movs	r2, #1
+ 448 00ac 3900     		movs	r1, r7
+ 449 00ae 1000     		movs	r0, r2
+ 450 00b0 FFF7FEFF 		bl	TM1637SetChar
+ 451              	.LVL50:
+ 173:Src/display.c ****     TM1637SetChar(2, disp[2], false);
+ 452              		.loc 1 173 5 view .LVU105
+ 453 00b4 2900     		movs	r1, r5
+ 454 00b6 0022     		movs	r2, #0
+ 455 00b8 0220     		movs	r0, #2
+ 456 00ba FFF7FEFF 		bl	TM1637SetChar
+ 457              	.LVL51:
+ 174:Src/display.c ****     TM1637SetChar(3, disp[3], false);
+ 458              		.loc 1 174 5 view .LVU106
+ 459 00be 0022     		movs	r2, #0
+ 460 00c0 2100     		movs	r1, r4
+ 461 00c2 0320     		movs	r0, #3
+ 462 00c4 FFF7FEFF 		bl	TM1637SetChar
+ 463              	.LVL52:
+ 175:Src/display.c **** }
+ 464              		.loc 1 175 1 is_stmt 0 view .LVU107
+ 465 00c8 05B0     		add	sp, sp, #20
+ 466              		@ sp needed
+ 467 00ca F0BD     		pop	{r4, r5, r6, r7, pc}
+ 468              	.LVL53:
+ 469              	.L23:
+  86:Src/display.c ****         disp[1] = 'L';
+ 470              		.loc 1 86 9 is_stmt 1 view .LVU108
+  87:Src/display.c ****         disp[2] = blink ? ' ' : 'o';
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 13
+
+
+ 471              		.loc 1 87 9 view .LVU109
+  88:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isAlarmEnabled ? 'n' : 'F');
+ 472              		.loc 1 88 9 view .LVU110
+  88:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isAlarmEnabled ? 'n' : 'F');
+ 473              		.loc 1 88 17 is_stmt 0 view .LVU111
+ 474 00cc 029B     		ldr	r3, [sp, #8]
+ 475 00ce 002B     		cmp	r3, #0
+ 476 00d0 00D0     		beq	.LCB363
+ 477 00d2 AFE0     		b	.L31	@long jump
+ 478              	.LCB363:
+ 479              	.LVL54:
+  89:Src/display.c ****         break;
+ 480              		.loc 1 89 9 is_stmt 1 view .LVU112
+  89:Src/display.c ****         break;
+ 481              		.loc 1 89 17 is_stmt 0 discriminator 2 view .LVU113
+ 482 00d4 019B     		ldr	r3, [sp, #4]
+  89:Src/display.c ****         break;
+ 483              		.loc 1 89 17 discriminator 4 view .LVU114
+ 484 00d6 6E24     		movs	r4, #110
+  89:Src/display.c ****         break;
+ 485              		.loc 1 89 17 discriminator 2 view .LVU115
+ 486 00d8 1B78     		ldrb	r3, [r3]
+ 487 00da 002B     		cmp	r3, #0
+ 488 00dc 00D1     		bne	.L48
+  89:Src/display.c ****         break;
+ 489              		.loc 1 89 17 discriminator 5 view .LVU116
+ 490 00de 4624     		movs	r4, #70
+ 491              	.L48:
+  88:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isAlarmEnabled ? 'n' : 'F');
+ 492              		.loc 1 88 17 discriminator 4 view .LVU117
+ 493 00e0 6F25     		movs	r5, #111
+ 494 00e2 A9E0     		b	.L47
+ 495              	.LVL55:
+ 496              	.L22:
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 497              		.loc 1 93 9 is_stmt 1 view .LVU118
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 498              		.loc 1 93 17 is_stmt 0 discriminator 4 view .LVU119
+ 499 00e4 2026     		movs	r6, #32
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 500              		.loc 1 93 17 view .LVU120
+ 501 00e6 029B     		ldr	r3, [sp, #8]
+  94:Src/display.c ****         disp[2] = settings->alarmMin / 10 + '0';
+ 502              		.loc 1 94 17 discriminator 1 view .LVU121
+ 503 00e8 3700     		movs	r7, r6
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 504              		.loc 1 93 17 view .LVU122
+ 505 00ea 002B     		cmp	r3, #0
+ 506 00ec 0DD1     		bne	.L27
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 507              		.loc 1 93 42 discriminator 2 view .LVU123
+ 508 00ee 019B     		ldr	r3, [sp, #4]
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 509              		.loc 1 93 59 discriminator 2 view .LVU124
+ 510 00f0 0A21     		movs	r1, #10
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 511              		.loc 1 93 42 discriminator 2 view .LVU125
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 14
+
+
+ 512 00f2 5C78     		ldrb	r4, [r3, #1]
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 513              		.loc 1 93 59 discriminator 2 view .LVU126
+ 514 00f4 2000     		movs	r0, r4
+ 515 00f6 FFF7FEFF 		bl	__aeabi_uidiv
+ 516              	.LVL56:
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 517              		.loc 1 93 17 discriminator 2 view .LVU127
+ 518 00fa 3030     		adds	r0, r0, #48
+  94:Src/display.c ****         disp[2] = settings->alarmMin / 10 + '0';
+ 519              		.loc 1 94 59 discriminator 2 view .LVU128
+ 520 00fc 0A21     		movs	r1, #10
+  93:Src/display.c ****         disp[1] = blink ? ' ' : (settings->alarmHour % 10 + '0');
+ 521              		.loc 1 93 17 discriminator 2 view .LVU129
+ 522 00fe C6B2     		uxtb	r6, r0
+ 523              	.LVL57:
+  94:Src/display.c ****         disp[2] = settings->alarmMin / 10 + '0';
+ 524              		.loc 1 94 9 is_stmt 1 view .LVU130
+  94:Src/display.c ****         disp[2] = settings->alarmMin / 10 + '0';
+ 525              		.loc 1 94 59 is_stmt 0 discriminator 2 view .LVU131
+ 526 0100 2000     		movs	r0, r4
+ 527 0102 FFF7FEFF 		bl	__aeabi_uidivmod
+ 528              	.LVL58:
+  94:Src/display.c ****         disp[2] = settings->alarmMin / 10 + '0';
+ 529              		.loc 1 94 17 discriminator 2 view .LVU132
+ 530 0106 3031     		adds	r1, r1, #48
+ 531 0108 CFB2     		uxtb	r7, r1
+ 532              	.LVL59:
+ 533              	.L27:
+  95:Src/display.c ****         disp[3] = settings->alarmMin % 10 + '0';
+ 534              		.loc 1 95 9 is_stmt 1 view .LVU133
+  95:Src/display.c ****         disp[3] = settings->alarmMin % 10 + '0';
+ 535              		.loc 1 95 27 is_stmt 0 view .LVU134
+ 536 010a 019B     		ldr	r3, [sp, #4]
+ 537 010c 9C78     		ldrb	r4, [r3, #2]
+ 538 010e A7E7     		b	.L46
+ 539              	.LVL60:
+ 540              	.L21:
+ 100:Src/display.c ****         disp[1] = settings->alarmHour % 10 + '0';
+ 541              		.loc 1 100 9 is_stmt 1 view .LVU135
+ 100:Src/display.c ****         disp[1] = settings->alarmHour % 10 + '0';
+ 542              		.loc 1 100 27 is_stmt 0 view .LVU136
+ 543 0110 019B     		ldr	r3, [sp, #4]
+ 100:Src/display.c ****         disp[1] = settings->alarmHour % 10 + '0';
+ 544              		.loc 1 100 44 view .LVU137
+ 545 0112 0A21     		movs	r1, #10
+ 100:Src/display.c ****         disp[1] = settings->alarmHour % 10 + '0';
+ 546              		.loc 1 100 27 view .LVU138
+ 547 0114 5C78     		ldrb	r4, [r3, #1]
+ 100:Src/display.c ****         disp[1] = settings->alarmHour % 10 + '0';
+ 548              		.loc 1 100 44 view .LVU139
+ 549 0116 2000     		movs	r0, r4
+ 550 0118 FFF7FEFF 		bl	__aeabi_uidiv
+ 551              	.LVL61:
+ 552 011c 3030     		adds	r0, r0, #48
+ 101:Src/display.c ****         disp[2] = blink ? ' ' : settings->alarmMin / 10 + '0';
+ 553              		.loc 1 101 44 view .LVU140
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 15
+
+
+ 554 011e 0A21     		movs	r1, #10
+ 100:Src/display.c ****         disp[1] = settings->alarmHour % 10 + '0';
+ 555              		.loc 1 100 44 view .LVU141
+ 556 0120 C6B2     		uxtb	r6, r0
+ 557              	.LVL62:
+ 101:Src/display.c ****         disp[2] = blink ? ' ' : settings->alarmMin / 10 + '0';
+ 558              		.loc 1 101 9 is_stmt 1 view .LVU142
+ 101:Src/display.c ****         disp[2] = blink ? ' ' : settings->alarmMin / 10 + '0';
+ 559              		.loc 1 101 44 is_stmt 0 view .LVU143
+ 560 0122 2000     		movs	r0, r4
+ 561 0124 FFF7FEFF 		bl	__aeabi_uidivmod
+ 562              	.LVL63:
+ 103:Src/display.c ****         break;
+ 563              		.loc 1 103 17 discriminator 1 view .LVU144
+ 564 0128 2024     		movs	r4, #32
+ 102:Src/display.c ****         disp[3] = blink ? ' ' : settings->alarmMin % 10 + '0';
+ 565              		.loc 1 102 17 view .LVU145
+ 566 012a 029B     		ldr	r3, [sp, #8]
+ 101:Src/display.c ****         disp[2] = blink ? ' ' : settings->alarmMin / 10 + '0';
+ 567              		.loc 1 101 44 view .LVU146
+ 568 012c 3031     		adds	r1, r1, #48
+ 102:Src/display.c ****         disp[3] = blink ? ' ' : settings->alarmMin % 10 + '0';
+ 569              		.loc 1 102 17 discriminator 4 view .LVU147
+ 570 012e 2500     		movs	r5, r4
+ 101:Src/display.c ****         disp[2] = blink ? ' ' : settings->alarmMin / 10 + '0';
+ 571              		.loc 1 101 44 view .LVU148
+ 572 0130 CFB2     		uxtb	r7, r1
+ 573              	.LVL64:
+ 102:Src/display.c ****         disp[3] = blink ? ' ' : settings->alarmMin % 10 + '0';
+ 574              		.loc 1 102 9 is_stmt 1 view .LVU149
+ 102:Src/display.c ****         disp[3] = blink ? ' ' : settings->alarmMin % 10 + '0';
+ 575              		.loc 1 102 17 is_stmt 0 view .LVU150
+ 576 0132 002B     		cmp	r3, #0
+ 577 0134 B4D1     		bne	.L11
+ 578 0136 E8E7     		b	.L27
+ 579              	.LVL65:
+ 580              	.L20:
+ 107:Src/display.c ****         disp[1] = 'S';
+ 581              		.loc 1 107 9 is_stmt 1 view .LVU151
+ 108:Src/display.c ****         disp[2] = blink ? ' ' : settings->tempertureShowTime / 10 + '0';
+ 582              		.loc 1 108 9 view .LVU152
+ 109:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 583              		.loc 1 109 9 view .LVU153
+ 109:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 584              		.loc 1 109 17 is_stmt 0 view .LVU154
+ 585 0138 029B     		ldr	r3, [sp, #8]
+ 586 013a 002B     		cmp	r3, #0
+ 587 013c 7FD1     		bne	.L35
+ 109:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 588              		.loc 1 109 41 discriminator 2 view .LVU155
+ 589 013e 019B     		ldr	r3, [sp, #4]
+ 109:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 590              		.loc 1 109 67 discriminator 2 view .LVU156
+ 591 0140 0A21     		movs	r1, #10
+ 109:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 592              		.loc 1 109 41 discriminator 2 view .LVU157
+ 593 0142 DC78     		ldrb	r4, [r3, #3]
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 16
+
+
+ 109:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 594              		.loc 1 109 67 discriminator 2 view .LVU158
+ 595 0144 2000     		movs	r0, r4
+ 596 0146 FFF7FEFF 		bl	__aeabi_uidiv
+ 597              	.LVL66:
+ 109:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 598              		.loc 1 109 17 discriminator 2 view .LVU159
+ 599 014a 3030     		adds	r0, r0, #48
+ 110:Src/display.c ****         break;
+ 600              		.loc 1 110 67 discriminator 2 view .LVU160
+ 601 014c 0A21     		movs	r1, #10
+ 109:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 602              		.loc 1 109 17 discriminator 2 view .LVU161
+ 603 014e C5B2     		uxtb	r5, r0
+ 604              	.LVL67:
+ 110:Src/display.c ****         break;
+ 605              		.loc 1 110 9 is_stmt 1 view .LVU162
+ 110:Src/display.c ****         break;
+ 606              		.loc 1 110 67 is_stmt 0 discriminator 2 view .LVU163
+ 607 0150 2000     		movs	r0, r4
+ 608 0152 FFF7FEFF 		bl	__aeabi_uidivmod
+ 609              	.LVL68:
+ 110:Src/display.c ****         break;
+ 610              		.loc 1 110 17 discriminator 2 view .LVU164
+ 611 0156 3031     		adds	r1, r1, #48
+ 612 0158 CCB2     		uxtb	r4, r1
+ 613              	.LVL69:
+ 614              	.L55:
+ 108:Src/display.c ****         disp[2] = blink ? ' ' : settings->tempertureShowTime / 10 + '0';
+ 615              		.loc 1 108 17 view .LVU165
+ 616 015a 5327     		movs	r7, #83
+ 617              	.LVL70:
+ 618              	.L49:
+ 114:Src/display.c ****         disp[1] = 'H';
+ 619              		.loc 1 114 17 view .LVU166
+ 620 015c 5426     		movs	r6, #84
+ 621 015e 9FE7     		b	.L11
+ 622              	.LVL71:
+ 623              	.L19:
+ 114:Src/display.c ****         disp[1] = 'H';
+ 624              		.loc 1 114 9 is_stmt 1 view .LVU167
+ 115:Src/display.c ****         disp[2] = blink ? ' ' : settings->tempertureHideTime / 10 + '0';
+ 625              		.loc 1 115 9 view .LVU168
+ 116:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ 626              		.loc 1 116 9 view .LVU169
+ 116:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ 627              		.loc 1 116 17 is_stmt 0 view .LVU170
+ 628 0160 029B     		ldr	r3, [sp, #8]
+ 629 0162 002B     		cmp	r3, #0
+ 630 0164 6ED1     		bne	.L36
+ 116:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ 631              		.loc 1 116 41 discriminator 2 view .LVU171
+ 632 0166 019B     		ldr	r3, [sp, #4]
+ 116:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ 633              		.loc 1 116 67 discriminator 2 view .LVU172
+ 634 0168 0A21     		movs	r1, #10
+ 116:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 17
+
+
+ 635              		.loc 1 116 41 discriminator 2 view .LVU173
+ 636 016a 1C79     		ldrb	r4, [r3, #4]
+ 116:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ 637              		.loc 1 116 67 discriminator 2 view .LVU174
+ 638 016c 2000     		movs	r0, r4
+ 639 016e FFF7FEFF 		bl	__aeabi_uidiv
+ 640              	.LVL72:
+ 116:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ 641              		.loc 1 116 17 discriminator 2 view .LVU175
+ 642 0172 3030     		adds	r0, r0, #48
+ 117:Src/display.c ****         break;
+ 643              		.loc 1 117 67 discriminator 2 view .LVU176
+ 644 0174 0A21     		movs	r1, #10
+ 116:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ 645              		.loc 1 116 17 discriminator 2 view .LVU177
+ 646 0176 C5B2     		uxtb	r5, r0
+ 647              	.LVL73:
+ 117:Src/display.c ****         break;
+ 648              		.loc 1 117 9 is_stmt 1 view .LVU178
+ 117:Src/display.c ****         break;
+ 649              		.loc 1 117 67 is_stmt 0 discriminator 2 view .LVU179
+ 650 0178 2000     		movs	r0, r4
+ 651 017a FFF7FEFF 		bl	__aeabi_uidivmod
+ 652              	.LVL74:
+ 117:Src/display.c ****         break;
+ 653              		.loc 1 117 17 discriminator 2 view .LVU180
+ 654 017e 3031     		adds	r1, r1, #48
+ 655 0180 CCB2     		uxtb	r4, r1
+ 656              	.LVL75:
+ 657              	.L52:
+ 115:Src/display.c ****         disp[2] = blink ? ' ' : settings->tempertureHideTime / 10 + '0';
+ 658              		.loc 1 115 17 view .LVU181
+ 659 0182 4827     		movs	r7, #72
+ 660 0184 EAE7     		b	.L49
+ 661              	.LVL76:
+ 662              	.L18:
+ 121:Src/display.c ****         disp[1] = 'r';
+ 663              		.loc 1 121 9 is_stmt 1 view .LVU182
+ 122:Src/display.c ****         if (settings->savedBrightness) {
+ 664              		.loc 1 122 9 view .LVU183
+ 123:Src/display.c ****             disp[2] = blink ? ' ' : '0';
+ 665              		.loc 1 123 9 view .LVU184
+ 123:Src/display.c ****             disp[2] = blink ? ' ' : '0';
+ 666              		.loc 1 123 21 is_stmt 0 view .LVU185
+ 667 0186 019B     		ldr	r3, [sp, #4]
+ 668 0188 1C7A     		ldrb	r4, [r3, #8]
+ 123:Src/display.c ****             disp[2] = blink ? ' ' : '0';
+ 669              		.loc 1 123 12 view .LVU186
+ 670 018a 002C     		cmp	r4, #0
+ 671 018c 5DD0     		beq	.L37
+ 124:Src/display.c ****             disp[3] = blink ? ' ' : (settings->savedBrightness + '0');
+ 672              		.loc 1 124 13 is_stmt 1 view .LVU187
+ 124:Src/display.c ****             disp[3] = blink ? ' ' : (settings->savedBrightness + '0');
+ 673              		.loc 1 124 21 is_stmt 0 view .LVU188
+ 674 018e 029B     		ldr	r3, [sp, #8]
+ 675 0190 002B     		cmp	r3, #0
+ 676 0192 5DD1     		bne	.L38
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 18
+
+
+ 677              	.LVL77:
+ 125:Src/display.c ****         } else {
+ 678              		.loc 1 125 13 is_stmt 1 view .LVU189
+ 124:Src/display.c ****             disp[3] = blink ? ' ' : (settings->savedBrightness + '0');
+ 679              		.loc 1 124 21 is_stmt 0 discriminator 4 view .LVU190
+ 680 0194 3025     		movs	r5, #48
+ 125:Src/display.c ****         } else {
+ 681              		.loc 1 125 21 discriminator 2 view .LVU191
+ 682 0196 3034     		adds	r4, r4, #48
+ 683 0198 E4B2     		uxtb	r4, r4
+ 684              	.LVL78:
+ 685              	.L56:
+ 122:Src/display.c ****         if (settings->savedBrightness) {
+ 686              		.loc 1 122 17 view .LVU192
+ 687 019a 7227     		movs	r7, #114
+ 688              	.LVL79:
+ 689              	.L50:
+ 140:Src/display.c ****         disp[1] = '2';
+ 690              		.loc 1 140 17 view .LVU193
+ 691 019c 6226     		movs	r6, #98
+ 692 019e 7FE7     		b	.L11
+ 693              	.LVL80:
+ 694              	.L17:
+ 133:Src/display.c ****         disp[1] = '1';
+ 695              		.loc 1 133 9 is_stmt 1 view .LVU194
+ 134:Src/display.c ****         disp[2] = blink ? ' ' : '0';
+ 696              		.loc 1 134 9 view .LVU195
+ 135:Src/display.c ****         disp[3] = blink ? ' ' : (settings->strongBrightness + '0');
+ 697              		.loc 1 135 9 view .LVU196
+ 135:Src/display.c ****         disp[3] = blink ? ' ' : (settings->strongBrightness + '0');
+ 698              		.loc 1 135 17 is_stmt 0 view .LVU197
+ 699 01a0 029B     		ldr	r3, [sp, #8]
+ 700 01a2 002B     		cmp	r3, #0
+ 701 01a4 57D1     		bne	.L39
+ 702              	.LVL81:
+ 136:Src/display.c ****         break;
+ 703              		.loc 1 136 9 is_stmt 1 view .LVU198
+ 135:Src/display.c ****         disp[3] = blink ? ' ' : (settings->strongBrightness + '0');
+ 704              		.loc 1 135 17 is_stmt 0 discriminator 4 view .LVU199
+ 705 01a6 3025     		movs	r5, #48
+ 136:Src/display.c ****         break;
+ 706              		.loc 1 136 17 discriminator 2 view .LVU200
+ 707 01a8 019B     		ldr	r3, [sp, #4]
+ 708 01aa 5C7A     		ldrb	r4, [r3, #9]
+ 709 01ac 3034     		adds	r4, r4, #48
+ 710 01ae E4B2     		uxtb	r4, r4
+ 711              	.LVL82:
+ 712              	.L57:
+ 134:Src/display.c ****         disp[2] = blink ? ' ' : '0';
+ 713              		.loc 1 134 17 view .LVU201
+ 714 01b0 3127     		movs	r7, #49
+ 715 01b2 F3E7     		b	.L50
+ 716              	.LVL83:
+ 717              	.L16:
+ 140:Src/display.c ****         disp[1] = '2';
+ 718              		.loc 1 140 9 is_stmt 1 view .LVU202
+ 141:Src/display.c ****         disp[2] = blink ? ' ' : '0';
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 19
+
+
+ 719              		.loc 1 141 9 view .LVU203
+ 142:Src/display.c ****         disp[3] = blink ? ' ' : (settings->weakBrightness + '0');
+ 720              		.loc 1 142 9 view .LVU204
+ 142:Src/display.c ****         disp[3] = blink ? ' ' : (settings->weakBrightness + '0');
+ 721              		.loc 1 142 17 is_stmt 0 view .LVU205
+ 722 01b4 029B     		ldr	r3, [sp, #8]
+ 723 01b6 002B     		cmp	r3, #0
+ 724 01b8 50D1     		bne	.L40
+ 725              	.LVL84:
+ 143:Src/display.c ****         break;
+ 726              		.loc 1 143 9 is_stmt 1 view .LVU206
+ 142:Src/display.c ****         disp[3] = blink ? ' ' : (settings->weakBrightness + '0');
+ 727              		.loc 1 142 17 is_stmt 0 discriminator 4 view .LVU207
+ 728 01ba 3025     		movs	r5, #48
+ 143:Src/display.c ****         break;
+ 729              		.loc 1 143 17 discriminator 2 view .LVU208
+ 730 01bc 019B     		ldr	r3, [sp, #4]
+ 731 01be 9C7A     		ldrb	r4, [r3, #10]
+ 732 01c0 3034     		adds	r4, r4, #48
+ 733 01c2 E4B2     		uxtb	r4, r4
+ 734              	.LVL85:
+ 735              	.L51:
+ 141:Src/display.c ****         disp[2] = blink ? ' ' : '0';
+ 736              		.loc 1 141 17 view .LVU209
+ 737 01c4 3227     		movs	r7, #50
+ 738 01c6 E9E7     		b	.L50
+ 739              	.LVL86:
+ 740              	.L15:
+ 147:Src/display.c ****         disp[1] = 'o';
+ 741              		.loc 1 147 9 is_stmt 1 view .LVU210
+ 148:Src/display.c ****         disp[2] = blink ? ' ' : 'o';
+ 742              		.loc 1 148 9 view .LVU211
+ 149:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isRingOnTimeEnabled ? 'n' : 'F');
+ 743              		.loc 1 149 9 view .LVU212
+ 149:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isRingOnTimeEnabled ? 'n' : 'F');
+ 744              		.loc 1 149 17 is_stmt 0 view .LVU213
+ 745 01c8 029B     		ldr	r3, [sp, #8]
+ 746 01ca 002B     		cmp	r3, #0
+ 747 01cc 49D1     		bne	.L41
+ 748              	.LVL87:
+ 150:Src/display.c ****         break;
+ 749              		.loc 1 150 9 is_stmt 1 view .LVU214
+ 150:Src/display.c ****         break;
+ 750              		.loc 1 150 17 is_stmt 0 discriminator 2 view .LVU215
+ 751 01ce 019B     		ldr	r3, [sp, #4]
+ 150:Src/display.c ****         break;
+ 752              		.loc 1 150 17 discriminator 4 view .LVU216
+ 753 01d0 6E24     		movs	r4, #110
+ 150:Src/display.c ****         break;
+ 754              		.loc 1 150 17 discriminator 2 view .LVU217
+ 755 01d2 5B79     		ldrb	r3, [r3, #5]
+ 756 01d4 002B     		cmp	r3, #0
+ 757 01d6 00D1     		bne	.L60
+ 150:Src/display.c ****         break;
+ 758              		.loc 1 150 17 discriminator 5 view .LVU218
+ 759 01d8 4624     		movs	r4, #70
+ 760              	.L60:
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 20
+
+
+ 149:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isRingOnTimeEnabled ? 'n' : 'F');
+ 761              		.loc 1 149 17 discriminator 4 view .LVU219
+ 762 01da 6F25     		movs	r5, #111
+ 763 01dc 43E0     		b	.L58
+ 764              	.LVL88:
+ 765              	.L14:
+ 154:Src/display.c ****         disp[1] = 'S';
+ 766              		.loc 1 154 9 is_stmt 1 view .LVU220
+ 155:Src/display.c ****         disp[2] = blink ? ' ' : settings->ringOnTimeStart / 10 + '0';
+ 767              		.loc 1 155 9 view .LVU221
+ 156:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 768              		.loc 1 156 9 view .LVU222
+ 156:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 769              		.loc 1 156 17 is_stmt 0 view .LVU223
+ 770 01de 029B     		ldr	r3, [sp, #8]
+ 771 01e0 002B     		cmp	r3, #0
+ 772 01e2 43D1     		bne	.L43
+ 156:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 773              		.loc 1 156 41 discriminator 2 view .LVU224
+ 774 01e4 019B     		ldr	r3, [sp, #4]
+ 156:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 775              		.loc 1 156 64 discriminator 2 view .LVU225
+ 776 01e6 0A21     		movs	r1, #10
+ 156:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 777              		.loc 1 156 41 discriminator 2 view .LVU226
+ 778 01e8 9C79     		ldrb	r4, [r3, #6]
+ 156:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 779              		.loc 1 156 64 discriminator 2 view .LVU227
+ 780 01ea 2000     		movs	r0, r4
+ 781 01ec FFF7FEFF 		bl	__aeabi_uidiv
+ 782              	.LVL89:
+ 156:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 783              		.loc 1 156 17 discriminator 2 view .LVU228
+ 784 01f0 3030     		adds	r0, r0, #48
+ 157:Src/display.c ****         break;
+ 785              		.loc 1 157 64 discriminator 2 view .LVU229
+ 786 01f2 0A21     		movs	r1, #10
+ 156:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 787              		.loc 1 156 17 discriminator 2 view .LVU230
+ 788 01f4 C5B2     		uxtb	r5, r0
+ 789              	.LVL90:
+ 157:Src/display.c ****         break;
+ 790              		.loc 1 157 9 is_stmt 1 view .LVU231
+ 157:Src/display.c ****         break;
+ 791              		.loc 1 157 64 is_stmt 0 discriminator 2 view .LVU232
+ 792 01f6 2000     		movs	r0, r4
+ 793 01f8 FFF7FEFF 		bl	__aeabi_uidivmod
+ 794              	.LVL91:
+ 157:Src/display.c ****         break;
+ 795              		.loc 1 157 17 discriminator 2 view .LVU233
+ 796 01fc 3031     		adds	r1, r1, #48
+ 797 01fe CCB2     		uxtb	r4, r1
+ 798              	.LVL92:
+ 799              	.L59:
+ 155:Src/display.c ****         disp[2] = blink ? ' ' : settings->ringOnTimeStart / 10 + '0';
+ 800              		.loc 1 155 17 view .LVU234
+ 801 0200 5327     		movs	r7, #83
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 21
+
+
+ 802 0202 31E0     		b	.L45
+ 803              	.LVL93:
+ 804              	.L12:
+ 161:Src/display.c ****         disp[1] = 'e';
+ 805              		.loc 1 161 9 is_stmt 1 view .LVU235
+ 162:Src/display.c ****         disp[2] = blink ? ' ' : settings->ringOnTimeStop / 10 + '0';
+ 806              		.loc 1 162 9 view .LVU236
+ 163:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 807              		.loc 1 163 9 view .LVU237
+ 163:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 808              		.loc 1 163 17 is_stmt 0 view .LVU238
+ 809 0204 029B     		ldr	r3, [sp, #8]
+ 810 0206 002B     		cmp	r3, #0
+ 811 0208 33D1     		bne	.L44
+ 163:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 812              		.loc 1 163 41 discriminator 2 view .LVU239
+ 813 020a 019B     		ldr	r3, [sp, #4]
+ 163:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 814              		.loc 1 163 63 discriminator 2 view .LVU240
+ 815 020c 0A21     		movs	r1, #10
+ 163:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 816              		.loc 1 163 41 discriminator 2 view .LVU241
+ 817 020e DC79     		ldrb	r4, [r3, #7]
+ 163:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 818              		.loc 1 163 63 discriminator 2 view .LVU242
+ 819 0210 2000     		movs	r0, r4
+ 820 0212 FFF7FEFF 		bl	__aeabi_uidiv
+ 821              	.LVL94:
+ 163:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 822              		.loc 1 163 17 discriminator 2 view .LVU243
+ 823 0216 3030     		adds	r0, r0, #48
+ 164:Src/display.c ****         break;
+ 824              		.loc 1 164 63 discriminator 2 view .LVU244
+ 825 0218 0A21     		movs	r1, #10
+ 163:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 826              		.loc 1 163 17 discriminator 2 view .LVU245
+ 827 021a C5B2     		uxtb	r5, r0
+ 828              	.LVL95:
+ 164:Src/display.c ****         break;
+ 829              		.loc 1 164 9 is_stmt 1 view .LVU246
+ 164:Src/display.c ****         break;
+ 830              		.loc 1 164 63 is_stmt 0 discriminator 2 view .LVU247
+ 831 021c 2000     		movs	r0, r4
+ 832 021e FFF7FEFF 		bl	__aeabi_uidivmod
+ 833              	.LVL96:
+ 164:Src/display.c ****         break;
+ 834              		.loc 1 164 17 discriminator 2 view .LVU248
+ 835 0222 3031     		adds	r1, r1, #48
+ 836 0224 CCB2     		uxtb	r4, r1
+ 837              	.LVL97:
+ 838              	.L53:
+ 162:Src/display.c ****         disp[2] = blink ? ' ' : settings->ringOnTimeStop / 10 + '0';
+ 839              		.loc 1 162 17 view .LVU249
+ 840 0226 6527     		movs	r7, #101
+ 841 0228 1EE0     		b	.L45
+ 842              	.LVL98:
+ 843              	.L28:
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 22
+
+
+  70:Src/display.c ****     case MODE_SET_HOUR:
+ 844              		.loc 1 70 5 view .LVU250
+ 845 022a 0024     		movs	r4, #0
+ 846 022c 2500     		movs	r5, r4
+ 847 022e 2700     		movs	r7, r4
+ 848 0230 2600     		movs	r6, r4
+ 849 0232 35E7     		b	.L11
+ 850              	.LVL99:
+ 851              	.L31:
+  89:Src/display.c ****         break;
+ 852              		.loc 1 89 17 discriminator 1 view .LVU251
+ 853 0234 2024     		movs	r4, #32
+  88:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isAlarmEnabled ? 'n' : 'F');
+ 854              		.loc 1 88 17 discriminator 4 view .LVU252
+ 855 0236 2500     		movs	r5, r4
+ 856              	.LVL100:
+ 857              	.L47:
+  87:Src/display.c ****         disp[2] = blink ? ' ' : 'o';
+ 858              		.loc 1 87 17 view .LVU253
+ 859 0238 4C27     		movs	r7, #76
+  86:Src/display.c ****         disp[1] = 'L';
+ 860              		.loc 1 86 17 view .LVU254
+ 861 023a 4126     		movs	r6, #65
+ 862 023c 30E7     		b	.L11
+ 863              	.LVL101:
+ 864              	.L35:
+ 110:Src/display.c ****         break;
+ 865              		.loc 1 110 17 discriminator 1 view .LVU255
+ 866 023e 2024     		movs	r4, #32
+ 109:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureShowTime % 10 + '0';
+ 867              		.loc 1 109 17 discriminator 4 view .LVU256
+ 868 0240 2500     		movs	r5, r4
+ 869 0242 8AE7     		b	.L55
+ 870              	.LVL102:
+ 871              	.L36:
+ 117:Src/display.c ****         break;
+ 872              		.loc 1 117 17 discriminator 1 view .LVU257
+ 873 0244 2024     		movs	r4, #32
+ 116:Src/display.c ****         disp[3] = blink ? ' ' : settings->tempertureHideTime % 10 + '0';
+ 874              		.loc 1 116 17 discriminator 4 view .LVU258
+ 875 0246 2500     		movs	r5, r4
+ 876 0248 9BE7     		b	.L52
+ 877              	.LVL103:
+ 878              	.L37:
+ 128:Src/display.c ****         }
+ 879              		.loc 1 128 21 view .LVU259
+ 880 024a 5524     		movs	r4, #85
+ 127:Src/display.c ****             disp[3] = 'U';
+ 881              		.loc 1 127 21 view .LVU260
+ 882 024c 4125     		movs	r5, #65
+ 883 024e A4E7     		b	.L56
+ 884              	.L38:
+ 125:Src/display.c ****         } else {
+ 885              		.loc 1 125 21 discriminator 1 view .LVU261
+ 886 0250 2024     		movs	r4, #32
+ 124:Src/display.c ****             disp[3] = blink ? ' ' : (settings->savedBrightness + '0');
+ 887              		.loc 1 124 21 discriminator 4 view .LVU262
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 23
+
+
+ 888 0252 2500     		movs	r5, r4
+ 889 0254 A1E7     		b	.L56
+ 890              	.LVL104:
+ 891              	.L39:
+ 136:Src/display.c ****         break;
+ 892              		.loc 1 136 17 discriminator 1 view .LVU263
+ 893 0256 2024     		movs	r4, #32
+ 135:Src/display.c ****         disp[3] = blink ? ' ' : (settings->strongBrightness + '0');
+ 894              		.loc 1 135 17 discriminator 4 view .LVU264
+ 895 0258 2500     		movs	r5, r4
+ 896 025a A9E7     		b	.L57
+ 897              	.LVL105:
+ 898              	.L40:
+ 143:Src/display.c ****         break;
+ 899              		.loc 1 143 17 discriminator 1 view .LVU265
+ 900 025c 2024     		movs	r4, #32
+ 142:Src/display.c ****         disp[3] = blink ? ' ' : (settings->weakBrightness + '0');
+ 901              		.loc 1 142 17 discriminator 4 view .LVU266
+ 902 025e 2500     		movs	r5, r4
+ 903 0260 B0E7     		b	.L51
+ 904              	.LVL106:
+ 905              	.L41:
+ 150:Src/display.c ****         break;
+ 906              		.loc 1 150 17 discriminator 1 view .LVU267
+ 907 0262 2024     		movs	r4, #32
+ 149:Src/display.c ****         disp[3] = blink ? ' ' : (settings->isRingOnTimeEnabled ? 'n' : 'F');
+ 908              		.loc 1 149 17 discriminator 4 view .LVU268
+ 909 0264 2500     		movs	r5, r4
+ 910              	.LVL107:
+ 911              	.L58:
+ 148:Src/display.c ****         disp[2] = blink ? ' ' : 'o';
+ 912              		.loc 1 148 17 view .LVU269
+ 913 0266 6F27     		movs	r7, #111
+ 914              	.LVL108:
+ 915              	.L45:
+ 161:Src/display.c ****         disp[1] = 'e';
+ 916              		.loc 1 161 17 view .LVU270
+ 917 0268 7226     		movs	r6, #114
+ 918 026a 19E7     		b	.L11
+ 919              	.LVL109:
+ 920              	.L43:
+ 157:Src/display.c ****         break;
+ 921              		.loc 1 157 17 discriminator 1 view .LVU271
+ 922 026c 2024     		movs	r4, #32
+ 156:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStart % 10 + '0';
+ 923              		.loc 1 156 17 discriminator 4 view .LVU272
+ 924 026e 2500     		movs	r5, r4
+ 925 0270 C6E7     		b	.L59
+ 926              	.LVL110:
+ 927              	.L44:
+ 164:Src/display.c ****         break;
+ 928              		.loc 1 164 17 discriminator 1 view .LVU273
+ 929 0272 2024     		movs	r4, #32
+ 163:Src/display.c ****         disp[3] = blink ? ' ' : settings->ringOnTimeStop % 10 + '0';
+ 930              		.loc 1 163 17 discriminator 4 view .LVU274
+ 931 0274 2500     		movs	r5, r4
+ 932 0276 D6E7     		b	.L53
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 24
+
+
+ 933              		.cfi_endproc
+ 934              	.LFE41:
+ 936              		.section	.text.Display_SetBrightness,"ax",%progbits
+ 937              		.align	1
+ 938              		.global	Display_SetBrightness
+ 939              		.syntax unified
+ 940              		.code	16
+ 941              		.thumb_func
+ 943              	Display_SetBrightness:
+ 944              	.LVL111:
+ 945              	.LFB42:
+ 176:Src/display.c **** 
+ 177:Src/display.c **** /**
+ 178:Src/display.c ****  * @brief  设置亮度
+ 179:Src/display.c ****  */
+ 180:Src/display.c **** void Display_SetBrightness(uint8_t level) {
+ 946              		.loc 1 180 43 is_stmt 1 view -0
+ 947              		.cfi_startproc
+ 948              		@ args = 0, pretend = 0, frame = 0
+ 949              		@ frame_needed = 0, uses_anonymous_args = 0
+ 181:Src/display.c ****     TM1637SetBrightness(level);
+ 950              		.loc 1 181 5 view .LVU276
+ 180:Src/display.c ****     TM1637SetBrightness(level);
+ 951              		.loc 1 180 43 is_stmt 0 view .LVU277
+ 952 0000 10B5     		push	{r4, lr}
+ 953              	.LCFI6:
+ 954              		.cfi_def_cfa_offset 8
+ 955              		.cfi_offset 4, -8
+ 956              		.cfi_offset 14, -4
+ 957              		.loc 1 181 5 view .LVU278
+ 958 0002 FFF7FEFF 		bl	TM1637SetBrightness
+ 959              	.LVL112:
+ 182:Src/display.c **** }
+ 960              		.loc 1 182 1 view .LVU279
+ 961              		@ sp needed
+ 962 0006 10BD     		pop	{r4, pc}
+ 963              		.cfi_endproc
+ 964              	.LFE42:
+ 966              		.section	.text.Display_Clear,"ax",%progbits
+ 967              		.align	1
+ 968              		.global	Display_Clear
+ 969              		.syntax unified
+ 970              		.code	16
+ 971              		.thumb_func
+ 973              	Display_Clear:
+ 974              	.LFB43:
+ 183:Src/display.c **** 
+ 184:Src/display.c **** /**
+ 185:Src/display.c ****  * @brief  清空显示
+ 186:Src/display.c ****  */
+ 187:Src/display.c **** void Display_Clear(void) {
+ 975              		.loc 1 187 26 is_stmt 1 view -0
+ 976              		.cfi_startproc
+ 977              		@ args = 0, pretend = 0, frame = 0
+ 978              		@ frame_needed = 0, uses_anonymous_args = 0
+ 188:Src/display.c ****     for (uint8_t i = 0; i < 4; i++) {
+ 979              		.loc 1 188 5 view .LVU281
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 25
+
+
+ 980              	.LBB2:
+ 981              		.loc 1 188 10 view .LVU282
+ 982              	.LVL113:
+ 983              		.loc 1 188 27 discriminator 1 view .LVU283
+ 984              	.LBE2:
+ 187:Src/display.c ****     for (uint8_t i = 0; i < 4; i++) {
+ 985              		.loc 1 187 26 is_stmt 0 view .LVU284
+ 986 0000 10B5     		push	{r4, lr}
+ 987              	.LCFI7:
+ 988              		.cfi_def_cfa_offset 8
+ 989              		.cfi_offset 4, -8
+ 990              		.cfi_offset 14, -4
+ 991              	.LBB3:
+ 992              		.loc 1 188 18 view .LVU285
+ 993 0002 0024     		movs	r4, #0
+ 994              	.LVL114:
+ 995              	.L63:
+ 189:Src/display.c ****         TM1637SetChar(i, ' ', false);
+ 996              		.loc 1 189 9 is_stmt 1 view .LVU286
+ 997 0004 2000     		movs	r0, r4
+ 188:Src/display.c ****     for (uint8_t i = 0; i < 4; i++) {
+ 998              		.loc 1 188 33 is_stmt 0 discriminator 3 view .LVU287
+ 999 0006 0134     		adds	r4, r4, #1
+ 1000              	.LVL115:
+ 1001              		.loc 1 189 9 view .LVU288
+ 1002 0008 0022     		movs	r2, #0
+ 1003 000a 2021     		movs	r1, #32
+ 188:Src/display.c ****     for (uint8_t i = 0; i < 4; i++) {
+ 1004              		.loc 1 188 33 discriminator 3 view .LVU289
+ 1005 000c E4B2     		uxtb	r4, r4
+ 1006              		.loc 1 189 9 view .LVU290
+ 1007 000e FFF7FEFF 		bl	TM1637SetChar
+ 1008              	.LVL116:
+ 188:Src/display.c ****     for (uint8_t i = 0; i < 4; i++) {
+ 1009              		.loc 1 188 33 is_stmt 1 discriminator 3 view .LVU291
+ 188:Src/display.c ****     for (uint8_t i = 0; i < 4; i++) {
+ 1010              		.loc 1 188 27 discriminator 1 view .LVU292
+ 1011 0012 042C     		cmp	r4, #4
+ 1012 0014 F6D1     		bne	.L63
+ 1013              	.LBE3:
+ 190:Src/display.c ****     }
+ 191:Src/display.c **** }
+ 1014              		.loc 1 191 1 is_stmt 0 view .LVU293
+ 1015              		@ sp needed
+ 1016              	.LVL117:
+ 1017              		.loc 1 191 1 view .LVU294
+ 1018 0016 10BD     		pop	{r4, pc}
+ 1019              		.cfi_endproc
+ 1020              	.LFE43:
+ 1022              		.section	.text.Display_GetMode,"ax",%progbits
+ 1023              		.align	1
+ 1024              		.global	Display_GetMode
+ 1025              		.syntax unified
+ 1026              		.code	16
+ 1027              		.thumb_func
+ 1029              	Display_GetMode:
+ 1030              	.LFB44:
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 26
+
+
+ 192:Src/display.c **** 
+ 193:Src/display.c **** /* 模式管理 */
+ 194:Src/display.c **** DisplayMode Display_GetMode(void) {
+ 1031              		.loc 1 194 35 is_stmt 1 view -0
+ 1032              		.cfi_startproc
+ 1033              		@ args = 0, pretend = 0, frame = 0
+ 1034              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1035              		@ link register save eliminated.
+ 195:Src/display.c ****     return g_CurrentMode;
+ 1036              		.loc 1 195 5 view .LVU296
+ 1037              		.loc 1 195 12 is_stmt 0 view .LVU297
+ 1038 0000 014B     		ldr	r3, .L66
+ 196:Src/display.c **** }
+ 1039              		.loc 1 196 1 view .LVU298
+ 1040              		@ sp needed
+ 195:Src/display.c ****     return g_CurrentMode;
+ 1041              		.loc 1 195 12 discriminator 1 view .LVU299
+ 1042 0002 1878     		ldrb	r0, [r3]
+ 1043              		.loc 1 196 1 view .LVU300
+ 1044 0004 7047     		bx	lr
+ 1045              	.L67:
+ 1046 0006 C046     		.align	2
+ 1047              	.L66:
+ 1048 0008 00000000 		.word	g_CurrentMode
+ 1049              		.cfi_endproc
+ 1050              	.LFE44:
+ 1052              		.section	.text.Display_SetMode,"ax",%progbits
+ 1053              		.align	1
+ 1054              		.global	Display_SetMode
+ 1055              		.syntax unified
+ 1056              		.code	16
+ 1057              		.thumb_func
+ 1059              	Display_SetMode:
+ 1060              	.LVL118:
+ 1061              	.LFB45:
+ 197:Src/display.c **** 
+ 198:Src/display.c **** void Display_SetMode(DisplayMode mode) {
+ 1062              		.loc 1 198 40 is_stmt 1 view -0
+ 1063              		.cfi_startproc
+ 1064              		@ args = 0, pretend = 0, frame = 0
+ 1065              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1066              		@ link register save eliminated.
+ 199:Src/display.c ****     g_CurrentMode = mode;
+ 1067              		.loc 1 199 5 view .LVU302
+ 1068              		.loc 1 199 19 is_stmt 0 view .LVU303
+ 1069 0000 014B     		ldr	r3, .L69
+ 200:Src/display.c **** }
+ 1070              		.loc 1 200 1 view .LVU304
+ 1071              		@ sp needed
+ 199:Src/display.c ****     g_CurrentMode = mode;
+ 1072              		.loc 1 199 19 view .LVU305
+ 1073 0002 1870     		strb	r0, [r3]
+ 1074              		.loc 1 200 1 view .LVU306
+ 1075 0004 7047     		bx	lr
+ 1076              	.L70:
+ 1077 0006 C046     		.align	2
+ 1078              	.L69:
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 27
+
+
+ 1079 0008 00000000 		.word	g_CurrentMode
+ 1080              		.cfi_endproc
+ 1081              	.LFE45:
+ 1083              		.section	.text.Display_SetBlink,"ax",%progbits
+ 1084              		.align	1
+ 1085              		.global	Display_SetBlink
+ 1086              		.syntax unified
+ 1087              		.code	16
+ 1088              		.thumb_func
+ 1090              	Display_SetBlink:
+ 1091              	.LVL119:
+ 1092              	.LFB46:
+ 201:Src/display.c **** 
+ 202:Src/display.c **** void Display_SetBlink(bool blink) {
+ 1093              		.loc 1 202 35 is_stmt 1 view -0
+ 1094              		.cfi_startproc
+ 1095              		@ args = 0, pretend = 0, frame = 0
+ 1096              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1097              		@ link register save eliminated.
+ 203:Src/display.c ****     g_BlinkControl = blink;
+ 1098              		.loc 1 203 5 view .LVU308
+ 1099              		.loc 1 203 20 is_stmt 0 view .LVU309
+ 1100 0000 014B     		ldr	r3, .L72
+ 204:Src/display.c **** }
+ 1101              		.loc 1 204 1 view .LVU310
+ 1102              		@ sp needed
+ 203:Src/display.c ****     g_BlinkControl = blink;
+ 1103              		.loc 1 203 20 view .LVU311
+ 1104 0002 1870     		strb	r0, [r3]
+ 1105              		.loc 1 204 1 view .LVU312
+ 1106 0004 7047     		bx	lr
+ 1107              	.L73:
+ 1108 0006 C046     		.align	2
+ 1109              	.L72:
+ 1110 0008 00000000 		.word	g_BlinkControl
+ 1111              		.cfi_endproc
+ 1112              	.LFE46:
+ 1114              		.section	.text.Display_GetBlink,"ax",%progbits
+ 1115              		.align	1
+ 1116              		.global	Display_GetBlink
+ 1117              		.syntax unified
+ 1118              		.code	16
+ 1119              		.thumb_func
+ 1121              	Display_GetBlink:
+ 1122              	.LFB47:
+ 205:Src/display.c **** 
+ 206:Src/display.c **** bool Display_GetBlink(void) {
+ 1123              		.loc 1 206 29 is_stmt 1 view -0
+ 1124              		.cfi_startproc
+ 1125              		@ args = 0, pretend = 0, frame = 0
+ 1126              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1127              		@ link register save eliminated.
+ 207:Src/display.c ****     return g_BlinkControl;
+ 1128              		.loc 1 207 5 view .LVU314
+ 1129              		.loc 1 207 12 is_stmt 0 view .LVU315
+ 1130 0000 014B     		ldr	r3, .L75
+ 208:Src/display.c **** }
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 28
+
+
+ 1131              		.loc 1 208 1 view .LVU316
+ 1132              		@ sp needed
+ 207:Src/display.c ****     return g_BlinkControl;
+ 1133              		.loc 1 207 12 discriminator 1 view .LVU317
+ 1134 0002 1878     		ldrb	r0, [r3]
+ 1135              		.loc 1 208 1 view .LVU318
+ 1136 0004 7047     		bx	lr
+ 1137              	.L76:
+ 1138 0006 C046     		.align	2
+ 1139              	.L75:
+ 1140 0008 00000000 		.word	g_BlinkControl
+ 1141              		.cfi_endproc
+ 1142              	.LFE47:
+ 1144              		.section	.text.Display_GetTime,"ax",%progbits
+ 1145              		.align	1
+ 1146              		.global	Display_GetTime
+ 1147              		.syntax unified
+ 1148              		.code	16
+ 1149              		.thumb_func
+ 1151              	Display_GetTime:
+ 1152              	.LVL120:
+ 1153              	.LFB48:
+ 209:Src/display.c **** 
+ 210:Src/display.c **** /* 全局显示时间（用于设置模式） */
+ 211:Src/display.c **** static DateTime g_DisplayTime = {0};
+ 212:Src/display.c **** 
+ 213:Src/display.c **** /**
+ 214:Src/display.c ****  * @brief  获取显示时间
+ 215:Src/display.c ****  */
+ 216:Src/display.c **** void Display_GetTime(DateTime *time) {
+ 1154              		.loc 1 216 38 is_stmt 1 view -0
+ 1155              		.cfi_startproc
+ 1156              		@ args = 0, pretend = 0, frame = 0
+ 1157              		@ frame_needed = 0, uses_anonymous_args = 0
+ 217:Src/display.c ****     *time = g_DisplayTime;
+ 1158              		.loc 1 217 5 view .LVU320
+ 216:Src/display.c ****     *time = g_DisplayTime;
+ 1159              		.loc 1 216 38 is_stmt 0 view .LVU321
+ 1160 0000 10B5     		push	{r4, lr}
+ 1161              	.LCFI8:
+ 1162              		.cfi_def_cfa_offset 8
+ 1163              		.cfi_offset 4, -8
+ 1164              		.cfi_offset 14, -4
+ 1165              		.loc 1 217 11 view .LVU322
+ 1166 0002 0822     		movs	r2, #8
+ 218:Src/display.c **** }
+ 1167              		.loc 1 218 1 view .LVU323
+ 1168              		@ sp needed
+ 217:Src/display.c ****     *time = g_DisplayTime;
+ 1169              		.loc 1 217 11 view .LVU324
+ 1170 0004 0149     		ldr	r1, .L78
+ 1171 0006 FFF7FEFF 		bl	memcpy
+ 1172              	.LVL121:
+ 1173              		.loc 1 218 1 view .LVU325
+ 1174 000a 10BD     		pop	{r4, pc}
+ 1175              	.L79:
+ 1176              		.align	2
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 29
+
+
+ 1177              	.L78:
+ 1178 000c 00000000 		.word	g_DisplayTime
+ 1179              		.cfi_endproc
+ 1180              	.LFE48:
+ 1182              		.section	.text.Display_SetTime,"ax",%progbits
+ 1183              		.align	1
+ 1184              		.global	Display_SetTime
+ 1185              		.syntax unified
+ 1186              		.code	16
+ 1187              		.thumb_func
+ 1189              	Display_SetTime:
+ 1190              	.LVL122:
+ 1191              	.LFB49:
+ 219:Src/display.c **** 
+ 220:Src/display.c **** /**
+ 221:Src/display.c ****  * @brief  设置显示时间
+ 222:Src/display.c ****  */
+ 223:Src/display.c **** void Display_SetTime(DateTime *time) {
+ 1192              		.loc 1 223 38 is_stmt 1 view -0
+ 1193              		.cfi_startproc
+ 1194              		@ args = 0, pretend = 0, frame = 0
+ 1195              		@ frame_needed = 0, uses_anonymous_args = 0
+ 224:Src/display.c ****     g_DisplayTime = *time;
+ 1196              		.loc 1 224 5 view .LVU327
+ 223:Src/display.c ****     g_DisplayTime = *time;
+ 1197              		.loc 1 223 38 is_stmt 0 view .LVU328
+ 1198 0000 10B5     		push	{r4, lr}
+ 1199              	.LCFI9:
+ 1200              		.cfi_def_cfa_offset 8
+ 1201              		.cfi_offset 4, -8
+ 1202              		.cfi_offset 14, -4
+ 1203              		.loc 1 224 19 view .LVU329
+ 1204 0002 034B     		ldr	r3, .L81
+ 223:Src/display.c ****     g_DisplayTime = *time;
+ 1205              		.loc 1 223 38 view .LVU330
+ 1206 0004 0100     		movs	r1, r0
+ 225:Src/display.c **** }
+ 1207              		.loc 1 225 1 view .LVU331
+ 1208              		@ sp needed
+ 224:Src/display.c ****     g_DisplayTime = *time;
+ 1209              		.loc 1 224 19 view .LVU332
+ 1210 0006 0822     		movs	r2, #8
+ 1211 0008 1800     		movs	r0, r3
+ 1212              	.LVL123:
+ 224:Src/display.c ****     g_DisplayTime = *time;
+ 1213              		.loc 1 224 19 view .LVU333
+ 1214 000a FFF7FEFF 		bl	memcpy
+ 1215              	.LVL124:
+ 1216              		.loc 1 225 1 view .LVU334
+ 1217 000e 10BD     		pop	{r4, pc}
+ 1218              	.L82:
+ 1219              		.align	2
+ 1220              	.L81:
+ 1221 0010 00000000 		.word	g_DisplayTime
+ 1222              		.cfi_endproc
+ 1223              	.LFE49:
+ 1225              		.section	.bss.g_DisplayTime,"aw",%nobits
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 30
+
+
+ 1228              	g_DisplayTime:
+ 1229 0000 00000000 		.space	8
+ 1229      00000000 
+ 1230              		.section	.bss.g_BlinkControl,"aw",%nobits
+ 1233              	g_BlinkControl:
+ 1234 0000 00       		.space	1
+ 1235              		.section	.bss.g_CurrentMode,"aw",%nobits
+ 1238              	g_CurrentMode:
+ 1239 0000 00       		.space	1
+ 1240              		.text
+ 1241              	.Letext0:
+ 1242              		.file 2 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 1243              		.file 3 "D:\\STM32CubeCLT\\STM32CubeCLT_1.18.0\\GNU-tools-for-STM32\\bin/../lib/gcc/arm-none-eabi/
+ 1244              		.file 4 "Lib/SD3077.h"
+ 1245              		.file 5 "Inc/display.h"
+ 1246              		.file 6 "Inc/settings.h"
+ 1247              		.file 7 "Lib/TM1637.h"
+ 1248              		.file 8 "<built-in>"
+ARM GAS  D:\Temp\ccLsAAZ6.s 			page 31
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 display.c
+  D:\Temp\ccLsAAZ6.s:19     .text.Display_Init:00000000 $t
+  D:\Temp\ccLsAAZ6.s:25     .text.Display_Init:00000000 Display_Init
+  D:\Temp\ccLsAAZ6.s:66     .text.Display_ShowTime:00000000 $t
+  D:\Temp\ccLsAAZ6.s:72     .text.Display_ShowTime:00000000 Display_ShowTime
+  D:\Temp\ccLsAAZ6.s:129    .text.Display_ShowSecond:00000000 $t
+  D:\Temp\ccLsAAZ6.s:135    .text.Display_ShowSecond:00000000 Display_ShowSecond
+  D:\Temp\ccLsAAZ6.s:199    .text.Display_ShowTemperature:00000000 $t
+  D:\Temp\ccLsAAZ6.s:205    .text.Display_ShowTemperature:00000000 Display_ShowTemperature
+  D:\Temp\ccLsAAZ6.s:271    .text.Display_ShowSettings:00000000 $t
+  D:\Temp\ccLsAAZ6.s:277    .text.Display_ShowSettings:00000000 Display_ShowSettings
+  D:\Temp\ccLsAAZ6.s:318    .text.Display_ShowSettings:0000001c $d
+  D:\Temp\ccLsAAZ6.s:331    .text.Display_ShowSettings:00000036 $t
+  D:\Temp\ccLsAAZ6.s:937    .text.Display_SetBrightness:00000000 $t
+  D:\Temp\ccLsAAZ6.s:943    .text.Display_SetBrightness:00000000 Display_SetBrightness
+  D:\Temp\ccLsAAZ6.s:967    .text.Display_Clear:00000000 $t
+  D:\Temp\ccLsAAZ6.s:973    .text.Display_Clear:00000000 Display_Clear
+  D:\Temp\ccLsAAZ6.s:1023   .text.Display_GetMode:00000000 $t
+  D:\Temp\ccLsAAZ6.s:1029   .text.Display_GetMode:00000000 Display_GetMode
+  D:\Temp\ccLsAAZ6.s:1048   .text.Display_GetMode:00000008 $d
+  D:\Temp\ccLsAAZ6.s:1238   .bss.g_CurrentMode:00000000 g_CurrentMode
+  D:\Temp\ccLsAAZ6.s:1053   .text.Display_SetMode:00000000 $t
+  D:\Temp\ccLsAAZ6.s:1059   .text.Display_SetMode:00000000 Display_SetMode
+  D:\Temp\ccLsAAZ6.s:1079   .text.Display_SetMode:00000008 $d
+  D:\Temp\ccLsAAZ6.s:1084   .text.Display_SetBlink:00000000 $t
+  D:\Temp\ccLsAAZ6.s:1090   .text.Display_SetBlink:00000000 Display_SetBlink
+  D:\Temp\ccLsAAZ6.s:1110   .text.Display_SetBlink:00000008 $d
+  D:\Temp\ccLsAAZ6.s:1233   .bss.g_BlinkControl:00000000 g_BlinkControl
+  D:\Temp\ccLsAAZ6.s:1115   .text.Display_GetBlink:00000000 $t
+  D:\Temp\ccLsAAZ6.s:1121   .text.Display_GetBlink:00000000 Display_GetBlink
+  D:\Temp\ccLsAAZ6.s:1140   .text.Display_GetBlink:00000008 $d
+  D:\Temp\ccLsAAZ6.s:1145   .text.Display_GetTime:00000000 $t
+  D:\Temp\ccLsAAZ6.s:1151   .text.Display_GetTime:00000000 Display_GetTime
+  D:\Temp\ccLsAAZ6.s:1178   .text.Display_GetTime:0000000c $d
+  D:\Temp\ccLsAAZ6.s:1228   .bss.g_DisplayTime:00000000 g_DisplayTime
+  D:\Temp\ccLsAAZ6.s:1183   .text.Display_SetTime:00000000 $t
+  D:\Temp\ccLsAAZ6.s:1189   .text.Display_SetTime:00000000 Display_SetTime
+  D:\Temp\ccLsAAZ6.s:1221   .text.Display_SetTime:00000010 $d
+  D:\Temp\ccLsAAZ6.s:1229   .bss.g_DisplayTime:00000000 $d
+  D:\Temp\ccLsAAZ6.s:1234   .bss.g_BlinkControl:00000000 $d
+  D:\Temp\ccLsAAZ6.s:1239   .bss.g_CurrentMode:00000000 $d
+
+UNDEFINED SYMBOLS
+TM1637Init
+Settings_Get
+TM1637SetBrightness
+TM1637ShowNumberRight
+__aeabi_uidiv
+__aeabi_uidivmod
+TM1637SetChar
+__aeabi_idiv
+__aeabi_idivmod
+__gnu_thumb1_case_uhi
+memcpy
